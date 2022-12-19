@@ -1,0 +1,515 @@
+load("@rules_cc//cc:defs.bzl", "cc_binary")
+load("@rules_cc//cc:defs.bzl", "cc_library")
+load("@rules_cc//cc:defs.bzl", "cc_test")
+
+
+cc_library(
+    name = "euler_helpers_lib",
+    hdrs = [
+        "Euler_Helpers/big_int.h",
+        "Euler_Helpers/combinatorics.h",
+        "Euler_Helpers/prime_helper.h"
+    ],
+    srcs = [
+        "Euler_Helpers/big_int.cpp",
+        "Euler_Helpers/combinatorics.cpp",
+        "Euler_Helpers/prime_helper.cpp"
+    ],
+    includes = [
+        "./Euler_Helpers/"
+    ],
+    visibility = ["//visibility:public"],
+)
+
+cc_test(
+    name = "helper_tests",
+    srcs = [
+        "Helper_Tests/big_int_tests.cpp",
+        "Helper_Tests/combinatorics_tests.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+        "@com_google_googletest//:gtest",
+    ],
+)
+
+cc_binary(
+    name = "pe1",
+    srcs = [
+        "ProjectEuler0001/ProjectEuler0001.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe2",
+    srcs = [
+        "ProjectEuler0002/ProjectEuler0002.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe3",
+    srcs = [
+        "ProjectEuler0003/ProjectEuler0003.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+        # what?
+    ],
+)
+
+cc_binary(
+    name = "pe4",
+    srcs = [
+        "ProjectEuler0004/ProjectEuler0004.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe5",
+    srcs = [
+        "ProjectEuler0005/ProjectEuler0005.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe6",
+    srcs = [
+        "ProjectEuler0006/ProjectEuler0006.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe7",
+    srcs = [
+        "ProjectEuler0007/ProjectEuler0007.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe8",
+    srcs = [
+        "ProjectEuler0008/ProjectEuler0008.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe9",
+    srcs = [
+        "ProjectEuler0009/ProjectEuler0009.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe10",
+    srcs = [
+        "ProjectEuler0010/ProjectEuler0010.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe11",
+    srcs = [
+        "ProjectEuler0011/ProjectEuler0011.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe12",
+    srcs = [
+        "ProjectEuler0012/ProjectEuler0012.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe13",
+    srcs = [
+        "ProjectEuler0013/ProjectEuler0013.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe14",
+    srcs = [
+        "ProjectEuler0014/ProjectEuler0014.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe15",
+    srcs = [
+        "ProjectEuler0015/ProjectEuler0015.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe16",
+    srcs = [
+        "ProjectEuler0016/ProjectEuler0016.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe17",
+    srcs = [
+        "ProjectEuler0017/ProjectEuler0017.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe18",
+    srcs = [
+        "ProjectEuler0018/ProjectEuler0018.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe19",
+    srcs = [
+        "ProjectEuler0019/ProjectEuler0019.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe20",
+    srcs = [
+        "ProjectEuler0020/ProjectEuler0020.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe21",
+    srcs = [
+        "ProjectEuler0021/ProjectEuler0021.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe22",
+    srcs = [
+        "ProjectEuler0022/ProjectEuler0022.cpp"
+    ],
+    deps = [
+        # what?
+    ],
+)
+
+cc_binary(
+    name = "pe23",
+    srcs = [
+        "ProjectEuler0023/ProjectEuler0023.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe24",
+    srcs = [
+        "ProjectEuler0024/ProjectEuler0024.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe25",
+    srcs = [
+        "ProjectEuler0025/ProjectEuler0025.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe26",
+    srcs = [
+        "ProjectEuler0026/ProjectEuler0026.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe27",
+    srcs = [
+        "ProjectEuler0027/ProjectEuler0027.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe28",
+    srcs = [
+        "ProjectEuler0028/ProjectEuler0028.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe29",
+    srcs = [
+        "ProjectEuler0029/ProjectEuler0029.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe30",
+    srcs = [
+        "ProjectEuler0030/ProjectEuler0030.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe31",
+    srcs = [
+        "ProjectEuler0031/ProjectEuler0031.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe32",
+    srcs = [
+        "ProjectEuler0032/ProjectEuler0032.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe33",
+    srcs = [
+        "ProjectEuler0033/ProjectEuler0033.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe34",
+    srcs = [
+        "ProjectEuler0034/ProjectEuler0034.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe35",
+    srcs = [
+        "ProjectEuler0035/ProjectEuler0035.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe36",
+    srcs = [
+        "ProjectEuler0036/ProjectEuler0036.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe37",
+    srcs = [
+        "ProjectEuler0037/ProjectEuler0037.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe38",
+    srcs = [
+        "ProjectEuler0038/ProjectEuler0038.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe39",
+    srcs = [
+        "ProjectEuler0039/ProjectEuler0039.cpp"
+    ],
+    deps = [
+        # what?
+    ],
+)
+
+cc_binary(
+    name = "pe40",
+    srcs = [
+        "ProjectEuler0040/ProjectEuler0040.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe41",
+    srcs = [
+        "ProjectEuler0041/ProjectEuler0041.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe42",
+    srcs = [
+        "ProjectEuler0042/ProjectEuler0042.cpp"
+    ],
+    deps = [
+        # what?
+    ],
+)
+
+cc_binary(
+    name = "pe43",
+    srcs = [
+        "ProjectEuler0043/ProjectEuler0043.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe44",
+    srcs = [
+        "ProjectEuler0044/ProjectEuler0044.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe45",
+    srcs = [
+        "ProjectEuler0045/ProjectEuler0045.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe46",
+    srcs = [
+        "ProjectEuler0046/ProjectEuler0046.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe47",
+    srcs = [
+        "ProjectEuler0047/ProjectEuler0047.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe48",
+    srcs = [
+        "ProjectEuler0048/ProjectEuler0048.cpp"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe49",
+    srcs = [
+        "ProjectEuler0049/ProjectEuler0049.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe50",
+    srcs = [
+        "ProjectEuler0050/ProjectEuler0050.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)

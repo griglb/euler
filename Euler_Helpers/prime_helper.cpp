@@ -1,5 +1,8 @@
 #include "prime_helper.h"
 
+#include <math.h>
+
+#include <algorithm>
 #include <set>
 
 #include "combinatorics.h"
@@ -137,7 +140,7 @@ ULongLongVec PrimeHelper::get_proper_divisors(uint64_t number) {
 
     std::vector<uint64_t> fact;
     for (const auto& [prime, exponent] : factors) {
-        for (int i = 0; i < exponent; ++i) {
+        for (uint64_t i = 0; i < exponent; ++i) {
             fact.push_back(prime);
         }
     }
@@ -150,7 +153,7 @@ ULongLongVec PrimeHelper::get_proper_divisors(uint64_t number) {
     // Iterate over different numbers of prime factors.
     // We can go to half the number of factors, as the complement
     // of the set of factors in the permutation is also a proper divisor.
-    for (int num = 1; num <= fact.size() / 2; ++num) {
+    for (size_t num = 1; num <= fact.size() / 2; ++num) {
         CombinationList combo_list = get_combinations(fact.size(), num);
         for (const auto& combo : combo_list) {
             uint64_t product{ 1 };

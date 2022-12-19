@@ -80,7 +80,7 @@ uint64_t get_num_combinations(uint64_t num, uint64_t choose) {
     // Calculate product of remaining numerator terms.
     uint64_t product{ 1 };
     for (const auto [prime, exponent] : numerator) {
-        for (int i = 0; i < exponent; ++i) {
+        for (uint64_t i = 0; i < exponent; ++i) {
             product *= prime;
         }
     }
@@ -103,7 +103,7 @@ CombinationList get_combinations(uint64_t num, uint64_t choose) {
     // Special case of C(n, n) - return vector with all values in [0, n).
     if (num == choose) {
         Combination combo;
-        for (int i = 0; i < num; ++i)
+        for (uint64_t i = 0; i < num; ++i)
             combo.insert(i);
         return { combo };
     }
@@ -118,7 +118,7 @@ CombinationList get_combinations(uint64_t num, uint64_t choose) {
     }
     else {
         Combination indices;
-        for (int i = 0; i < num; ++i) {
+        for (uint64_t i = 0; i < num; ++i) {
             indices.insert(i);
         }
         CombinationList  subset_list = get_combinations(num, choose - 1);
@@ -206,7 +206,7 @@ uint64_t get_num_permutations(uint64_t num, uint64_t choose) {
     // Calculate product of remaining numerator terms.
     uint64_t product{ 1 };
     for (const auto [prime, exponent] : numerator) {
-        for (int i = 0; i < exponent; ++i) {
+        for (uint64_t i = 0; i < exponent; ++i) {
             product *= prime;
         }
     }
@@ -259,7 +259,7 @@ PermutationList get_permutations(uint64_t num, uint64_t choose) {
     }
     else if (choose == num) {
         Combination elements;
-        for (int i = 0; i < num; ++i)
+        for (uint64_t i = 0; i < num; ++i)
             elements.insert(i);
         return get_permutations(elements);
     }

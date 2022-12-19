@@ -3,17 +3,18 @@
 
 #include <iostream>
 #include <set>
+#include <unordered_set>
 #include <vector>
 
 
-std::vector<uint32_t> get_pentagonal_numbers(int32_t n) {
-    std::vector<uint32_t> ret{ 1 };
+std::vector<uint64_t> get_pentagonal_numbers(uint64_t n) {
+    std::vector<uint64_t> ret{ 1 };
 
     //p(n) = n(3n-1)/2 = 3/2 n^2 - n/2
     //p(n+1) = (n+1)(3n+2)/2 = 3/2 n^2 + 5/2 n + 1
     //p(n+1) - p(n) = 3 n + 1
 
-    for (int32_t i = 1; i < n; ++i)
+    for (uint64_t i = 1; i < n; ++i)
         ret.push_back(ret.back() + 3 * i + 1);
 
     return ret;
@@ -23,15 +24,17 @@ std::vector<uint32_t> get_pentagonal_numbers(int32_t n) {
 std::set<std::pair<uint64_t, uint64_t>> get_special_pentagonals(int32_t maxN) {
     std::set<std::pair<uint64_t, uint64_t>> ret;
 
-    auto tmp = get_pentagonal_numbers(maxN);
-    std::set<uint64_t> numbers(tmp.begin(), tmp.end());
+    std::vector<uint64_t> pents = get_pentagonal_numbers(maxN);
+    std::unordered_set<uint64_t> pent_set(pents.begin(), pents.end());
 
-    for (auto iter1 = numbers.begin(); iter1 != numbers.end(); ++iter1) {
+    // Iterate over all pentagonal numbers
+    for (auto iter1 = pents.begin(); iter1 != pents.end(); ++iter1) {
+        // Iterate over all pentagonal numbers greater than *iter1, so *iter2 - *iter1 > 0
         auto iter2 = iter1;
-        for (++iter2; iter2 != numbers.end(); ++iter2) {
-            if (numbers.find(*iter2 - *iter1) == numbers.end())
+        for (++iter2; iter2 != pents.end(); ++iter2) {
+            if (pent_set.find(*iter2 - *iter1) == pent_set.end())
                 continue;
-            if (numbers.find(*iter2 + *iter1) == numbers.end())
+            if (pent_set.find(*iter2 + *iter1) == pent_set.end())
                 continue;
             ret.insert(std::make_pair(*iter1, *iter2));
         }

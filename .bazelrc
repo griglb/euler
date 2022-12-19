@@ -1,0 +1,12 @@
+# I want to see all GTest spew
+test --test_output=all
+
+#build --sandbox_base=/dev/shm
+#build --experimental_multi_threaded_digest
+build --repository_cache=~/.cache/bazel/_bazel_briangriglak/repository_cache
+
+# leave a couple cores and some memory when building or testing, so the machine doesn't freeze
+build --jobs 18 --local_ram_resources=HOST_RAM*.75
+test --jobs 18 --local_ram_resources=HOST_RAM*.75
+
+build --cxxopt='-std=c++17'

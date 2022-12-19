@@ -1,16 +1,20 @@
 #include "big_int.h"
 
-#include <algorithm>
+#include <math.h>
 
-constexpr int64_t MaxInt8{ 0x7F };
-constexpr int64_t MinInt8{ 0x80 };
-constexpr int64_t MaxInt16{ 0x7FFF };
-constexpr int64_t MinInt16{ 0x8000 };
-constexpr int64_t MaxInt32{ 0x7FFFFFFFL };
-constexpr int64_t MinInt32{ 0x80000000L };
-constexpr int64_t MaxInt64{ 0x7FFFFFFFFFFFFFFFLL };
-constexpr int64_t MinInt64{ -1LL << 63 };
-constexpr uint64_t MaxUInt64{ 0xFFFFFFFFFFFFFFFFULL };
+#include <algorithm>
+#include <cstdint>
+
+
+constexpr int64_t MinInt8{ INT8_MIN };
+constexpr int64_t MaxInt8{ INT8_MAX };
+constexpr int64_t MinInt16{ INT16_MIN };
+constexpr int64_t MaxInt16{ INT16_MAX };
+constexpr int64_t MinInt32{ INT32_MIN };
+constexpr int64_t MaxInt32{ INT32_MAX };
+constexpr int64_t MinInt64{ INT64_MIN };
+constexpr int64_t MaxInt64{ INT64_MAX };
+constexpr uint64_t MaxUInt64{ UINT64_MAX };
 
 template <typename T>
 void store_signed_digits(const T& value, BigInt::Digits& digits) {
@@ -210,7 +214,7 @@ int64_t BigInt::to_int() const {
 
 	if (is_negative_) {
 		int64_t ret{ -digits_.front() };
-		for (int i = 1; i < digits_.size(); ++i) {
+		for (size_t i = 1; i < digits_.size(); ++i) {
 			ret *= 10;
 			ret -= digits_[i];
 		}
@@ -218,7 +222,7 @@ int64_t BigInt::to_int() const {
 	}
 	else {
 		int64_t ret{ digits_.front() };
-		for (int i = 1; i < digits_.size(); ++i) {
+		for (size_t i = 1; i < digits_.size(); ++i) {
 			ret *= 10;
 			ret += digits_[i];
 		}

@@ -28,7 +28,7 @@ int32_t find_lcm(const std::vector<int32_t> factors) {
 
     int32_t ret{ 1 };
     for (const auto [prime, exponent] : lcm_factors) {
-        for (int i = 0; i < exponent; ++i) {
+        for (uint64_t i = 0; i < exponent; ++i) {
             ret *= prime;
         }
     }

@@ -542,3 +542,15 @@ cc_binary(
     deps = [
     ],
 )
+
+cc_binary(
+    name = "pe54",
+    srcs = [
+        "ProjectEuler0054/ProjectEuler0054.cpp"
+    ],
+    data = [
+        "ProjectEuler0054/p054_poker.txt"
+    ],
+    deps = [
+    ],
+)

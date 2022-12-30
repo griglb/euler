@@ -564,3 +564,13 @@ cc_binary(
         ":euler_helpers_lib",
     ],
 )
+
+cc_binary(
+    name = "pe56",
+    srcs = [
+        "ProjectEuler0056/ProjectEuler0056.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)

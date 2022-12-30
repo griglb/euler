@@ -192,6 +192,20 @@ BigInt::Digits BigInt::get_digits() const {
 }
 
 
+void BigInt::set_digits(const Digits &digits, bool is_negative) {
+	for (const auto &dig: digits) {
+		if (dig < 0)
+			throw "digits must be non-negative";
+		if (dig > 9)
+			throw "digits must be in [0, 9]";
+	}
+	is_negative_ = is_negative;
+	digits_ = digits;
+	if (digits_.empty())
+		is_negative_ = false;
+}
+
+
 std::string BigInt::to_string() const {
 	if (digits_.empty())
 		return { "0" };

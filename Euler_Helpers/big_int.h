@@ -30,6 +30,7 @@ public:
 	BigInt& operator=(const BigInt& rhs);
 
 	Digits get_digits() const;
+	void set_digits(const Digits &digits, bool is_negative=false);
 
 	// Conversion operations
 	std::string to_string() const;

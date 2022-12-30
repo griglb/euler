@@ -594,3 +594,15 @@ cc_binary(
         ":euler_helpers_lib",
     ],
 )
+
+cc_binary(
+    name = "pe59",
+    srcs = [
+        "ProjectEuler0059/ProjectEuler0059.cpp"
+    ],
+    data = [
+        "ProjectEuler0059/p059_cipher.txt"
+    ],
+    deps = [
+    ],
+)

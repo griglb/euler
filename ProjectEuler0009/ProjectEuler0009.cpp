@@ -1,5 +1,9 @@
-// ProjectEuler0009.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// A Pythagorean triplet is a set of three natural numbers, a < b < c, for which,
+// a^2 + b^2 = c^2
+// For example, 3^2 + 4^2 = 9 + 16 = 25 = 5^2.
+// There exists exactly one Pythagorean triplet for which a + b + c = 1000.
+// Find the product abc.
+
 
 #include <math.h>
 
@@ -23,6 +27,7 @@ std::vector<Triplet> get_triplets(int m, int n, int max_k) {
 
     return ret;
 }
+
 
 Triplet find_triplet_with_sum(int sum_target) {
     for (int m = 2; m < sqrt(sum_target); ++m) {

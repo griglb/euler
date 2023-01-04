@@ -1,5 +1,7 @@
-// ProjectEuler0004.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// A palindromic number reads the same both ways.
+// The largest palindrome made from the product of two 2-digit numbers is 9009 = 91 × 99.
+// Find the largest palindrome made from the product of two 3-digit numbers.
+
 
 #include <math.h>
 
@@ -16,6 +18,7 @@ bool is_palindrome(int32_t number) {
     std::copy(digits.rbegin(), digits.rend(), reversed_digits.begin());
     return digits == reversed_digits;
 }
+
 
 int32_t get_largest_palindrome(int digits) {
     int32_t start = static_cast<int32_t>(pow(10, digits-1));
@@ -35,6 +38,7 @@ int32_t get_largest_palindrome(int digits) {
 
     return largest;
 }
+
 
 int main()
 {

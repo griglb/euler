@@ -1,5 +1,6 @@
-// ProjectEuler0010.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// The sum of the primes below 10 is 2 + 3 + 5 + 7 = 17.
+// Find the sum of all the primes below two million.
+
 
 #include <iostream>
 #include <numeric>
@@ -19,6 +20,7 @@ int64_t get_prime_sum(int32_t max_value) {
 
     return std::accumulate(primes.begin(), primes.end(), 0ULL);
 }
+
 
 int main()
 {

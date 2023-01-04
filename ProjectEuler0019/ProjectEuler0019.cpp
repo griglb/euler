@@ -1,8 +1,18 @@
-// ProjectEuler0019.cpp : This file contains the 'main' function. Program execution begins and ends there.
-//
+// You are given the following information, but you may prefer to do some research for yourself.
+//    - 1 Jan 1900 was a Monday.
+//    - Thirty days has September,
+//      April, June and November.
+//      All the rest have thirty-one,
+//      Saving February alone,
+//      Which has twenty-eight, rain or shine.
+//      And on leap years, twenty-nine.
+//    - A leap year occurs on any year evenly divisible by 4, but not on a century unless it is divisible by 400.
+// How many Sundays fell on the first of the month during the twentieth century (1 Jan 1901 to 31 Dec 2000)?
+
 
 #include <iostream>
 #include <string>
+
 
 constexpr int NormalMonths[]{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 constexpr int LeapMonths[]{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
@@ -15,6 +25,7 @@ bool is_leap_year(int year) {
         return false;
     return true;
 }
+
 
 int length_of_year(int year) {
     return is_leap_year(year) ? 366 : 365;
@@ -73,6 +84,7 @@ int sundays_per_year(int year) {
     dow += length_of_year(year);
     return dow / 7;
 }
+
 
 int main()
 {

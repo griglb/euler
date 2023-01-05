@@ -237,6 +237,9 @@ cc_binary(
     srcs = [
         "ProjectEuler0022/ProjectEuler0022.cpp"
     ],
+    data = [
+        "ProjectEuler0022/p022_names.txt"
+    ],
     deps = [
         # what?
     ],
@@ -431,6 +434,9 @@ cc_binary(
     name = "pe42",
     srcs = [
         "ProjectEuler0042/ProjectEuler0042.cpp"
+    ],
+    data = [
+        "ProjectEuler0042/p042_words.txt"
     ],
     deps = [
         # what?

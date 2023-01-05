@@ -17,7 +17,11 @@
 
 std::vector<std::string> get_words() {
     // The file has no carriage returns, so read entire file into string.
+#ifdef _CONSOLE
     std::ifstream infile("./p042_words.txt");
+#else
+    std::ifstream infile("./ProjectEuler0042/p042_words.txt");
+#endif
     std::string contents;
     infile >> contents;
 

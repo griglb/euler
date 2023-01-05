@@ -17,7 +17,11 @@
 
 std::vector<std::string> get_names() {
     // The file has no carriage returns, so read entire file into string.
+#ifdef _CONSOLE
     std::ifstream infile("./p022_names.txt");
+#else
+    std::ifstream infile("./ProjectEuler0022/p022_names.txt");
+#endif
     std::string contents;
     infile >> contents;
 

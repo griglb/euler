@@ -1,4 +1,8 @@
 ﻿/.vs
+/bazel-bin
+/bazel-euler
+/bazel-out
+/bazel-testlogs
 /x64
 /Euler_Helpers/x64
 /Helper_Tests/x64

@@ -299,7 +299,11 @@ private :
 
 std::vector<std::pair<Hand, Hand>> get_hands() {
     // The file has no carriage returns, so read entire file into string.
+#ifdef _CONSOLE
+    std::ifstream infile("./p054_poker.txt");
+#else
     std::ifstream infile("./ProjectEuler0054/p054_poker.txt");
+#endif
 
     std::vector<std::pair<Hand, Hand>> ret;
 
@@ -349,6 +353,7 @@ int main()
     uint64_t sum{0};
     for (const auto &hp : hands) {
         sum += get_winner(hp.first, hp.second);
+        std::cout << sum << std::endl;
     }
     std::cout << hands.size() << std::endl;
     std::cout << sum << std::endl;

@@ -17,6 +17,7 @@
 // triangle, square, pentagonal, hexagonal, heptagonal, and octagonal, is represented by a different number in the set.
 
 
+#include <array>
 #include <iostream>
 #include <map>
 

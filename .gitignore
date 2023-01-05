@@ -3,6 +3,7 @@
 /bazel-euler
 /bazel-out
 /bazel-testlogs
+/packages
 /x64
 /Euler_Helpers/x64
 /Helper_Tests/x64
@@ -72,6 +73,8 @@
 
 /ProjectEuler0215/x64
 /ProjectEuler0788/x64
+/ProjectEuler0800
 /ProjectEuler0800/x64
+/ProjectEuler0807
 /ProjectEuler0807/x64
 /Thumbs.db

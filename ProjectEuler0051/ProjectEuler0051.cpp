@@ -41,7 +41,7 @@ std::set<std::set<uint64_t>> get_prime_sets(uint64_t num_digits, uint64_t num_re
     for (uint64_t n = num_replace; n < num_digits; ++n)
         max_perm *= 10;
     std::vector<BigInt> perms(max_perm);
-    std::iota(perms.begin(), perms.end(), 0L);
+    std::iota(perms.begin(), perms.end(), BigInt{ });
     // for (const auto & p : perms)
     //     std::cout << p << " ";
     // std::cout << std::endl;

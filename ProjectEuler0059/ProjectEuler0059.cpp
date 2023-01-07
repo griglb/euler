@@ -34,7 +34,11 @@ std::vector<uint8_t> get_ciphertext() {
     std::vector<uint8_t> ret;
 
     // The file has no carriage returns, so read entire file into string.
+#ifdef _CONSOLE
+    std::ifstream infile("./p059_cipher.txt");
+#else
     std::ifstream infile("./ProjectEuler0059/p059_cipher.txt");
+#endif
 
     int16_t token;
 

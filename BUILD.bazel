@@ -25,7 +25,8 @@ cc_test(
     name = "helper_tests",
     srcs = [
         "Helper_Tests/big_int_tests.cpp",
-        "Helper_Tests/combinatorics_tests.cpp"
+        "Helper_Tests/combinatorics_tests.cpp",
+        "Helper_Tests/test_main.cpp",
     ],
     deps = [
         ":euler_helpers_lib",

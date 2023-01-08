@@ -685,3 +685,15 @@ cc_binary(
         ":euler_helpers_lib",
     ],
 )
+
+cc_binary(
+    name = "pe67",
+    srcs = [
+        "ProjectEuler0067/ProjectEuler0067.cpp"
+    ],
+    data = [
+        "ProjectEuler0067/p067_triangle.txt"
+    ],
+    deps = [
+    ],
+)

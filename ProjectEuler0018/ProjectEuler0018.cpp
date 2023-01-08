@@ -94,5 +94,4 @@ int main()
         max_value = std::max(max_value, elem);
     }
     std::cout << max_value << std::endl;
-
 }

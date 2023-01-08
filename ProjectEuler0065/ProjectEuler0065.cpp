@@ -18,10 +18,81 @@
 // Find the sum of digits in the numerator of the 100th convergent of the continued fraction for e.
 
 #include <iostream>
+#include <numeric>
+#include <utility>
+#include <vector>
+
+#include "big_int.h"
+
+
+using Repeat = std::vector<uint64_t>;
+using Fraction = std::pair<uint64_t, Repeat>;
+std::pair<BigInt, BigInt> get_fraction(Fraction fraction) {
+    BigInt num{ 1 };
+
+    auto iter = fraction.second.rbegin();
+    BigInt den{ *iter };
+
+    for (++iter; iter != fraction.second.rend(); ++iter) {
+        BigInt tmp{ *iter };
+        tmp *= den;
+        num += tmp;
+        std::swap(num, den);
+    }
+
+    BigInt tmp{ den };
+    tmp *= fraction.first;
+    num += tmp;
+
+    return { num, den };
+}
 
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    {
+        std::cout << "sqrt(2)" << std::endl;
+        Fraction fraction{ 1, {} };
+        for (int8_t i = 0; i < 10; ++i) {
+            fraction.second.push_back(2);
+            auto frac = get_fraction(fraction);
+            std::cout << frac.first << " / " << frac.second << std::endl;
+        }
+    }
+
+    {
+        std::cout << "e" << std::endl;
+        Repeat terms{ 1,2,1,1,4,1,1,6,1,1,8,1 };
+        Fraction fraction{ 2, {} };
+        for (const auto &t : terms) {
+            fraction.second.push_back(t);
+            auto frac = get_fraction(fraction);
+            std::cout << frac.first << " / " << frac.second << std::endl;
+        }
+    }
+
+    {
+        std::vector<std::pair<BigInt, BigInt>> convergents{ {BigInt{2}, BigInt{1}} };
+        Repeat terms;
+        for (int8_t i = 1; i < 34; ++i) {
+            terms.push_back(1);
+            terms.push_back(2 * i);
+            terms.push_back(1);
+        };
+        Fraction fraction{ 2, {} };
+        for (const auto& t : terms) {
+            fraction.second.push_back(t);
+            convergents.push_back(get_fraction(fraction));
+        }
+        int16_t ind{ 0 };
+        for (const auto& frac : convergents) {
+            std::cout << ++ind << "\t" << frac.first << " / " << frac.second << std::endl;
+        }
+        auto digits = convergents[99].first.get_digits();
+        uint64_t sum = std::accumulate(digits.begin(), digits.end(), 0ULL);
+        std::cout << "sum = " << sum << std::endl;
+    }
 }
 

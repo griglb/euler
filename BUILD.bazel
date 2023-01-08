@@ -662,3 +662,13 @@ cc_binary(
     deps = [
     ],
 )
+
+cc_binary(
+    name = "pe65",
+    srcs = [
+        "ProjectEuler0065/ProjectEuler0065.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)

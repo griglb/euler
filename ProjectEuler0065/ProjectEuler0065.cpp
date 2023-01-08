@@ -22,30 +22,7 @@
 #include <utility>
 #include <vector>
 
-#include "big_int.h"
-
-
-using Repeat = std::vector<uint64_t>;
-using Fraction = std::pair<uint64_t, Repeat>;
-std::pair<BigInt, BigInt> get_fraction(Fraction fraction) {
-    BigInt num{ 1 };
-
-    auto iter = fraction.second.rbegin();
-    BigInt den{ *iter };
-
-    for (++iter; iter != fraction.second.rend(); ++iter) {
-        BigInt tmp{ *iter };
-        tmp *= den;
-        num += tmp;
-        std::swap(num, den);
-    }
-
-    BigInt tmp{ den };
-    tmp *= fraction.first;
-    num += tmp;
-
-    return { num, den };
-}
+#include "continued_fractions.h"
 
 
 int main()
@@ -57,7 +34,7 @@ int main()
         Fraction fraction{ 1, {} };
         for (int8_t i = 0; i < 10; ++i) {
             fraction.second.push_back(2);
-            auto frac = get_fraction(fraction);
+            auto frac = get_convergent(fraction);
             std::cout << frac.first << " / " << frac.second << std::endl;
         }
     }
@@ -68,7 +45,7 @@ int main()
         Fraction fraction{ 2, {} };
         for (const auto &t : terms) {
             fraction.second.push_back(t);
-            auto frac = get_fraction(fraction);
+            auto frac = get_convergent(fraction);
             std::cout << frac.first << " / " << frac.second << std::endl;
         }
     }
@@ -84,7 +61,7 @@ int main()
         Fraction fraction{ 2, {} };
         for (const auto& t : terms) {
             fraction.second.push_back(t);
-            convergents.push_back(get_fraction(fraction));
+            convergents.push_back(get_convergent(fraction));
         }
         int16_t ind{ 0 };
         for (const auto& frac : convergents) {

@@ -8,12 +8,14 @@ cc_library(
     hdrs = [
         "Euler_Helpers/big_int.h",
         "Euler_Helpers/combinatorics.h",
-        "Euler_Helpers/prime_helper.h"
+        "Euler_Helpers/prime_helper.h",
+        "Euler_Helpers/continued_fractions.h"
     ],
     srcs = [
         "Euler_Helpers/big_int.cpp",
         "Euler_Helpers/combinatorics.cpp",
-        "Euler_Helpers/prime_helper.cpp"
+        "Euler_Helpers/prime_helper.cpp",
+        "Euler_Helpers/continued_fractions.cpp"
     ],
     includes = [
         "./Euler_Helpers/"
@@ -660,6 +662,7 @@ cc_binary(
         "ProjectEuler0064/ProjectEuler0064.cpp"
     ],
     deps = [
+        ":euler_helpers_lib",
     ],
 )
 
@@ -667,6 +670,16 @@ cc_binary(
     name = "pe65",
     srcs = [
         "ProjectEuler0065/ProjectEuler0065.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe66",
+    srcs = [
+        "ProjectEuler0066/ProjectEuler0066.cpp"
     ],
     deps = [
         ":euler_helpers_lib",

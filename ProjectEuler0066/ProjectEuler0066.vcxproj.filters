@@ -15,30 +15,7 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="prime_helper.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="combinatorics.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="big_int.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-    <ClInclude Include="continued_fractions.h">
-      <Filter>Header Files</Filter>
-    </ClInclude>
-  </ItemGroup>
-  <ItemGroup>
-    <ClCompile Include="prime_helper.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="combinatorics.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="big_int.cpp">
-      <Filter>Source Files</Filter>
-    </ClCompile>
-    <ClCompile Include="continued_fractions.cpp">
+    <ClCompile Include="ProjectEuler0066.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

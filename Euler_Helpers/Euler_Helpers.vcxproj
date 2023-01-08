@@ -157,11 +157,13 @@
   <ItemGroup>
     <ClInclude Include="big_int.h" />
     <ClInclude Include="combinatorics.h" />
+    <ClInclude Include="continued_fractions.h" />
     <ClInclude Include="prime_helper.h" />
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="big_int.cpp" />
     <ClCompile Include="combinatorics.cpp" />
+    <ClCompile Include="continued_fractions.cpp" />
     <ClCompile Include="prime_helper.cpp" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

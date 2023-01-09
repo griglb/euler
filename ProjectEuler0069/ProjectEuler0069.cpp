@@ -14,11 +14,141 @@
 // It can be seen that n=6 produces a maximum n/φ(n) for n ≤ 10.
 // Find the value of n ≤ 1,000,000 for which n/φ(n) is a maximum.
 
+#include <array>
 #include <iostream>
+#include <thread>
+#include <unordered_set>
+#include <vector>
+
+#include "prime_helper.h"
+
+
+class Phi {
+public :
+    Phi() {
+        // Add empty factorizations for 0 and 1
+        factors_.push_back({});
+        factors_.push_back({});
+    }
+    ~Phi() = default;
+
+    uint64_t operator()(uint64_t n) {
+        auto factors = helper.get_factorization_fast(n);
+        if ((factors.size() == 1) && (factors.begin()->second == 1)) {
+            // n is prime, return n-1 for all positive numbers < n
+            return n - 1;
+        }
+
+        // Do this as a sieve, instead of the O(n^2) iteration over all numbers in [2, n).
+        std::unordered_set<uint64_t> candidates;
+        for (uint64_t i = 1; i < n; ++i)
+            candidates.insert(i);
+        for (const auto& [prime, exp] : factors) {
+            for (uint64_t i = prime; i < n; i += prime)
+                candidates.erase(i);
+        }
+        return candidates.size();
+    }
+
+    uint64_t naive(uint64_t n) {
+        while (n >= factors_.size()) {
+            std::unordered_set<uint64_t> fact;
+            for (const auto& [prime, exp] : helper.get_factorization_fast(factors_.size())) {
+                fact.insert(prime);
+            }
+            factors_.emplace_back(fact);
+        }
+        auto primes = helper.get_primes(n);
+        if (primes.back() == n) {
+            // n is prime, return n-1 for all positive numbers < n
+            return n - 1;
+        }
+        auto my_factors = factors_[n];
+        uint64_t ret{ 1 }; // 1 is always counted
+        for (uint64_t i = 2; i < n; ++i) {
+            auto factors = factors_[i];
+            bool is_rel_prime{ true };
+            for (const auto& prime : factors) {
+                is_rel_prime &= my_factors.find(prime) == my_factors.end();
+            }
+            if (is_rel_prime)
+                ++ret;
+        }
+        return ret;
+    }
+
+private :
+    PrimeHelper helper;
+    std::vector<std::unordered_set<uint64_t>> factors_;
+
+};
+
+
+struct thread_args {
+    uint64_t offset;
+    uint64_t stride;
+    uint64_t max_val;
+    std::vector<uint64_t>& phi_values;
+};
+
+
+class thread_func {
+public :
+    thread_func() = default;
+    ~thread_func() = default;
+
+    void operator()(thread_args &args) {
+        auto ph = phi_(args.max_val);
+        for (uint64_t n = 2 + args.offset; n <= args.max_val; n += args.stride) {
+            if (n % 1000 == 0) std::cout << n << std::endl;
+            args.phi_values[n] = phi_(n);
+        }
+    }
+
+private :
+    Phi phi_;
+};
 
 
 int main()
 {
     std::cout << "Hello World!\n";
-}
 
+    {
+        Phi phi;
+        for (uint64_t n = 2; n < 11; ++n)
+            std::cout << n << "\t" << phi(n) << std::endl;
+    }
+
+    {
+        constexpr uint64_t max_val{ 1'000 };
+        constexpr uint64_t num_thread{ 16 };
+        std::vector<uint64_t> phi_values{ max_val, 0 };
+        std::vector<std::thread> threads;
+        std::vector<thread_func> funcs;
+
+        thread_func func;
+        std::thread t1(func, thread_args{ 0, num_thread, max_val, phi_values });
+
+        //for (uint64_t offset = 0; offset < num_thread; ++offset) {
+        //    funcs.emplace_back(thread_func{});
+        //    threads.emplace_back(std::thread{ funcs.back(), offset, num_thread, max_val, phi_values});
+        //}
+
+        for (auto& th : threads)
+            th.join();
+
+        double max_ratio{ 0 };
+        uint64_t max_n{ 0 };
+        for (uint64_t n = 2; n <= max_val; ++n) {
+            double ratio = static_cast<double>(n) / phi_values[n];
+            std::cout << n << "\t" << phi_values[n] << "\t" << ratio << std::endl;
+            if (ratio > max_ratio) {
+                std::cout << "\tnew max ratio at n = " << n << std::endl;
+                max_ratio = ratio;
+                max_n = n;
+            }
+        }
+        std::cout << "max ratio = " << max_ratio << " for n = " << max_n << std::endl;
+    }
+}

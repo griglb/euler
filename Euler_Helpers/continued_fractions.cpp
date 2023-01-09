@@ -1,5 +1,7 @@
 #include "continued_fractions.h"
 
+#include "math.h"
+
 
 void reduce_fraction(uint64_t& num, uint64_t& den) {
     if ((den % num) == 0) {

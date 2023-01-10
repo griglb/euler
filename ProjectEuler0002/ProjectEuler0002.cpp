@@ -31,5 +31,5 @@ int64_t get_fibonnaci_sum(int32_t max_val) {
 int main()
 {
     std::cout << "Hello World!\n";
-    std::cout << get_fibonnaci_sum(4e6);
+    std::cout << get_fibonnaci_sum(4e6) << std::endl;
 }

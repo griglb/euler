@@ -18,11 +18,11 @@
 #include "prime_helper.h"
 
 
-std::vector<int32_t> get_abundant_numbers(int max_val) {
+std::vector<int32_t> get_abundant_numbers(uint64_t max_val) {
     PrimeHelper helper;
     std::vector<int32_t> ret;
 
-    for (int i = 2; i < max_val; ++i) {
+    for (uint64_t i = 2; i < max_val; ++i) {
         uint64_t sum{ 0 };
         for (const auto& fact : helper.get_proper_divisors(i)) {
             sum += fact;

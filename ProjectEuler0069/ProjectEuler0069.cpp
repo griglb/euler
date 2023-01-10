@@ -33,6 +33,17 @@ public :
     ~Phi() = default;
 
     uint64_t operator()(uint64_t n) const {
+        uint64_t ret{1};
+        auto factors = helper.get_factorization_fast(n);
+        for (const auto &[prime, exp] : factors) {
+            for (uint64_t e = 1; e < exp; ++e)
+                ret *= prime;
+            ret *= prime - 1;
+        }
+        return ret;
+    }
+
+    uint64_t naive2(uint64_t n) const {
         auto factors = helper.get_factorization_fast(n);
         if ((factors.size() == 1) && (factors.begin()->second == 1)) {
             // n is prime, return n-1 for all positive numbers < n

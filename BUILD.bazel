@@ -716,4 +716,15 @@ cc_binary(
     deps = [
         ":euler_helpers_lib",
     ],
+    linkopts = ["-pthread"],
+)
+
+cc_binary(
+    name = "pe752",
+    srcs = [
+        "ProjectEuler0752/ProjectEuler0752.cpp"
+    ],
+    deps = [
+        ":euler_helpers_lib",
+    ],
 )

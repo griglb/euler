@@ -110,7 +110,7 @@ int main()
         std::vector<std::thread> threads;
 
         Phi phi;
-        auto ph = phi(max_val);
+        phi(max_val);
         for (uint64_t offset = 0; offset < num_thread; ++offset) {
             threads.emplace_back(thread_func, phi, offset, num_thread, max_val, &phi_values[0]);
         }
@@ -122,7 +122,7 @@ int main()
         uint64_t max_n{ 0 };
         for (uint64_t n = 2; n <= max_val; ++n) {
             double ratio = static_cast<double>(n) / phi_values[n];
-            std::cout << n << "\t" << phi_values[n] << "\t" << ratio << std::endl;
+            // std::cout << n << "\t" << phi_values[n] << "\t" << ratio << std::endl;
             if (ratio > max_ratio) {
                 std::cout << "\tnew max ratio at n = " << n << std::endl;
                 max_ratio = ratio;

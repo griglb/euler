@@ -9,9 +9,10 @@
 
 
 PrimeHelper::PrimeHelper() {
-    factors_.push_back({ { 0,1 } });
-    factors_.push_back({ { 1,1 } });
-    factors_.push_back({ { 2,1 } });
+    // factors_.push_back({ { 0,1 } });
+    // factors_.push_back({ { 1,1 } });
+    // factors_.push_back({ { 2,1 } });
+    factors_[2] = { { 2,1 } };
     primes_.push_back(2);
 }
 
@@ -95,44 +96,41 @@ Factorization PrimeHelper::get_factorization(uint64_t number) {
 
 Factorization PrimeHelper::get_factorization_fast(uint64_t number) {
     // If we've already calculated this factorization, return it.
-    if (number < factors_.size()) {
+    if (factors_.find(number) != factors_.end()) {
         return factors_.at(number);
     }
 
     // Do we know enough primes to factor this number?
-    if (number >= sieve_.size()) {
-        get_primes(static_cast<uint64_t>(sqrt(number)));
+    {
+        get_primes(number);
     }
 
-    for (uint64_t new_number = static_cast<uint64_t>(factors_.size()); new_number < (number + 1); ++new_number) {
-        Factorization fact;
-        double root = sqrt(new_number);
+    Factorization fact;
+    double root = sqrt(number);
 
-        for (auto p : primes_) {
-            if ((new_number % p) == 0) {
-                uint64_t sub_number = new_number / p;
-                fact = factors_[sub_number];
-                if (fact.find(p) == fact.end()) {
-                    fact[p] = 1;
-                }
-                else {
-                    fact[p] = fact.at(p) + 1;
-                }
-                break;
+    for (auto p : primes_) {
+        if ((number % p) == 0) {
+            fact = get_factorization_fast(number / p);
+            if (fact.find(p) == fact.end()) {
+                fact[p] = 1;
             }
-            if (p > root) {
-                break;
+            else {
+                fact[p] = fact.at(p) + 1;
             }
+            break;
         }
-
-        if (fact.empty()) {
-            fact[new_number] = 1;
+        if (p > root) {
+            break;
         }
-
-        factors_.push_back(fact);
     }
 
-    return factors_[number];
+    if (fact.empty()) {
+        fact[number] = 1;
+    }
+
+    factors_[number] = fact;
+
+    return factors_.at(number);
 }
 
 ULongLongVec PrimeHelper::get_proper_divisors(uint64_t number) {

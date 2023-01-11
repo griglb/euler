@@ -100,10 +100,10 @@ int64_t get_max_vertical_product(int num_terms) {
 
     Grid grid = get_number_grid();
 
-    for (int col = 0; col < grid[0].size(); ++col) {
-        for (int row = num_terms; row <= grid.size(); ++row) {
+    for (size_t col = 0; col < grid[0].size(); ++col) {
+        for (size_t row = num_terms; row <= grid.size(); ++row) {
             int64_t product{ 1 };
-            for (int delta = num_terms; delta > 0; --delta) {
+            for (int32_t delta = num_terms; delta > 0; --delta) {
                 product *= grid[row - delta][col];
             }
             if (product > max_product) {
@@ -121,10 +121,10 @@ int64_t get_max_ne_diagonal_product(int num_terms) {
 
     Grid grid = get_number_grid();
 
-    for (int col = 0; col < grid[0].size()-num_terms; ++col) {
-        for (int row = num_terms; row <= grid.size(); ++row) {
+    for (size_t col = 0; col < grid[0].size()-num_terms; ++col) {
+        for (size_t row = num_terms; row <= grid.size(); ++row) {
             int64_t product{ 1 };
-            for (int delta = num_terms; delta > 0; --delta) {
+            for (int32_t delta = num_terms; delta > 0; --delta) {
                 product *= grid[row - delta][col+delta-1];
             }
             if (product > max_product) {
@@ -142,10 +142,10 @@ int64_t get_max_se_diagonal_product(int num_terms) {
 
     Grid grid = get_number_grid();
 
-    for (int col = 0; col < grid[0].size() - num_terms; ++col) {
-        for (int row = 0; row <= grid.size() - num_terms; ++row) {
+    for (size_t col = 0; col < grid[0].size() - num_terms; ++col) {
+        for (size_t row = 0; row <= grid.size() - num_terms; ++row) {
             int64_t product{ 1 };
-            for (int delta = 0; delta < num_terms; ++delta) {
+            for (int32_t delta = 0; delta < num_terms; ++delta) {
                 product *= grid[row + delta][col + delta];
             }
             if (product > max_product) {

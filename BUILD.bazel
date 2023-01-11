@@ -8,14 +8,14 @@ cc_library(
     hdrs = [
         "Euler_Helpers/big_int.h",
         "Euler_Helpers/combinatorics.h",
-        "Euler_Helpers/continued_fractions.h"
+        "Euler_Helpers/continued_fractions.h",
         "Euler_Helpers/prime_helper.h",
         "Euler_Helpers/totient.h"
     ],
     srcs = [
         "Euler_Helpers/big_int.cpp",
         "Euler_Helpers/combinatorics.cpp",
-        "Euler_Helpers/continued_fractions.cpp"
+        "Euler_Helpers/continued_fractions.cpp",
         "Euler_Helpers/prime_helper.cpp",
         "Euler_Helpers/totient.cpp"
     ],

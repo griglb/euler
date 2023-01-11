@@ -51,7 +51,7 @@ int main()
         Phi phi;
         phi(max_val);
         auto perms = get_totient_permutations(phi, max_val);
-        double min_ratio{ 0 };
+        double min_ratio{ 1E5 };
         uint64_t min_n{ 0 };
         for (const auto& n : perms) {
             double ratio = static_cast<double>(n) / phi(n);

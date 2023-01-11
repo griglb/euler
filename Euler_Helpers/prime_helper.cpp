@@ -102,7 +102,15 @@ Factorization PrimeHelper::get_factorization_fast(uint64_t number) {
 
     // Do we know enough primes to factor this number?
     {
-        get_primes(number);
+        if (number > sieve_.size())
+            get_primes(number);
+        // If number is prime, then return add the simple factorization and return.
+        if (sieve_[number]) {
+            Factorization fact;
+            fact[number] = 1;
+            factors_[number] = fact;
+            return fact;
+        }
     }
 
     Factorization fact;

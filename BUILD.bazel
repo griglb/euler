@@ -800,6 +800,16 @@ cc_binary(
 )
 
 cc_binary(
+    name = "pe78",
+    srcs = [
+        "ProjectEuler0078/ProjectEuler0078.cpp"
+    ],
+    deps = [
+    ],
+    linkopts = ["-pthread"],
+)
+
+cc_binary(
     name = "pe752",
     srcs = [
         "ProjectEuler0752/ProjectEuler0752.cpp"

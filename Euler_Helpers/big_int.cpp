@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <cstdint>
+#include <list>
 
 
 constexpr int64_t MinInt8{ INT8_MIN };
@@ -915,7 +916,7 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
 		return *this;
 	}
 
-	// Product is negative only is exactly one term is negative, so XOR
+	// Product is negative only if exactly one term is negative, so XOR
 	is_negative_ ^= rhs.is_negative_;
 
 	if (1 == rhs.digits_.size()) {
@@ -961,6 +962,134 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
 		if (carry > 0) {
 			digits_.insert(digits_.begin(), carry);
 		}
+	}
+
+	return *this;
+}
+
+
+BigInt& BigInt::operator/=(int8_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(int16_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(int32_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(int64_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(uint8_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(uint16_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(uint32_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(uint64_t rhs) {
+	BigInt tmp{ rhs };
+	return operator/=(tmp);
+}
+
+
+BigInt& BigInt::operator/=(const BigInt &rhs) {
+	// Multiplication by 0 is 0.
+	if (rhs.digits_.empty()) {
+		throw "Division by 0";
+	}
+	if (digits_.empty()) {
+		return *this;
+	}
+
+	// If denominator greater than numerator, then set to 0 and return.
+	{
+		BigInt tmp_num, tmp_den;
+		tmp_num.set_digits(digits_);
+		tmp_den.set_digits(rhs.digits_);
+		if (tmp_den > tmp_num) {
+			digits_.clear();
+			is_negative_ = false;
+			return *this;
+		}
+	}
+
+	// Product is negative only if exactly one term is negative, so XOR.
+	is_negative_ ^= rhs.is_negative_;
+
+	// If denominator is +-1, then return, we've already set the sign and the digits don't change.
+	if ((rhs.digits_.size() == 1) && (rhs.digits_[0] == 1)) {
+		return *this;
+	}
+
+	// If numerator equals denominator, then set to 1 and return.
+	if (digits_ == rhs.digits_) {
+		digits_.clear();
+		digits_.push_back(1);
+		return *this;
+	}
+
+	// Cache my original digits as a list for faster removal from front.
+	std::list<int8_t> orig_num_digits{ digits_.begin(), digits_.end() };
+
+	// Clear out my digits, so they can store the quotient.
+	digits_.clear();
+
+	BigInt curr_num;
+	// Move digits from original numerator to current numerator, same number as denominator.
+	for (size_t i = 0; i < rhs.digits_.size(); ++i) {
+		curr_num.digits_.push_back(orig_num_digits.front());
+		orig_num_digits.pop_front();
+	}
+	// If current numerator is less than denominator, move one more digit.
+	if (curr_num < rhs) {
+		curr_num.digits_.push_back(orig_num_digits.front());
+		orig_num_digits.pop_front();
+	}
+
+	// Iterate until we run out of digits in the numerator
+	BigInt tmp_den;
+	tmp_den.set_digits(rhs.digits_);
+	while (true) {
+		// Get the next digit in the overall quotient.
+		int8_t next_digit{ 0 };
+		while (curr_num >= tmp_den) {
+			curr_num -= tmp_den;
+			++next_digit;
+		}
+		// Add next digit to my digits.
+		digits_.push_back(next_digit);
+
+		if (orig_num_digits.empty())
+			break;
+
+		// Move next numerator digit and repeat
+		curr_num.digits_.push_back(orig_num_digits.front());
+		curr_num.fix_digits();
+		orig_num_digits.pop_front();
 	}
 
 	return *this;

@@ -112,6 +112,17 @@ public:
 	BigInt& operator*=(uint64_t rhs);
 	BigInt& operator*=(const BigInt& rhs);
 
+	// Division operators
+	BigInt& operator/=(int8_t rhs);
+	BigInt& operator/=(int16_t rhs);
+	BigInt& operator/=(int32_t rhs);
+	BigInt& operator/=(int64_t rhs);
+	BigInt& operator/=(uint8_t rhs);
+	BigInt& operator/=(uint16_t rhs);
+	BigInt& operator/=(uint32_t rhs);
+	BigInt& operator/=(uint64_t rhs);
+	BigInt& operator/=(const BigInt & rhs);
+
 	// Friend non-methods
 	friend BigInt operator+(BigInt lhs, int64_t rhs);
 	friend BigInt operator+(BigInt lhs, uint64_t rhs);

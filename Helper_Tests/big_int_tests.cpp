@@ -703,6 +703,103 @@ TEST(BigInt, InplaceMultiplyN) {
 	}
 }
 
+
+//TEST(BigInt, InplaceDivide0) {
+//	BigInt zero;
+//
+//	{
+//		std::vector<int64_t> test_vals{ 0, 1, 2, 3, 9, 99, 999, 123456789, 999999999, MaxInt64 };
+//
+//		for (auto& value : test_vals) {
+//			BigInt bi{ value };
+//			bi *= zero;
+//			EXPECT_EQ(bi.to_int(), 0);
+//			EXPECT_EQ(zero.to_int(), 0);
+//		}
+//	}
+//
+//	{
+//		std::vector<int64_t> test_vals{ -1, -2, -3, -10, -100, -1000, -234567890, -1000000000, MinInt64 };
+//
+//		for (auto& value : test_vals) {
+//			BigInt bi{ value };
+//			bi *= zero;
+//			EXPECT_EQ(bi.to_int(), 0);
+//			EXPECT_EQ(zero.to_int(), 0);
+//		}
+//	}
+//}
+
+TEST(BigInt, InplaceDivide1) {
+	BigInt one{ 1 };
+
+	{
+		std::vector<int64_t> test_vals{ 0, 1, 2, 3, 9, 99, 999, 123456789, 999999999, MaxInt64 };
+
+		for (auto& value : test_vals) {
+			BigInt bi{ value };
+			bi /= one;
+			EXPECT_EQ(bi.to_int(), value);
+			EXPECT_EQ(one.to_int(), 1);
+		}
+	}
+
+	{
+		std::vector<int64_t> test_vals{ -1, -2, -3, -10, -100, -1000, -234567890, -1000000000, MinInt64 };
+
+		for (auto& value : test_vals) {
+			BigInt bi{ value };
+			bi /= one;
+			EXPECT_EQ(bi.to_int(), value);
+			EXPECT_EQ(one.to_int(), 1);
+		}
+	}
+}
+
+TEST(BigInt, InplaceDivideNeg1) {
+	BigInt neg_one{ -1 };
+
+	{
+		std::vector<int64_t> test_vals{ 1, 2, 3, 10, 100, 1000, 234567890, 1000000000, MaxInt64 };
+
+		for (auto& value : test_vals) {
+			BigInt bi{ value };
+			bi /= neg_one;
+			EXPECT_EQ(bi.to_int(), -value);
+			EXPECT_EQ(neg_one.to_int(), -1);
+		}
+	}
+
+	{
+		std::vector<int64_t> test_vals{ 0, -1, -2, -3, -9, -99, -999, -123456789, -999999999, MinInt64 };
+
+		for (auto& value : test_vals) {
+			BigInt bi{ value };
+			bi /= neg_one;
+			EXPECT_EQ(bi.to_int(), -value);
+			EXPECT_EQ(neg_one.to_int(), -1);
+		}
+	}
+}
+
+TEST(BigInt, InplaceDivideN) {
+	std::vector<int64_t> test_vals{ 0, 1, 2, 3, 9, 99, 999, 123456789, 999999999,
+								   -1, -2, -3, -10, -100, -1000, -234567890, -1000000000 };
+
+	for (const auto& value1 : test_vals) {
+		BigInt bi1{ value1 };
+		if (0 == value1)
+			continue;
+		for (const auto& value2 : test_vals) {
+			BigInt bi2{ value2 };
+			bi2 /= bi1;
+
+			EXPECT_EQ(bi1.to_int(), value1);
+			EXPECT_EQ(bi2.to_int(), value2 / value1);
+		}
+	}
+}
+
 TEST(BigInt, StreamOut) {
 	std::vector<int64_t> test_vals{ 0, 1, -1, 12, -23, 123456789, -234567890, MaxInt64, MinInt64 };
 	std::vector<std::string> expect_vals{ "0", "1", "-1", "12", "-23", "123456789", "-234567890", "9223372036854775807", "-9223372036854775808" };

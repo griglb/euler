@@ -17,5 +17,6 @@ uint64_t get_num_permutations(uint64_t num, uint64_t choose);
 
 using Permutation = std::vector<uint64_t>;
 using PermutationList = std::vector<Permutation>;
+PermutationList get_permutations(const Combination& elements);
 PermutationList get_permutations(uint64_t num, uint64_t choose);
 

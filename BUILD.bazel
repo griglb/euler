@@ -880,6 +880,73 @@ cc_binary(
 )
 
 cc_binary(
+    name = "pe85",
+    srcs = [
+        "ProjectEuler0085/ProjectEuler0085.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe86",
+    srcs = [
+        "ProjectEuler0086/ProjectEuler0086.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe87",
+    srcs = [
+        "ProjectEuler0087/ProjectEuler0087.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe88",
+    srcs = [
+        "ProjectEuler0088/ProjectEuler0088.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe89",
+    srcs = [
+        "ProjectEuler0089/ProjectEuler0089.cpp"
+    ],
+    data = [
+        "ProjectEuler0089/p089_roman.txt"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
+    name = "pe90",
+    srcs = [
+        "ProjectEuler0090/ProjectEuler0090.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
     name = "pe752",
     srcs = [
         "ProjectEuler0752/ProjectEuler0752.cpp"

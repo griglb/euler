@@ -909,6 +909,7 @@ cc_binary(
     data = [
     ],
     deps = [
+        "euler_helpers_lib",
     ],
 )
 

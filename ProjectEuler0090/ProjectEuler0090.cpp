@@ -27,8 +27,59 @@
 
 
 #include <iostream>
+#include <set>
+
+#include "combinatorics.h"
+
+
+// For each cube there are C(10, 6) = 10! / (6! * 4!) = 10 * 9 * 8 * 7 / (4 * 3 * 2) = 210 possible combinations.
+// So the brute force approach of 210^2 pairs of cubes is not too big a problem space to search.
+uint64_t num_cube_pairs() {
+    uint64_t count{ 0 };
+
+    const std::set<uint64_t> squares_ref { 1, 4, 9, 16, 25, 36, 49, 64, 81 };
+
+    auto combos = get_combinations(10, 6);
+    for (const auto &block1 : combos) {
+        for (const auto &block2 : combos) {
+            auto squares = squares_ref;
+
+            for (const auto &el1 : block1) {
+                for (const auto &el2 : block2) {
+                    squares.erase(10 * el1 + el2);
+                    squares.erase(10 * el2 + el1);
+                    if (6 == el1) {
+                        squares.erase(10 * 9 + el2);
+                        squares.erase(10 * el2 + 9);
+                    }
+                    if (9 == el1) {
+                        squares.erase(10 * 6 + el2);
+                        squares.erase(10 * el2 + 6);
+                    }
+                    if (6 == el2) {
+                        squares.erase(10 * el1 + 9);
+                        squares.erase(10 * 9 + el1);
+                    }
+                    if (9 == el2) {
+                        squares.erase(10 * el1 + 6);
+                        squares.erase(10 * 6 + el1);
+                    }
+
+                    if (squares.empty())
+                        ++count;
+                }
+            }
+
+        }
+    }
+
+    return count;
+}
+
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    std::cout << num_cube_pairs() << std::endl;
 }

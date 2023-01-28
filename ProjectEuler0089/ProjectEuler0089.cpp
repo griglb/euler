@@ -21,11 +21,121 @@
 //
 // Note: You can assume that all the Roman numerals in the file contain no more than four consecutive identical units.
 
+#include <string.h>
 
+#include <fstream>
 #include <iostream>
+#include <string>
+#include <vector>
+
+using StringVec = std::vector<std::string>;
+
+
+StringVec get_numbers() {
+    // The file has no carriage returns, so read entire file into string.
+#ifdef _CONSOLE
+    std::ifstream infile("./p089_roman.txt");
+#else
+    std::ifstream infile("./ProjectEuler0089/p089_roman.txt");
+#endif
+
+    StringVec ret;
+
+    while (!infile.eof()) {
+        std::string line;
+        infile >> line;
+
+        if (line.size() > 0) {
+            ret.push_back(line);
+        }
+    }
+
+    return ret;
+}
+
+
+StringVec canonicalize_numbers(const StringVec &input) {
+    StringVec ret;
+    size_t sum{ 0 };
+
+    for (const auto & number : input) {
+        std::string num{ number };
+
+        // Lead M's are left alone, nothing to change there.
+
+        // DCCCC is inefficient for 900, replace with CM
+        {
+            size_t ind = num.find("DCCCC");
+            if (ind != std::string::npos) {
+                auto end_iter = ind + 5;
+                num.replace(ind, 5, "CM");
+            }
+        }
+
+        // CCCC is inefficient for 400, replace with CD
+        {
+            size_t ind = num.find("CCCC");
+            if (ind != std::string::npos) {
+                auto end_iter = ind + 4;
+                num.replace(ind, 5, "CD");
+            }
+        }
+
+        // LXXXX is inefficient for 90, replace with XC
+        {
+            size_t ind = num.find("LXXXX");
+            if (ind != std::string::npos) {
+                auto end_iter = ind + 5;
+                num.replace(ind, 5, "XC");
+            }
+        }
+
+        // XXXX is inefficient for 40, replace with XL
+        {
+            size_t ind = num.find("XXXX");
+            if (ind != std::string::npos) {
+                auto end_iter = ind + 5;
+                num.replace(ind, 5, "XL");
+            }
+        }
+
+        // VIIII is inefficient for 9, replace with IX
+        {
+            size_t ind = num.find("VIIII");
+            if (ind != std::string::npos) {
+                auto end_iter = ind + 5;
+                num.replace(ind, 5, "IX");
+            }
+        }
+
+        // IIII is ineffifient for 4, replace with IV
+        {
+            size_t ind = num.find("IIII");
+            if (ind != std::string::npos) {
+                auto end_iter = ind + 5;
+                num.replace(ind, 5, "IV");
+            }
+        }
+
+        std::cout << number << "\t" << num << "\t" << number.size() - num.size() << std::endl;
+        sum += number.size() - num.size();
+
+        ret.push_back(num);
+    }
+    std::cout << "sum = " << sum << std::endl;
+
+    return ret;
+}
 
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    {
+        auto numbers = canonicalize_numbers(get_numbers());
+        // for (const auto &num : numbers) {
+        //     std::cout << num << std::endl;
+        // }
+    }
 }

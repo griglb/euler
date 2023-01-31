@@ -64,16 +64,16 @@ uint64_t num_cube_pairs() {
                         squares.erase(10 * el1 + 6);
                         squares.erase(10 * 6 + el1);
                     }
-
-                    if (squares.empty())
-                        ++count;
                 }
             }
 
+            if (squares.empty())
+                ++count;
         }
     }
 
-    return count;
+    // Need to halve the count, as we double count each combination by switching block1 & block2
+    return count / 2;
 }
 
 

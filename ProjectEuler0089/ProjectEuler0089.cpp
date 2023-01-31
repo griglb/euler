@@ -67,7 +67,6 @@ StringVec canonicalize_numbers(const StringVec &input) {
         {
             size_t ind = num.find("DCCCC");
             if (ind != std::string::npos) {
-                auto end_iter = ind + 5;
                 num.replace(ind, 5, "CM");
             }
         }
@@ -76,8 +75,7 @@ StringVec canonicalize_numbers(const StringVec &input) {
         {
             size_t ind = num.find("CCCC");
             if (ind != std::string::npos) {
-                auto end_iter = ind + 4;
-                num.replace(ind, 5, "CD");
+                num.replace(ind, 4, "CD");
             }
         }
 
@@ -85,7 +83,6 @@ StringVec canonicalize_numbers(const StringVec &input) {
         {
             size_t ind = num.find("LXXXX");
             if (ind != std::string::npos) {
-                auto end_iter = ind + 5;
                 num.replace(ind, 5, "XC");
             }
         }
@@ -94,8 +91,7 @@ StringVec canonicalize_numbers(const StringVec &input) {
         {
             size_t ind = num.find("XXXX");
             if (ind != std::string::npos) {
-                auto end_iter = ind + 5;
-                num.replace(ind, 5, "XL");
+                num.replace(ind, 4, "XL");
             }
         }
 
@@ -103,7 +99,6 @@ StringVec canonicalize_numbers(const StringVec &input) {
         {
             size_t ind = num.find("VIIII");
             if (ind != std::string::npos) {
-                auto end_iter = ind + 5;
                 num.replace(ind, 5, "IX");
             }
         }
@@ -112,8 +107,8 @@ StringVec canonicalize_numbers(const StringVec &input) {
         {
             size_t ind = num.find("IIII");
             if (ind != std::string::npos) {
-                auto end_iter = ind + 5;
-                num.replace(ind, 5, "IV");
+                auto end_iter = ind + 4;
+                num.replace(ind, 4, "IV");
             }
         }
 

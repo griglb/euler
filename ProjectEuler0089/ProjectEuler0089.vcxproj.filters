@@ -19,4 +19,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>
+  <ItemGroup>
+    <Text Include="p089_roman.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+    <Text Include="about_roman_numerals.txt">
+      <Filter>Resource Files</Filter>
+    </Text>
+  </ItemGroup>
 </Project>

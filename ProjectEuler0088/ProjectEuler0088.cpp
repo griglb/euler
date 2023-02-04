@@ -58,7 +58,7 @@
 
 class ProductSumFinder {
 public :
-    using Addends = std::multiset<uint16_t>;
+    using Addends = std::multiset<uint64_t>;
     using SameSum = std::set<Addends>;
     using Factors = std::vector<uint64_t>;
     using FactorSet = std::set<Factors>;
@@ -74,16 +74,16 @@ public :
     ~ProductSumFinder() = default;
 
 
-    SameSum get_sum_sets(uint16_t total, bool add_total) {
+    SameSum get_sum_sets(uint64_t total, bool add_total) {
         // This function works correctly, but does not scale well in time or space.
         // It ran out of memory on a 128GB machine before it got to 100.
-        for (uint16_t sum = summations_.size(); sum <= total; ++sum) {
+        for (uint64_t sum = summations_.size(); sum <= total; ++sum) {
             // Set of all sets of addends to add to 'sum'
             SameSum this_sum;
             // If we aren't processing total, then add current number to
             this_sum.insert({ sum });
 
-            for (uint16_t n = 1; n < sum; ++n) {
+            for (uint64_t n = 1; n < sum; ++n) {
                 SameSum sub_sums = summations_[sum - n];
                 for (auto sub : sub_sums) {
                     sub.insert(n);
@@ -190,18 +190,18 @@ public :
                 continue;
 
             auto factor_set = get_all_factorizations(N);
-            // std::cout << N << "\t{";
-            // for (const auto & factors : factor_set) {
-            //     std::cout << " {";
-            //     for (const auto & f : factors)
-            //         std::cout << f << ", ";
-            //     std::cout << "}, ";
-            // }
-            // std::cout << std::endl;
+             //std::cout << N << "\t";
+             //for (const auto & factors : factor_set) {
+             //    std::cout << " {";
+             //    for (const auto & f : factors)
+             //        std::cout << f << ", ";
+             //    std::cout << "}; ";
+             //}
+             //std::cout << std::endl;
             if (N % 10'000 == 0)
                 std::cout << N << std::endl;
             for (const auto & factors : factor_set) {
-                uint64_t sum = std::accumulate(factors.begin(), factors.end(), 0);
+                uint64_t sum = std::accumulate(factors.begin(), factors.end(), 0ULL);
                 uint64_t num_ones = N - sum;
                 uint64_t k = num_ones + factors.size();
 
@@ -253,48 +253,49 @@ int main()
     //     }
     // }
 
-    // {
-    //     PrimeHelper helper;
+    //{
     //     ProductSumFinder finder;
-    //     auto all_factors = finder.get_all_factorizations(helper.get_factorization_fast(30));
+    //     auto all_factors = finder.get_all_factorizations(30);
     //     for (const auto & factors: all_factors) {
     //         for (const auto &f : factors)
     //             std::cout << f << " ";
     //         std::cout << std::endl;
     //     }
-    // }
-    {
-        ProductSumFinder finder;
-        auto all_factors = finder.get_all_factorizations(18);
-        for (const auto & factors: all_factors) {
-            for (const auto &f : factors)
-                std::cout << f << " ";
-            std::cout << std::endl;
-        }
-        auto all_factors2 = finder.get_all_factorizations(16);
-        for (const auto & factors: all_factors2) {
-            for (const auto &f : factors)
-                std::cout << f << " ";
-            std::cout << std::endl;
-        }
-    }
+    //}
+
+    //{
+    //    ProductSumFinder finder;
+    //    auto all_factors = finder.get_all_factorizations(18);
+    //    for (const auto & factors: all_factors) {
+    //        for (const auto &f : factors)
+    //            std::cout << f << " ";
+    //        std::cout << std::endl;
+    //    }
+    //    auto all_factors2 = finder.get_all_factorizations(16);
+    //    for (const auto & factors: all_factors2) {
+    //        for (const auto &f : factors)
+    //            std::cout << f << " ";
+    //        std::cout << std::endl;
+    //    }
+    //}
 
     {
         ProductSumFinder finder;
-        auto product_sum_map = finder.get_product_sums(2'000'000);
+        auto product_sum_map = finder.get_product_sums(20'000);
         std::set<uint64_t> unique_Ns;
         for (const auto &[k, product_sums] : product_sum_map) {
             if (k > 12'000)
                 continue;
-            unique_Ns.insert(product_sums.begin()->first);
-//            std::cout << k << ":\t" << product_sums.begin()->first << std::endl;
-            // for (const auto &[N, factors] : product_sums) {
-            //     std::cout << N << " ";
-            // }
-            // std::cout << std::endl;
+             unique_Ns.insert(product_sums.begin()->first);
+             std::cout << k << ":\t";// << product_sums.begin()->first << std::endl;
+             for (const auto &[N, factors] : product_sums) {
+                 std::cout << N << " ";
+             }
+             std::cout << std::endl;
         }
-        // for (const auto &N : unique_Ns)
-        //     std::cout << N << std::endl;
-        std::cout << "sum = " << std::accumulate(unique_Ns.begin(), unique_Ns.end(), 0) << std::endl;
+        for (const auto& N : unique_Ns)
+            std::cout << N << " + ";
+        std::cout << std::endl;
+        std::cout << "sum = " << std::accumulate(unique_Ns.begin(), unique_Ns.end(), 0ULL) << std::endl;
     }
 }

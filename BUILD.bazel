@@ -968,6 +968,30 @@ cc_binary(
     data = [
     ],
     deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe93",
+    srcs = [
+        "ProjectEuler0093/ProjectEuler0093.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe94",
+    srcs = [
+        "ProjectEuler0094/ProjectEuler0094.cpp"
+    ],
+    data = [
+    ],
+    deps = [
     ],
 )
 

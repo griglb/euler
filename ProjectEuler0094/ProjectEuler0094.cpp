@@ -105,11 +105,13 @@ std::vector<Triplet> get_almost_equilateral_triangles(uint64_t max_perim) {
             BigInt t2{ a };
             t2 -= 1;
             t1 *= t2;
-            BigInt root = get_square_root(t1);
-            BigInt square{ root };
-            square *= root;
-            if (square == t1) {
+//            BigInt root = get_square_root(t1);
+//            BigInt square{ root };
+//            square *= root;
+//            if (square == t1) {
+            if (t1.is_perfect_square()) {
                 ret.push_back({ a, a, a + 1 });
+                std::cout << a << "\t" << a << "\t" << a + 1 << std::endl;
             }
         }
 
@@ -120,11 +122,13 @@ std::vector<Triplet> get_almost_equilateral_triangles(uint64_t max_perim) {
             BigInt t2{ a };
             t2 += 1;
             t1 *= t2;
-            BigInt root = get_square_root(t1);
-            BigInt square{ root };
-            square *= root;
-            if (square == t1) {
+//            BigInt root = get_square_root(t1);
+//            BigInt square{ root };
+//            square *= root;
+//            if (square == t1) {
+            if (t1.is_perfect_square()) {
                 ret.push_back({ a, a, a - 1 });
+                std::cout << a << "\t" << a << "\t" << a + 1 << std::endl;
             }
         }
     }

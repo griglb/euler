@@ -107,7 +107,7 @@ BigInt::BigInt(double value) : is_negative_(value < 0) {
 	if (is_negative_)
 		value *= -1;
 	// Append the digits one at a time, which is more efficient than prepending.
-	while (value > 0) {
+	while (value >= 1) {
 		digits_.push_back(static_cast<uint8_t>(fmod(value, 10)));
 		value /= 10.0;
 	}
@@ -245,6 +245,133 @@ int64_t BigInt::to_int() const {
 	}
 }
 
+
+BigInt BigInt::sqrt() const {
+	// Test for negative self.
+	if (is_negative_)
+		throw "Can't take square root of a negative number.";
+
+	// Test for self equals 0, which causes divide by 0 errors.
+	if (digits_.empty())
+		return *this;
+
+	// If a double can express my value exactly, then use built in sqrt().
+	if (digits_.size() < 15) {
+		double my_value{ 0 };
+		for (const auto& dig : digits_) {
+			my_value *= 10.0;
+			my_value += dig;
+		}
+		return BigInt{ std::sqrt(my_value) };
+	}
+
+	// Use Newton's method for the square root.
+	//    f(x) = x^2 - this = 0
+	//    x_n+1 = x_n - f(x_n)/f'(x_n)
+	//    x_n+1 = x_n - (x_n^2 - this) / (2 * x_n)
+	//    x_n+1 = x_n - x_n / 2 + this / (2 * x_n)
+	//    x_n+1 = (x_n + this / x_n) / 2
+	BigInt x_n{ *this };
+	for (size_t count = 0; count < 1000; ++count) {
+		// We want x_n+1 = (x_n + this / x_n) / 2
+		// Can do this with a sequence of in-place operations:
+		//    x_n+1 = this
+		//    x_n+1 /= x_n
+		//    x_n+1 += x_n
+		//    x_n+1 /= 2
+		BigInt x_np1{ *this };
+		x_np1 /= x_n;
+		x_np1 += x_n;
+		x_np1 /= 2;
+
+//        std::cout << i << "\t" << x_np1 << std::endl;
+
+		if (x_np1 == x_n)
+			break;
+
+		x_n = x_np1;
+	}
+
+	return x_n;
+}
+
+
+#if 1
+bool BigInt::is_perfect_square() const {
+//	std::cout << "is_perfect_square(" << *this << ")" << std::endl;
+	BigInt root { sqrt() };
+	BigInt tmp{ root };
+	tmp *= root;
+	return tmp == *this;
+}
+
+#else
+
+bool BigInt::is_perfect_square() const {
+//	std::cout << "is_perfect_square(" << *this << ")" << std::endl;
+	// Test for negative self, which is never a perfect square.
+	if (is_negative_)
+		return false;
+
+	// Test for self equals 0, which is 0^2.
+	if (digits_.empty())
+		return true;
+
+	// If a double can express my value exactly, then use built in sqrt().
+	if (digits_.size() < 15) {
+		double my_value{ 0 };
+		for (const auto& dig : digits_) {
+			my_value *= 10.0;
+			my_value += dig;
+		}
+		uint64_t root = std::sqrt(my_value);
+		return root * root == my_value;
+	}
+
+
+	BigInt ten_me{ *this };
+	size_t num_digits = digits_.size();
+	for (size_t i = 0; i < num_digits; ++i) {
+		ten_me.digits_.push_back(0);
+		ten_me.digits_.push_back(0);
+	}
+
+	// Use Newton's method for the square root.
+	//    f(x) = x^2 - this = 0
+	//    x_n+1 = x_n - f(x_n)/f'(x_n)
+	//    x_n+1 = x_n - (x_n^2 - this) / (2 * x_n)
+	//    x_n+1 = x_n - x_n / 2 + this / (2 * x_n)
+	//    x_n+1 = (x_n + this / x_n) / 2
+	BigInt x_n{ ten_me };
+	int i{ 0 };
+	while (true) {
+		// We want x_n+1 = (x_n + this / x_n) / 2
+		// Can do this with a sequence of in-place operations:
+		//    x_n+1 = this
+		//    x_n+1 /= x_n
+		//    x_n+1 += x_n
+		//    x_n+1 /= 2
+		BigInt x_np1{ ten_me };
+		x_np1 /= x_n;
+		x_np1 += x_n;
+		x_np1 /= 2;
+
+//        std::cout << "\t" << i++ << "\t" << x_np1 << std::endl;
+
+		if (x_np1 == x_n)
+			break;
+
+		x_n = x_np1;
+	}
+
+	auto iter = x_n.digits_.crbegin();
+	for (size_t i = 0; i < num_digits; ++i, ++iter) {
+		if (*iter != 0)
+			return false;
+	}
+	return true;
+}
+#endif
 
 bool BigInt::operator==(int8_t rhs) const {
 	BigInt tmp{ rhs };

@@ -279,6 +279,58 @@ TEST(BigInt, ToString) {
 	}
 }
 
+TEST(BigInt, ToInt) {
+	std::vector<int64_t> test_vals{ 0, 1, -1, 12, -23, 123456789, -234567890, MaxInt64, MinInt64 };
+
+	for (const auto& value : test_vals) {
+		BigInt bi{ value };
+		EXPECT_EQ(bi.to_int(), value);
+	}
+}
+
+TEST(BigInt, Sqrt) {
+	std::vector<int64_t> test_vals{ 0, 1, 4, 12, 144, 123456789, MaxInt64 };
+
+	for (const auto& value : test_vals) {
+		BigInt bi{ value };
+		EXPECT_EQ(bi.sqrt().to_int(), floor(sqrt(value)));
+	}
+
+	for (uint64_t i = 1; i < 1001; ++i) {
+		BigInt bi{ i };
+		EXPECT_EQ(bi.sqrt().to_int(), floor(sqrt(i)));
+
+		bi *= i;
+		EXPECT_EQ(bi.sqrt().to_int(), i);
+	}
+}
+
+TEST(BigInt, IsPerfectSquare) {
+	{
+		BigInt bi{ 0 };
+		EXPECT_TRUE(bi.is_perfect_square());
+	}
+	{
+		BigInt bi{ 1 };
+		EXPECT_TRUE(bi.is_perfect_square());
+	}
+
+	std::vector<int64_t> test_vals{ 2, 4, 12, 144, 123456789, MaxInt64 };
+
+	for (const auto& value : test_vals) {
+		BigInt bi{ value };
+		bi *= value;
+		EXPECT_TRUE(bi.is_perfect_square());
+
+		++bi;
+		EXPECT_FALSE(bi.is_perfect_square());
+
+		--bi;
+		--bi;
+		EXPECT_FALSE(bi.is_perfect_square());
+	}
+}
+
 TEST(BigInt, PreIncrement) {
 	{
 		std::vector<int64_t> test_vals{ 0, 1, 2, 3, 9, 99, 999, 123456789, 999999999, MaxInt64 };

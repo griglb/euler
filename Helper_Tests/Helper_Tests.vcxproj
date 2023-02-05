@@ -35,6 +35,7 @@
   <ItemGroup>
     <ClCompile Include="big_int_tests.cpp" />
     <ClCompile Include="combinatorics_tests.cpp" />
+    <ClCompile Include="test_main.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Euler_Helpers\Euler_Helpers.vcxproj">

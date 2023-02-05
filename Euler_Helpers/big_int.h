@@ -36,6 +36,9 @@ public:
 	std::string to_string() const;
 	int64_t to_int() const;
 
+	BigInt sqrt() const;
+	bool is_perfect_square() const;
+
 	// Comparison operators
 	bool operator==(int8_t rhs) const;
 	bool operator==(int16_t rhs) const;

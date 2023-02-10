@@ -1008,6 +1008,18 @@ cc_binary(
 )
 
 cc_binary(
+    name = "pe96",
+    srcs = [
+        "ProjectEuler0096/ProjectEuler0096.cpp"
+    ],
+    data = [
+        "ProjectEuler0096/p096_sudoku.txt"
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
     name = "pe752",
     srcs = [
         "ProjectEuler0752/ProjectEuler0752.cpp"

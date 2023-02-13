@@ -19,6 +19,7 @@
 // set of consecutive positive integers, 1 to n, can be obtained, giving your
 // answer as a string : abcd.
 
+#include <math.h>
 
 #include <functional>
 #include <iostream>

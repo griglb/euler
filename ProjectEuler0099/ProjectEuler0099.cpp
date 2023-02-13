@@ -11,6 +11,7 @@
 // NOTE: The first two lines in the file represent the numbers in the example given above.
 
 
+#include <math.h>
 #include <string.h>
 
 #include <fstream>

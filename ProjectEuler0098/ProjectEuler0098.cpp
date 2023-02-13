@@ -13,6 +13,7 @@
 //
 // NOTE : All anagrams formed must be contained in the given text file.
 
+#include <math.h>
 
 #include <fstream>
 #include <iostream>

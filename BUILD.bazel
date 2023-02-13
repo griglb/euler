@@ -992,6 +992,7 @@ cc_binary(
     data = [
     ],
     deps = [
+        "euler_helpers_lib",
     ],
 )
 
@@ -1049,6 +1050,7 @@ cc_binary(
         "ProjectEuler0099/ProjectEuler0099.cpp"
     ],
     data = [
+        "ProjectEuler0099/p099_base_exp.txt"
     ],
     deps = [
     ],

@@ -311,10 +311,13 @@ void add_community_chest_probs(Matrix &prob) {
 
 Col solve_system(const Matrix& A) {
     // We are solving for x in Ax = 0.
-    // We are lucky because we know that the G2J row (30) is all 0s, so we have
-    // a NumSquaresxNumSquares matrix of rank 39.  We can use Gauss-Jordan elimination to reduce
-    // this to a scalar times a column vector, and then use the fact that the
-    // probabilities all sum to 1.0 to derive the scalar.
+    // We are lucky because we know that the G2J row (30) is all 0s, so we have a
+    // NumSquaresxNumSquares matrix of rank 39, before we subtract the identity
+    // matrix.
+    // We can use Gauss-Jordan elimination to reduce this to an upper triangular
+    // matrix, and solve by setting the last element to 1.0 and backsolving.
+    // We can then normalize this vector, since we know that the probabilities
+    // all sum to 1.0.
 
     Matrix lhs{ A };
     for (int64_t row = 0; row < NumSquares; ++row)

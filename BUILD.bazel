@@ -9,6 +9,7 @@ cc_library(
         "Euler_Helpers/big_int.h",
         "Euler_Helpers/combinatorics.h",
         "Euler_Helpers/continued_fractions.h",
+        "Euler_Helpers/fraction.h",
         "Euler_Helpers/prime_helper.h",
         "Euler_Helpers/totient.h"
     ],
@@ -16,6 +17,7 @@ cc_library(
         "Euler_Helpers/big_int.cpp",
         "Euler_Helpers/combinatorics.cpp",
         "Euler_Helpers/continued_fractions.cpp",
+        "Euler_Helpers/fraction.cpp",
         "Euler_Helpers/prime_helper.cpp",
         "Euler_Helpers/totient.cpp"
     ],
@@ -1064,6 +1066,7 @@ cc_binary(
     data = [
     ],
     deps = [
+        "euler_helpers_lib",
     ],
 )
 

@@ -39,6 +39,9 @@ public:
 	BigInt sqrt() const;
 	bool is_perfect_square() const;
 
+	BigInt operator-() const;
+	BigInt abs() const;
+
 	// Comparison operators
 	bool operator==(int8_t rhs) const;
 	bool operator==(int16_t rhs) const;
@@ -134,6 +137,14 @@ public:
 	friend BigInt operator-(BigInt lhs, int64_t rhs);
 	friend BigInt operator-(BigInt lhs, uint64_t rhs);
 	friend BigInt operator-(BigInt lhs, const BigInt& rhs);
+
+	friend BigInt operator*(BigInt lhs, int64_t rhs);
+	friend BigInt operator*(BigInt lhs, uint64_t rhs);
+	friend BigInt operator*(BigInt lhs, const BigInt& rhs);
+
+	friend BigInt operator/(BigInt lhs, int64_t rhs);
+	friend BigInt operator/(BigInt lhs, uint64_t rhs);
+	friend BigInt operator/(BigInt lhs, const BigInt& rhs);
 
 	friend std::ostream& operator<<(std::ostream& out, const BigInt& value);
 	friend std::istream& operator>>(std::istream& in, BigInt& value);

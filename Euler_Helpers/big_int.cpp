@@ -373,6 +373,21 @@ bool BigInt::is_perfect_square() const {
 }
 #endif
 
+
+BigInt BigInt::operator-() const {
+	BigInt ret{ *this };
+	ret.is_negative_ = !ret.is_negative_;
+	return ret;
+}
+
+
+BigInt BigInt::abs() const {
+	BigInt ret{ *this };
+	ret.is_negative_ = false;
+	return ret;
+}
+
+
 bool BigInt::operator==(int8_t rhs) const {
 	BigInt tmp{ rhs };
 	return operator==(tmp);
@@ -1275,6 +1290,48 @@ BigInt operator-(BigInt lhs, uint64_t rhs) {
 BigInt operator-(BigInt lhs, const BigInt& rhs) {
 	BigInt ret{ lhs };
 	ret -= rhs;
+	return ret;
+}
+
+
+BigInt operator*(BigInt lhs, int64_t rhs) {
+	BigInt ret{ lhs };
+	ret *= rhs;
+	return ret;
+}
+
+
+BigInt operator*(BigInt lhs, uint64_t rhs) {
+	BigInt ret{ lhs };
+	ret *= rhs;
+	return ret;
+}
+
+
+BigInt operator*(BigInt lhs, const BigInt& rhs) {
+	BigInt ret{ lhs };
+	ret *= rhs;
+	return ret;
+}
+
+
+BigInt operator/(BigInt lhs, int64_t rhs) {
+	BigInt ret{ lhs };
+	ret /= rhs;
+	return ret;
+}
+
+
+BigInt operator/(BigInt lhs, uint64_t rhs) {
+	BigInt ret{ lhs };
+	ret /= rhs;
+	return ret;
+}
+
+
+BigInt operator/(BigInt lhs, const BigInt& rhs) {
+	BigInt ret{ lhs };
+	ret /= rhs;
 	return ret;
 }
 

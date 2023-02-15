@@ -2,7 +2,10 @@
 
 
 #include <cstdint>
+#include <iostream>
 #include <utility>
+
+#include "big_int.h"
 
 
 int64_t gcd(int64_t a, int64_t b);
@@ -13,9 +16,12 @@ public:
 	Fraction() = default;
 	Fraction(int64_t value);
 	Fraction(int64_t num, int64_t den);
+	Fraction(const BigInt &num, const BigInt& den);
 	~Fraction() = default;
 
-	std::pair<int64_t, int64_t> get_components() const;
+	std::pair<BigInt, BigInt> get_components() const;
+
+	Fraction abs() const;
 
 	// Comparison operators
 	bool operator==(int8_t rhs) const;
@@ -98,9 +104,29 @@ public:
 	Fraction& operator/=(uint64_t rhs);
 	Fraction& operator/=(const Fraction& rhs);
 
+	// Friend non-methods
+	friend Fraction operator+(Fraction lhs, int64_t rhs);
+	friend Fraction operator+(Fraction lhs, uint64_t rhs);
+	friend Fraction operator+(Fraction lhs, const Fraction& rhs);
+
+	friend Fraction operator-(Fraction lhs, int64_t rhs);
+	friend Fraction operator-(Fraction lhs, uint64_t rhs);
+	friend Fraction operator-(Fraction lhs, const Fraction& rhs);
+
+	friend Fraction operator*(Fraction lhs, int64_t rhs);
+	friend Fraction operator*(Fraction lhs, uint64_t rhs);
+	friend Fraction operator*(Fraction lhs, const Fraction& rhs);
+
+	friend Fraction operator/(Fraction lhs, int64_t rhs);
+	friend Fraction operator/(Fraction lhs, uint64_t rhs);
+	friend Fraction operator/(Fraction lhs, const Fraction& rhs);
+
+	friend std::ostream& operator<<(std::ostream& out, const Fraction& value);
+	friend std::istream& operator>>(std::istream& in, Fraction& value);
+
 private :
-	int64_t num_ = 0;
-	int64_t den_ = 1;
+	BigInt num_ = BigInt(0);
+	BigInt den_ = BigInt(1);
 	bool is_negative_ = false;
 
 	void canonicalize();

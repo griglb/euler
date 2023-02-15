@@ -158,6 +158,7 @@
     <ClInclude Include="big_int.h" />
     <ClInclude Include="combinatorics.h" />
     <ClInclude Include="continued_fractions.h" />
+    <ClInclude Include="fraction.h" />
     <ClInclude Include="prime_helper.h" />
     <ClInclude Include="totient.h" />
   </ItemGroup>
@@ -165,6 +166,7 @@
     <ClCompile Include="big_int.cpp" />
     <ClCompile Include="combinatorics.cpp" />
     <ClCompile Include="continued_fractions.cpp" />
+    <ClCompile Include="fraction.cpp" />
     <ClCompile Include="prime_helper.cpp" />
     <ClCompile Include="totient.cpp" />
   </ItemGroup>

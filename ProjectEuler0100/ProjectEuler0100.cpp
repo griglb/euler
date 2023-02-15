@@ -9,7 +9,10 @@
 // determine the number of blue discs that the box would contain.
 
 
+#include <cmath>
 #include <iostream>
+
+#include "fraction.h"
 
 
 // When there are N_B blue discs and N_R red discs, then the probability of 2 blues is:
@@ -34,7 +37,7 @@
 
 
 void find_answer() {
-    double blue_percent = 1.0 / sqrt(2.0);
+    double blue_percent = 1.0 / std::sqrt(2.0);
 
     for (uint64_t tot = 1'006'000'000'000; tot < 2'000'000'000'000; ++tot) {
         uint64_t blue = std::round(tot * blue_percent);
@@ -69,8 +72,8 @@ int main()
 {
     std::cout << "Hello World!\n";
 
-    //std::cout << gcd(85, 119) << std::endl;
-    //std::cout << gcd(84, 120) << std::endl;
+    std::cout << gcd(85, 119) << std::endl;
+    std::cout << gcd(84, 120) << std::endl;
     //std::cout << gcd(707106781190, 1'000'000'000'006) << std::endl;
 
     find_answer();

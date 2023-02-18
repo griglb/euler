@@ -1132,6 +1132,18 @@ cc_binary(
 )
 
 cc_binary(
+    name = "pe106",
+    srcs = [
+        "ProjectEuler0106/ProjectEuler0106.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
     name = "pe752",
     srcs = [
         "ProjectEuler0752/ProjectEuler0752.cpp"

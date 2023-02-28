@@ -1,5 +1,7 @@
 #include "big_int.h"
 
+#include <math.h>
+
 #include <sstream>
 #include <vector>
 

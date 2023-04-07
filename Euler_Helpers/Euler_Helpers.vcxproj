@@ -156,6 +156,7 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClInclude Include="big_int.h" />
+    <ClInclude Include="cached_prime_helper.h" />
     <ClInclude Include="combinatorics.h" />
     <ClInclude Include="continued_fractions.h" />
     <ClInclude Include="fraction.h" />
@@ -164,6 +165,7 @@
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="big_int.cpp" />
+    <ClCompile Include="cached_prime_helper.cpp" />
     <ClCompile Include="combinatorics.cpp" />
     <ClCompile Include="continued_fractions.cpp" />
     <ClCompile Include="fraction.cpp" />

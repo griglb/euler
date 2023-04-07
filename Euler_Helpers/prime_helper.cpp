@@ -3,6 +3,7 @@
 #include <math.h>
 
 #include <algorithm>
+#include <numeric>
 #include <set>
 
 #include "combinatorics.h"
@@ -31,6 +32,7 @@ ULongLongVec PrimeHelper::get_primes(uint64_t max_value) {
 
     uint64_t old_max = sieve_.empty() ? -1 : static_cast<uint64_t>(sieve_.size())-1;
     // Resize the sieve, adding true values for all unexplored numbers to start.
+    sieve_.reserve(max_value + 1);
     for (auto i = old_max+1; i < max_value + 1; ++i) {
         sieve_.push_back(1);
     }
@@ -58,6 +60,8 @@ ULongLongVec PrimeHelper::get_primes(uint64_t max_value) {
     }
 
     // Add any new primes to the list.
+    uint64_t num_primes = std::accumulate(sieve_.begin(), sieve_.end(), 0ULL);
+    primes_.reserve(num_primes);
     for (uint64_t i = first_possible_prime; i <= max_value; ++i) {
         if (sieve_[i]) {
             primes_.push_back(i);

@@ -29,9 +29,86 @@
 //
 // Find the sum of all S(10, d).
 
+#include <array>
 #include <iostream>
+#include <numeric>
+#include <vector>
+
+#include "big_int.h"
+#include "prime_helper.h"
+#include "cached_prime_helper.h"
+
+
+using DigitCounts = std::array<uint64_t, 10>;
+using DigitPrimes = std::array<ULongLongVec, 10>;
+
+uint64_t S(int16_t num_digits) {
+    uint64_t min_val{ 1 };
+    for (int16_t i = 1; i < num_digits; ++i)
+        min_val *= 10;
+    uint64_t max_val{ min_val * 10 };
+    std::cout << min_val << "\t" << max_val << std::endl;
+
+    ULongLongVec primes;
+    {
+        CachedPrimeHelper helper;
+        primes = helper.get_primes(max_val);
+        std::cout << "Got " << primes.size() << " primes" << std::endl;
+    }
+
+    DigitCounts M{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+    DigitPrimes N;
+
+    for (const auto& p : primes) {
+        // Skip primes without enough digits.
+        if (p < min_val)
+            continue;
+
+        auto digits = BigInt{ p }.get_digits();
+        DigitCounts counts{ 0, 0, 0, 0, 0, 0, 0, 0, 0, 0 };
+        for (const auto& dig : digits)
+            ++counts[dig];
+
+        for (int8_t d = 0; d < 10; ++d) {
+            if (counts[d] > M[d]) {
+                M[d] = counts[d];
+                N[d].clear();
+            }
+            if (counts[d] == M[d]) {
+                N[d].push_back(p);
+            }
+        }
+    }
+
+    uint64_t sum{ 0 };
+    for (int16_t d = 0; d < 10; ++d) {
+        uint64_t S = std::accumulate(N[d].begin(), N[d].end(), 0ULL);
+        std::cout << d << "\t" << M[d] << "\t" << N[d].size() << "\t" << S << std::endl;
+        sum += S;
+    }
+
+    return sum;
+}
+
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    //{
+    //    PrimeHelper helper1;
+    //    auto primes1 = helper1.get_primes(2000);
+
+    //    CachedPrimeHelper helper2;
+    //    auto primes2 = helper2.get_primes(1100);
+
+
+    //    for (size_t i = 0; i < primes2.size(); ++i)
+    //        std::cout << primes1[i] << "\t" << primes2[i] << std::endl;
+    //}
+
+    {
+//        std::cout << S(4) << std::endl;
+        std::cout << S(10) << std::endl;
+    }
 }

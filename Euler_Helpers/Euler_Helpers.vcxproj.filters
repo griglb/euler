@@ -33,6 +33,9 @@
     <ClInclude Include="fraction.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="cached_prime_helper.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="prime_helper.cpp">
@@ -51,6 +54,9 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="cached_prime_helper.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

@@ -27,7 +27,7 @@
 using Triplet = std::tuple<int32_t, int32_t, int32_t>;
 
 
-Triplet get_triplet(int m, int n) {
+Triplet get_triplet(int32_t m, int32_t n) {
     int32_t a = m * m - n * n;
     int32_t b = 2 * m * n;
     int32_t c = m * m + n * n;
@@ -39,8 +39,8 @@ Triplet get_triplet(int m, int n) {
 std::map<uint32_t, std::set<Triplet>> get_triplets(uint32_t max_perim) {
     std::map<uint32_t, std::set<Triplet>> ret;
 
-    for (int m = 2; m < sqrt(max_perim); ++m) {
-        for (int n = 1; n < m; ++n) {
+    for (int32_t m = 2; m < sqrt(max_perim); ++m) {
+        for (int32_t n = 1; n < m; ++n) {
             auto [a, b, c] = get_triplet(m, n);
             //if (a > b)
             //    continue;

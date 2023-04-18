@@ -69,7 +69,7 @@ BigInt get_square_root(const BigInt & number) {
     //    x_n+1 = (x_n + a / x_n) / 2
 
     BigInt x_n{ number };
-    for (int i = 0; i < 1000; ++i) {
+    for (int16_t i = 0; i < 1000; ++i) {
         // We want x_n+1 = (x_n + (num / x_n) / 2
         // Can do this with a sequence of in-place operations:
         //    x_n+1 = num

@@ -1068,7 +1068,7 @@ uint64_t get_longest_set() {
     auto funcs = get_functions();
     auto perm_list = get_permutations(4, 4);
     auto combo_list = get_combinations(10, 4);
-    uint64_t max_len{ 0 };
+    int64_t max_len{ 0 };
     uint64_t ret{ 0 };
     // Iterate over all unique sets of digits
     for (const auto& digit_set : combo_list) {
@@ -1092,7 +1092,7 @@ uint64_t get_longest_set() {
             }
         }
         // Process set of return values to measure length of consecutive integers.
-        uint64_t len{ 0 };
+        int64_t len{ 0 };
         if (*outputs.begin() == 0)
             outputs.erase(0);
 

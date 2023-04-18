@@ -23,7 +23,7 @@
 
 // Function that performs long division for numerator/denominator.
 // The return is a pair with the non-repeating and repeating parts of the decimal.
-std::pair<BigInt::Digits, BigInt::Digits> get_decimal(int numerator, int denominator) {
+std::pair<BigInt::Digits, BigInt::Digits> get_decimal(int16_t numerator, int16_t denominator) {
     if (numerator < 0) {
         throw "Numerator must be non-negative.";
     }
@@ -43,13 +43,13 @@ std::pair<BigInt::Digits, BigInt::Digits> get_decimal(int numerator, int denomin
     // Store the full set of decimal digits in a BigInt, it will be split into repeating and non-repeating parts below.
     BigInt decimal;
     // Keep track of all the remainders left after calculating the next digit, so we can identify the repeat.
-    std::vector<std::pair<int, BigInt>> remainders;
+    std::vector<std::pair<int16_t, BigInt>> remainders;
 
     while (true) {
         // Add a 0 to numerator for next decimal digit.
         num *= 10;
         // Calculate the next digit through repeated subtractions of denominator from numerator.
-        int quotient{ 0 };
+        int16_t quotient{ 0 };
         while (num >= den) {
             num -= den;
             quotient++;
@@ -101,17 +101,17 @@ int main()
 {
     std::cout << "Hello World!\n";
 
-    int longest_inverse{ 0 };
+    int16_t longest_inverse{ 0 };
     BigInt::Digits longest_repeat;
 
-    for (int i = 2; i < 1000; ++i) {
+    for (int16_t i = 2; i < 1000; ++i) {
         auto decimal = get_decimal(1, i);
         std::cout << i << "\t";
         for (const auto& digit : decimal.first)
-            std::cout << static_cast<int>(digit);
+            std::cout << static_cast<int16_t>(digit);
         std::cout << "\t";
         for (const auto& digit : decimal.second)
-            std::cout << static_cast<int>(digit);
+            std::cout << static_cast<int16_t>(digit);
         std::cout << "\t" << decimal.second.size() << std::endl;
         if (decimal.second.size() > longest_repeat.size()) {
             longest_inverse = i;
@@ -121,7 +121,7 @@ int main()
 
     std::cout << std::endl;
     for (const auto& digit : longest_repeat)
-        std::cout << static_cast<int>(digit);
+        std::cout << static_cast<int16_t>(digit);
     std::cout << std::endl;
     std::cout << longest_inverse << "\t" << longest_repeat.size() << std::endl;
 }

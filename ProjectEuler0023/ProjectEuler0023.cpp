@@ -59,7 +59,7 @@ int main()
     //}
 
     std::set<int32_t> all_numbers;
-    for (int i = 1; i < 28124; ++i)
+    for (int32_t i = 1; i < 28124; ++i)
         all_numbers.insert(i);
 
     for (const auto& num : sums) {

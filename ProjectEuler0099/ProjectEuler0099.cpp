@@ -54,7 +54,7 @@ size_t get_largest_index() {
     double maxTerm{ 0 };
 
     auto terms = get_terms();
-    int ind = 1;
+    size_t ind = 1;
     for (const auto& [base, exp] : terms) {
         double term = exp * log(base);
         std::cout << base << "^" << exp << " = " << std::setprecision(15) << term << std::endl;

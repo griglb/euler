@@ -9,15 +9,15 @@
 #include "big_int.h"
 
 
-std::vector<int> get_power_of_2(int power) {
-    std::vector<int> current{ 1 };
+std::vector<int16_t> get_power_of_2(int16_t power) {
+    std::vector<int16_t> current{ 1 };
 
-    for (int i = 0; i < power; ++i) {
-        std::vector<int> tmp;
+    for (int16_t i = 0; i < power; ++i) {
+        std::vector<int16_t> tmp;
         for (const auto& digit : current) {
             tmp.push_back(2 * digit);
         }
-        int carry{ 0 };
+        int16_t carry{ 0 };
         for (auto iter = tmp.rbegin(); iter != tmp.rend(); ++iter) {
             if (*iter > 9) {
                 carry = *iter / 10;
@@ -39,26 +39,26 @@ std::vector<int> get_power_of_2(int power) {
 }
 
 
-BigInt::Digits get_power_2(int power) {
+BigInt::Digits get_power_2(int16_t power) {
     BigInt ret{ 1 };
-    for (int i = 0; i < power; ++i) {
+    for (int16_t i = 0; i < power; ++i) {
         ret *= 2;
     }
     return ret.get_digits();
 }
 
 
-void print_digit_sums(int max_power) {
+void print_digit_sums(int16_t max_power) {
     int64_t num{ 1 };
-    for (int i = 0; i < max_power; ++i) {
+    for (int16_t i = 0; i < max_power; ++i) {
         int64_t tmp = num;
         int64_t sum{ 0 };
         while (tmp > 0) {
             sum += tmp % 10;
             tmp /= 10;
         }
-        std::vector<int> digits = get_power_of_2(i);
-        int sum2 = std::accumulate(digits.begin(), digits.end(), 0);
+        auto digits = get_power_of_2(i);
+        auto sum2 = std::accumulate(digits.begin(), digits.end(), 0);
 
         std::cout << i << "\t" << num << "\t" << sum << "\t" << sum2 << std::endl;
         num *= 2;
@@ -71,8 +71,8 @@ int main()
     std::cout << "Hello World!\n";
     print_digit_sums(63);
 
-    for (int i = 0; i < 10; ++i) {
-        std::vector<int> power = get_power_of_2(i);
+    for (int16_t i = 0; i < 10; ++i) {
+        auto power = get_power_of_2(i);
         std::cout << i << "\t";
         for (const auto& digit : power) {
             std::cout << digit;
@@ -80,18 +80,18 @@ int main()
         std::cout << std::endl;
     }
 
-    std::vector<int> digits = get_power_of_2(1000);
+    auto digits = get_power_of_2(1000);
     for (const auto& digit : digits) {
         std::cout << digit << " ";
     }
     std::cout << std::endl;
 
-    int sum = std::accumulate(digits.begin(), digits.end(), 0);
+    auto sum = std::accumulate(digits.begin(), digits.end(), 0);
     std::cout << sum << std::endl;
 
     BigInt::Digits digits2 = get_power_2(1000);
     for (const auto& digit : digits2) {
-        std::cout << static_cast<int>(digit) << " ";
+        std::cout << static_cast<int16_t>(digit) << " ";
     }
     std::cout << std::endl;
 

@@ -54,7 +54,7 @@
 // Why not {6, 9, 10, 11, 13}?  6+13 == 9+10
 
 
-using Subset = std::set<int64_t>;
+using Subset = std::set<uint64_t>;
 using SubsetSet = std::set<Subset>;
 std::set<SubsetSet> get_disjoint_subset_pairs(size_t num_elements) {
     static std::map<size_t, std::set<SubsetSet>> memo;
@@ -68,17 +68,17 @@ std::set<SubsetSet> get_disjoint_subset_pairs(size_t num_elements) {
         all_elems.insert(i);
 
     // Consider the first subset size to be in [1, num_elements-1].
-    for (int sub1_size = 1; sub1_size < num_elements; ++sub1_size) {
+    for (size_t sub1_size = 1; sub1_size < num_elements; ++sub1_size) {
         // Get all combinations of this sized subset.
         auto sub1_combos = get_combinations(num_elements, sub1_size);
-        for (const auto combo1 : sub1_combos) {
+        for (const auto &combo1 : sub1_combos) {
             const Subset sub1{ combo1.begin(), combo1.end() };
             // Construct the set of all elements not in sub1.
             Subset other_elems{ all_elems };
             for (const auto& el : sub1)
                 other_elems.erase(el);
             // Consider the second subset size to from 1 to the number of elements not in sub1.
-            for (int sub2_size = 1; sub2_size <= other_elems.size(); ++sub2_size) {
+            for (size_t sub2_size = 1; sub2_size <= other_elems.size(); ++sub2_size) {
                 // Get all combinations of this sized subset.
                 auto sub2_combos = get_combinations(other_elems.size(), sub2_size);
                 for (const auto &combo2 : sub2_combos) {
@@ -168,27 +168,27 @@ bool test_set(const Subset& set) {
 }
 
 
-std::vector<Subset> get_special_sets(int64_t num_elements) {
+std::vector<Subset> get_special_sets(uint64_t num_elements) {
     std::vector<Subset> ret;
 
     const auto pairs = get_disjoint_subset_pairs(num_elements);
-    int64_t smallest_sum{ 1LL << 62 };
+    uint64_t smallest_sum{ 1ULL << 62 };
     Subset smallest_set;
 
-    constexpr int64_t ElemMax{ 50 };
+    constexpr uint64_t ElemMax{ 50 };
 
-    for (int64_t first = 1; first < ElemMax; ++first) {
+    for (uint64_t first = 1; first < ElemMax; ++first) {
         if (smallest_sum < (first * num_elements + num_elements*(num_elements-1)/2))
             break;
-        for (int64_t second = first + 1; second < 2*first; ++second) {
-            int64_t last = first + second - 1;
+        for (uint64_t second = first + 1; second < 2*first; ++second) {
+            uint64_t last = first + second - 1;
             std::cout << "\t" << first << "\t" << second << "\t" << last << std::endl;
             if (smallest_sum < (first + 4*second + 6))
                 break;
             if (last <= second)
                 continue;
-            std::vector<int64_t> middle;
-            for (int64_t mid = second + 1; mid <= last; ++mid)
+            std::vector<uint64_t> middle;
+            for (uint64_t mid = second + 1; mid <= last; ++mid)
                 middle.push_back(mid);
             if (middle.size() < num_elements - 2)
                 continue;
@@ -202,7 +202,7 @@ std::vector<Subset> get_special_sets(int64_t num_elements) {
                 }
                 if (test_set(tmp_set)) {
                     ret.push_back(tmp_set);
-                    auto sum = std::accumulate(tmp_set.begin(), tmp_set.end(), 0LL);
+                    auto sum = std::accumulate(tmp_set.begin(), tmp_set.end(), 0ULL);
                     if (sum < smallest_sum) {
                         smallest_sum = sum;
                         smallest_set = tmp_set;

@@ -20,7 +20,7 @@ bool is_palindrome(int32_t number) {
 }
 
 
-int32_t get_largest_palindrome(int digits) {
+int32_t get_largest_palindrome(int8_t digits) {
     int32_t start = static_cast<int32_t>(pow(10, digits-1));
     int32_t end = start * 10;
     int32_t largest = 0;

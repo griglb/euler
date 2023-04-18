@@ -11,9 +11,9 @@
 #include <iostream>
 
 
-int64_t get_sum_square_difference(int n) {
+int64_t get_sum_square_difference(int64_t n) {
     int64_t sum_squares{ 0 };
-    for (int i = 1; i <= n; ++i) {
+    for (int64_t i = 1; i <= n; ++i) {
         sum_squares += (i * i);
     }
 

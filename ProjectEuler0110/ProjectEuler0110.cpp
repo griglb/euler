@@ -145,8 +145,6 @@ std::vector<XY> get_xy2(const uint64_t n) {
 
 
 uint64_t get_num_terms(const Factorization& factors, const uint64_t n) {
-    uint64_t ret{ 0 };
-
     std::list<Terms> prod;
     for (const auto& [prime, exp] : factors) {
         prod.push_back({ 1 });
@@ -236,8 +234,6 @@ std::pair<uint64_t, uint64_t> get_smallest_number(uint64_t min_terms, uint64_t n
 
     // Index of which prime to increment exponent on next.
     uint64_t index{ 0 };
-    uint64_t best_n{ 0xffffffffffffffff };
-    uint64_t best_num_terms{ 0 };
     while (true) {
         if (get_num_potential_terms(factors) > min_terms) {
             const auto& [n, num_terms] = permute_factors(factors, min_terms, min_n);
@@ -284,13 +280,11 @@ std::set<Factorization> get_exp_sets(uint64_t min_solutions) {
 uint64_t get_answer(uint64_t min_terms) {
     uint64_t max_num_primes = static_cast<uint64_t>(std::ceil(std::log(min_terms) / std::log(3.0)));
 
-    uint64_t min_num_terms{ 0 };
     uint64_t min_n{ 0xffffffffffffffff };
     for (uint64_t num_primes = max_num_primes; num_primes > 1; --num_primes) {
         const auto& [n, num_terms] = get_smallest_number(min_terms, num_primes, min_n);
         std::cout << "number " << n << " with " << num_primes << " prime factors has " << num_terms << " solutions" << std::endl;
         if (n < min_n) {
-            min_num_terms = num_terms;
             min_n = n;
         }
     }

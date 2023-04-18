@@ -209,13 +209,13 @@ const std::vector<std::string> numbers { "37107287533902102798797998220837590246
                                          "53503534226472524250874054075591789781264330331690" };
 
 
-std::string get_sum(int num_terms) {
-    std::list<int> sum_digits;
+std::string get_sum(int16_t num_terms) {
+    std::list<int16_t> sum_digits;
     int32_t carry{ 0 };
     // Add each digit one at a time, right to left, just like in 1st grade.
-    for (int i = numbers[0].size() - 1; i >= 0; --i) {
+    for (int64_t i = numbers[0].size() - 1; i >= 0; --i) {
         int32_t sum{ carry % 10 };
-        for (int n = 0; n < num_terms; ++n) {
+        for (int16_t n = 0; n < num_terms; ++n) {
             sum += numbers[n][i] - '0';
         }
         sum_digits.push_front(sum % 10);

@@ -163,7 +163,7 @@ uint64_t get_num_sums_with_n_terms(uint16_t total, uint16_t num_terms) {
         // Increment varying_index to next value.
         for (int16_t varying_index = smallest_terms.size() - 1; varying_index >= 0; --varying_index) {
             ++smallest_terms[varying_index];
-            for (int16_t later_index = varying_index + 1; later_index < smallest_terms.size(); ++later_index)
+            for (size_t later_index = varying_index + 1; later_index < smallest_terms.size(); ++later_index)
                 smallest_terms[later_index] = smallest_terms[varying_index];
             // Get the sum of all the terms, adding the smallest values for the last 2,
             // which is the last element of smallest_terms.

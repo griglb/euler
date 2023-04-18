@@ -10,14 +10,13 @@ void get_powers() {
     int16_t count{0};
     for (int16_t base = 2; base < 10; ++base) {
         BigInt num{1};
-        for (int16_t exp = 1; exp < 50; ++exp) {
+        for (uint16_t exp = 1; exp < 50; ++exp) {
             num *= base;
             if (num.get_digits().size() == exp)
                 std::cout << ++count << "\t" << base << " ^ " << exp << " = " << num << std::endl;
         }
     }
 }
-
 
 
 int main()

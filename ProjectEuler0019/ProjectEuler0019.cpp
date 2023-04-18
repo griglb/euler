@@ -14,11 +14,11 @@
 #include <string>
 
 
-constexpr int NormalMonths[]{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
-constexpr int LeapMonths[]{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+constexpr int16_t NormalMonths[]{ 31, 28, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
+constexpr int16_t LeapMonths[]{ 31, 29, 31, 30, 31, 30, 31, 31, 30, 31, 30, 31 };
 
 
-bool is_leap_year(int year) {
+bool is_leap_year(int16_t year) {
     if (year % 4 > 0)
         return false;
     if ((year % 100 == 0) && (year % 400 != 0))
@@ -27,46 +27,46 @@ bool is_leap_year(int year) {
 }
 
 
-int length_of_year(int year) {
+int16_t length_of_year(int16_t year) {
     return is_leap_year(year) ? 366 : 365;
 }
 
 
-int length_of_century() {
+int32_t length_of_century() {
     int32_t sum{ 0 };
-    for (int y = 1901; y < 2001; ++y)
+    for (int16_t y = 1901; y < 2001; ++y)
         sum += length_of_year(y);
 
     return sum;
 }
 
 
-std::string first_day_of_year(int year) {
+std::string first_day_of_year(int16_t year) {
     const std::string DaysOfWeek[] = { "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday" };
 
-    int dow{ 0 };
-    for (int y = 1900; y < year; ++y) {
+    int16_t dow{ 0 };
+    for (int16_t y = 1900; y < year; ++y) {
         dow += length_of_year(y) % 7;
     }
     return DaysOfWeek[dow % 7];
 }
 
 
-std::string first_day_of_month(int year, int month) {
+std::string first_day_of_month(int16_t year, int16_t month) {
     const std::string DaysOfWeek[] = { "Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun" };
 
-    int dow{ 0 };
-    for (int y = 1900; y < year; ++y) {
+    int16_t dow{ 0 };
+    for (int16_t y = 1900; y < year; ++y) {
         dow += length_of_year(y) % 7;
     }
 
     if (is_leap_year(year)) {
-        for (int m = 0; m < month; ++m) {
+        for (int16_t m = 0; m < month; ++m) {
             dow += LeapMonths[m];
         }
     }
     else {
-        for (int m = 0; m < month; ++m) {
+        for (int16_t m = 0; m < month; ++m) {
             dow += NormalMonths[m];
         }
     }
@@ -74,9 +74,9 @@ std::string first_day_of_month(int year, int month) {
 }
 
 
-int sundays_per_year(int year) {
-    int dow{ 0 };
-    for (int y = 1900; y < year; ++y) {
+int16_t sundays_per_year(int16_t year) {
+    int16_t dow{ 0 };
+    for (int16_t y = 1900; y < year; ++y) {
         dow += length_of_year(y) % 7;
     }
     dow %= 7;
@@ -90,10 +90,10 @@ int main()
 {
     std::cout << "Hello World!\n";
 
-    int num_sundays{ 0 };
-    for (int y = 1901; y < 2001; ++y) {
+    int16_t num_sundays{ 0 };
+    for (int16_t y = 1901; y < 2001; ++y) {
         std::cout << y << " " << length_of_year(y) << " " << first_day_of_year(y) << " " << sundays_per_year(y);
-        for (int m = 0; m < 12; ++m) {
+        for (int16_t m = 0; m < 12; ++m) {
             std::cout << " " << first_day_of_month(y, m);
             num_sundays += first_day_of_month(y, m) == "Sun";
         }

@@ -61,8 +61,8 @@ const Grid get_number_grid() {
     for (const char* row_string : numbers) {
         Row row;
         std::stringstream str{ row_string };
-        for (int i = 0; i < 20; ++i) {
-            int x;
+        for (int8_t i = 0; i < 20; ++i) {
+            int16_t x;
             str >> x;
             row.push_back(x);
         }
@@ -72,7 +72,7 @@ const Grid get_number_grid() {
 }
 
 
-int64_t get_max_horizontal_product(int num_terms) {
+int64_t get_max_horizontal_product(int32_t num_terms) {
     int64_t max_product{ 0 };
 
     Grid grid = get_number_grid();
@@ -95,7 +95,7 @@ int64_t get_max_horizontal_product(int num_terms) {
 }
 
 
-int64_t get_max_vertical_product(int num_terms) {
+int64_t get_max_vertical_product(int32_t num_terms) {
     int64_t max_product{ 0 };
 
     Grid grid = get_number_grid();
@@ -116,7 +116,7 @@ int64_t get_max_vertical_product(int num_terms) {
 }
 
 
-int64_t get_max_ne_diagonal_product(int num_terms) {
+int64_t get_max_ne_diagonal_product(int32_t num_terms) {
     int64_t max_product{ 0 };
 
     Grid grid = get_number_grid();
@@ -137,7 +137,7 @@ int64_t get_max_ne_diagonal_product(int num_terms) {
 }
 
 
-int64_t get_max_se_diagonal_product(int num_terms) {
+int64_t get_max_se_diagonal_product(int32_t num_terms) {
     int64_t max_product{ 0 };
 
     Grid grid = get_number_grid();

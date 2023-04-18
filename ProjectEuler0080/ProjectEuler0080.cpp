@@ -31,7 +31,7 @@ BigInt get_square_root(uint64_t number, int16_t num_digits) {
     //    x_n+1 = (x_n + a / x_n) / 2
 
     BigInt x_n{ num };
-    for (int i = 0; i < 1000; ++i) {
+    for (int16_t i = 0; i < 1000; ++i) {
         // We want x_n+1 = (x_n + (num / x_n) / 2
         // Can do this with a sequence of in-place operations:
         //    x_n+1 = num
@@ -74,7 +74,7 @@ int main()
     {
         uint64_t sum{ 0 };
         std::set squares{ 4, 9, 16, 25, 36, 49, 64, 81 };
-        for (int i = 2; i < 100; ++i) {
+        for (int16_t i = 2; i < 100; ++i) {
             // Skip the perfect squares.
             if (squares.find(i) != squares.end())
                 continue;

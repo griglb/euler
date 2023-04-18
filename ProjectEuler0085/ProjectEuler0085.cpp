@@ -55,17 +55,17 @@ public :
     }
     ~RectangleCounter() = default;
 
-    uint64_t area_of_closest(uint64_t num_rect) {
-        uint64_t ret;
+    int64_t area_of_closest(int64_t num_rect) {
+        int64_t ret{0};
 
         // Populate triangular numbers up to num_rect, in case num_ret is triangular.
         while (*triangulars_.rbegin() < num_rect)
             triangulars_.push_back(*triangulars_.rbegin() + triangulars_.size());
 
-        uint64_t min_delta{ num_rect };
-        uint64_t best_width{ 0 };
-        uint64_t best_height{ 0 };
-        uint64_t w_ind{ 0 };
+        int64_t min_delta{ num_rect };
+        int64_t best_width{ 0 };
+        int64_t best_height{ 0 };
+        int64_t w_ind{ 0 };
         for (const auto & w : triangulars_) {
             if (w > num_rect)
                 break;
@@ -99,7 +99,7 @@ public :
     }
 
 private :
-    std::vector<uint64_t> triangulars_;
+    std::vector<int64_t> triangulars_;
 
 };
 

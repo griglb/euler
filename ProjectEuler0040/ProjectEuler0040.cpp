@@ -11,10 +11,10 @@
 #include "big_int.h"
 
 
-BigInt::Digits get_champernownes_digits(int32_t num_digits) {
+BigInt::Digits get_champernownes_digits(size_t num_digits) {
     BigInt::Digits ret{ 0 };
 
-    for (int32_t i = 1; i < num_digits; ++i) {
+    for (size_t i = 1; i < num_digits; ++i) {
         BigInt num{ i };
         auto tmp = num.get_digits();
 

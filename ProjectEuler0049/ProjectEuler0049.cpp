@@ -63,7 +63,7 @@ std::tuple<uint64_t, uint64_t, uint64_t> permutation_sequence() {
                 differences[diff].push_back(std::make_pair(p2, p1));
             }
         }
-        for (const auto [diff, pairs] : differences) {
+        for (const auto &[diff, pairs] : differences) {
             if (pairs.size() == 2) {
                 if (pairs[0].second == pairs[1].first)
                 {

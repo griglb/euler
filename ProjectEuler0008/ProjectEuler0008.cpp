@@ -49,9 +49,9 @@ constexpr char number[] = "73167176531330624919225119674426574742355349194934"
                           "71636269561882670428252483600823257530420752963450";
 
 
-int64_t get_largest_product(int num_terms) {
+int64_t get_largest_product(size_t num_terms) {
     // Copy the digits of the number string into a vector.
-    std::vector<int> digits;
+    std::vector<int8_t> digits;
     for (const char dig : number) {
         digits.push_back(dig - '0');
     }

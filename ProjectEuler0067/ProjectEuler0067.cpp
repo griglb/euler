@@ -59,7 +59,7 @@ std::vector<std::vector<int32_t>> get_max_paths(const std::vector<std::vector<in
             std::vector<int32_t> out_row;
 
             out_row.push_back(output.back().front() + row.front());
-            for (int i = 1; i < row.size() - 1; ++i) {
+            for (size_t i = 1; i < row.size() - 1; ++i) {
                 out_row.push_back(std::max(output.back()[i - 1], output.back()[i]) + row[i]);
             }
             out_row.push_back(output.back().back() + row.back());
@@ -91,7 +91,7 @@ int main()
         }
         std::cout << std::endl;
     }
-    int max_value{ 0 };
+    int32_t max_value{ 0 };
     for (const auto& elem : max_paths.back()) {
         max_value = std::max(max_value, elem);
     }

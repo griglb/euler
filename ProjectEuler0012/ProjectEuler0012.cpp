@@ -75,7 +75,7 @@ int main()
     //}
     //std::cout << std::endl;
 
-    for (int i = 1; i < 100; ++i) {
+    for (int16_t i = 1; i < 100; ++i) {
         PrimeHelper helper;
         Factorization factors = helper.get_factorization_fast(i);
         std::cout << i << ": ";

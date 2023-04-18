@@ -22,7 +22,7 @@
 #include "combinatorics.h"
 
 
-int64_t get_number_routes(int w, int h) {
+int64_t get_number_routes(int32_t w, int32_t h) {
     // The number of paths to get to vertex (i, j) is the same as the number in a rotated
     // Pascal's Triangle, for the binomial expansion.  This is a combinatoric calculation,
     // so the answer is C(w+h, w) == (w+h)! / w! h!

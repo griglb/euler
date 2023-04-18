@@ -216,7 +216,7 @@ public :
             case Pair : {
                 // Find the pairs and compare ranks.
                 Rank my_rank{Two};
-                std::array<Rank, 3> my_subranks;
+                std::array<Rank, 3> my_subranks{Two, Two, Two};
                 if (my_ranks[0] == my_ranks[1]) {
                     my_rank = my_ranks[0];
                     my_subranks[0] = my_ranks[2];
@@ -243,7 +243,7 @@ public :
                 }
 
                 Rank rhs_rank{Two};
-                std::array<Rank, 3> rhs_subranks;
+                std::array<Rank, 3> rhs_subranks{Two, Two, Two};
                 if (rhs_ranks[0] == rhs_ranks[1]) {
                     rhs_rank = rhs_ranks[0];
                     rhs_subranks[0] = rhs_ranks[2];

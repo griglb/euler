@@ -70,6 +70,6 @@ int main()
 {
     std::cout << "Hello World!\n";
 
-    for (int n = 1; n < 502; ++n)
+    for (int32_t n = 1; n < 502; ++n)
         std::cout << n << "\t" << get_diagonal_sum(n) << std::endl;
 }

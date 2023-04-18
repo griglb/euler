@@ -251,7 +251,7 @@ WorkingRow check_subset_for_cycles(const WorkingRow& origSubset) {
 }
 
 
-bool process_row(WorkingGrid& grid, int row) {
+bool process_row(WorkingGrid& grid, int16_t row) {
     // Cache the original row values
     const WorkingRow origRow = grid[row];
 
@@ -272,7 +272,7 @@ bool process_row(WorkingGrid& grid, int row) {
 }
 
 
-bool process_col(WorkingGrid& grid, int col) {
+bool process_col(WorkingGrid& grid, int16_t col) {
     // Cache the original col values
     const WorkingRow origCol = { grid[0][col], grid[1][col], grid[2][col], grid[3][col], grid[4][col], grid[5][col], grid[6][col], grid[7][col], grid[8][col] };
 
@@ -294,9 +294,9 @@ bool process_col(WorkingGrid& grid, int col) {
 }
 
 
-bool process_square(WorkingGrid& grid, int index) {
-    int row = 3 * (index / 3);
-    int col = 3 * (index % 3);
+bool process_square(WorkingGrid& grid, int16_t index) {
+    int16_t row = 3 * (index / 3);
+    int16_t col = 3 * (index % 3);
 
     // Cache the original col values
     const WorkingRow origSquare = { grid[row][col],     grid[row][col + 1],     grid[row][col + 2],

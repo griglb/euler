@@ -14,7 +14,7 @@ uint64_t biggest_sum() {
     for (int16_t a = 1; a < 100; ++a) {
         for (int16_t b = 1; b < 100; ++b) {
             BigInt product{a};
-            for (int exp = 1; exp < b; ++exp)
+            for (int16_t exp = 1; exp < b; ++exp)
                 product *= a;
             const auto digits = product.get_digits();
             uint64_t sum{0};

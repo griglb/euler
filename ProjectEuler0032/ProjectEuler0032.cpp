@@ -19,7 +19,7 @@ bool is_pandigital_product(int32_t a, int32_t b) {
     std::vector<int8_t> digits;
     int32_t c = a * b;
 
-    auto add_digits = [&digits](int num) {
+    auto add_digits = [&digits](int32_t num) {
         while (num > 0) {
             digits.push_back(num % 10);
             num /= 10;

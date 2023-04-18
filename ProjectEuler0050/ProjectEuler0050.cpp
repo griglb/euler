@@ -12,7 +12,7 @@
 #include "prime_helper.h"
 
 
-uint64_t get_sum_prime(int32_t max_val) {
+uint64_t get_sum_prime(uint32_t max_val) {
     PrimeHelper helper;
 
     auto tmp = helper.get_primes(max_val);

@@ -22,7 +22,7 @@
 #include "prime_helper.h"
 
 
-bool is_prime(int64_t number) {
+bool is_prime(uint64_t number) {
     static std::set<uint64_t> KnownPrimes;
     static uint64_t MaxTested;
 
@@ -43,7 +43,6 @@ bool is_prime(int64_t number) {
 
 int32_t num_quadratic_primes(int32_t a, int32_t b) {
     int32_t count{ 0 };
-    int32_t maxN = a < 0 ? -a : a;
     for (int32_t n = 0; ; ++n) {
         if (is_prime(n * n + a * n + b))
             count++;

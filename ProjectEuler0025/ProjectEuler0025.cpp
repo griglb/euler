@@ -23,7 +23,7 @@
 #include "big_int.h"
 
 
-std::pair<int64_t, BigInt> get_smallest_fibonacci_with_n_digits(int num_digits) {
+std::pair<int64_t, BigInt> get_smallest_fibonacci_with_n_digits(uint16_t num_digits) {
     std::vector<BigInt> fibonaccis { BigInt(0), BigInt(1) };
 
     while (fibonaccis.back().get_digits().size() < num_digits) {

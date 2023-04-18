@@ -95,9 +95,9 @@ std::vector<uint64_t> num_sums_dp(uint64_t n) {
     dp[0] = 1;
 
     // Iterate over the range [1, K + 1]
-    for (int64_t row = 1; row < n + 1; ++row) {
+    for (uint64_t row = 1; row < n + 1; ++row) {
         // Iterate over the range [row, N + 1]
-        for (int64_t col = row; col < n + 1; ++col) {
+        for (uint64_t col = row; col < n + 1; ++col) {
             // Update current dp[col] state
             dp[col] += dp[col - row];
             dp[col] %= 1'000'000'000'000'000;

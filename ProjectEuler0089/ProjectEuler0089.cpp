@@ -107,7 +107,6 @@ StringVec canonicalize_numbers(const StringVec &input) {
         {
             size_t ind = num.find("IIII");
             if (ind != std::string::npos) {
-                auto end_iter = ind + 4;
                 num.replace(ind, 4, "IV");
             }
         }

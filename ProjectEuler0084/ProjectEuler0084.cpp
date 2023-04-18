@@ -135,7 +135,7 @@ Matrix get_d6_probabilities() {
     Matrix prob;
 
     // Start by adding dice probabilities
-    for (int64_t row = 0; row < NumSquares; ++row) {
+    for (size_t row = 0; row < NumSquares; ++row) {
         prob[row] = {};
         prob[row][(row + 28) % NumSquares] = 1.0 / 36.0;
         prob[row][(row + 29) % NumSquares] = 2.0 / 36.0;
@@ -168,7 +168,7 @@ Matrix get_d6_probabilities() {
 
     // If a player rolls 3 consecutive doubles, then they go to jail
     // Add 1 / 216 to entire row 10, except the G2J column 30
-    for (int64_t col = 0; col < NumSquares; ++col)
+    for (size_t col = 0; col < NumSquares; ++col)
         prob[10][col] += 1.0 / 216.0;
     prob[10][30] = 0.0;
 
@@ -189,7 +189,7 @@ Matrix get_d4_probabilities() {
     Matrix prob;
 
     // Start by adding dice probabilities
-    for (int64_t row = 0; row < NumSquares; ++row) {
+    for (size_t row = 0; row < NumSquares; ++row) {
         prob[row] = {};
         prob[row][(row + 32) % NumSquares] = 1.0 / 16.0;
         prob[row][(row + 33) % NumSquares] = 2.0 / 16.0;
@@ -214,7 +214,7 @@ Matrix get_d4_probabilities() {
 
     // If a player rolls 3 consecutive doubles, then they go to jail
     // Add 1 / 64 to entire row 10, except the G2J column 30
-    for (int64_t col = 0; col < NumSquares; ++col)
+    for (size_t col = 0; col < NumSquares; ++col)
         prob[10][col] += 1.0 / 64.0;
     prob[10][30] = 0.0;
 
@@ -225,61 +225,61 @@ Matrix get_d4_probabilities() {
 void add_chance_probs(Matrix& prob) {
     // CHx - squares 7, 22, 36
     // Each CH space has 1/16 odds of sending you to GO, add that to row 0
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[0][c] += prob[7][c] / 16.0;
         prob[0][c] += prob[22][c] / 16.0;
         prob[0][c] += prob[36][c] / 16.0;
     }
     // Each CH space has 1/16 odds of sending you to JAIL, add that to row 10
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[10][c] += prob[7][c] / 16.0;
         prob[10][c] += prob[22][c] / 16.0;
         prob[10][c] += prob[36][c] / 16.0;
     }
     // Each CH space has 1/16 odds of sending you to C1, add that to row 11
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[11][c] += prob[7][c] / 16.0;
         prob[11][c] += prob[22][c] / 16.0;
         prob[11][c] += prob[36][c] / 16.0;
     }
     // Each CH space has 1/16 odds of sending you to E3, add that to row 24
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[24][c] += prob[7][c] / 16.0;
         prob[24][c] += prob[22][c] / 16.0;
         prob[24][c] += prob[36][c] / 16.0;
     }
     // Each CH space has 1/16 odds of sending you to H2, add that to row 39
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[39][c] += prob[7][c] / 16.0;
         prob[39][c] += prob[22][c] / 16.0;
         prob[39][c] += prob[36][c] / 16.0;
     }
     // Each CH space has 1/16 odds of sending you to R1, add that to row 5
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[5][c] += prob[7][c] / 16.0;
         prob[5][c] += prob[22][c] / 16.0;
         prob[5][c] += prob[36][c] / 16.0;
     }
     // Each CH space has 1/8 odds of sending you to the next Rx, add that to row 5, 15, 25, or 35
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[15][c] += prob[7][c] / 8.0;
         prob[25][c] += prob[22][c] / 8.0;
         prob[5][c] += prob[36][c] / 8.0;
     }
     // Each CH space has 1/16 odds of sending you to the next Ux, add that to row 12 or 28
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[12][c] += prob[7][c] / 16.0;
         prob[28][c] += prob[22][c] / 16.0;
         prob[12][c] += prob[36][c] / 16.0;
     }
     // Each CH space has 1/16 odds of sending you to back 3 squares, add that to row 4, 19, or 33
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[4][c] += prob[7][c] / 16.0;
         prob[19][c] += prob[22][c] / 16.0;
         prob[33][c] += prob[36][c] / 16.0;
     }
     // Chance spaces have 6/16 odds of drawing a card that doesn't move, so start by scaling all existing values by 3/8
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[7][c] *= 3.0 / 8.0;
         prob[22][c] *= 3.0 / 8.0;
         prob[36][c] *= 3.0 / 8.0;
@@ -289,19 +289,19 @@ void add_chance_probs(Matrix& prob) {
 void add_community_chest_probs(Matrix &prob) {
     // CCx - squares 2, 17, 33
     // Each CC space has 1/16 odds of sending you to GO, add that to row 0
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[0][c] += prob[2][c] / 16.0;
         prob[0][c] += prob[17][c] / 16.0;
         prob[0][c] += prob[33][c] / 16.0;
     }
     // Each CC space has 1/16 odds of sending you to JAIL, add that to row 10
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[10][c] += prob[2][c] / 16.0;
         prob[10][c] += prob[17][c] / 16.0;
         prob[10][c] += prob[33][c] / 16.0;
     }
     // Community Chest spaces have 14/16 odds of drawing a card that doesn't move, so start by scaling all existing values by 7/8
-    for (int64_t c = 0; c < NumSquares; ++c) {
+    for (size_t c = 0; c < NumSquares; ++c) {
         prob[2][c] *= 7.0 / 8.0;
         prob[17][c] *= 7.0 / 8.0;
         prob[33][c] *= 7.0 / 8.0;
@@ -320,19 +320,19 @@ Col solve_system(const Matrix& A) {
     // all sum to 1.0.
 
     Matrix lhs{ A };
-    for (int64_t row = 0; row < NumSquares; ++row)
+    for (size_t row = 0; row < NumSquares; ++row)
         lhs[row][row] -= 1.0;
 
     Col order;
-    for (int64_t row = 0; row < NumSquares; ++row) {
+    for (size_t row = 0; row < NumSquares; ++row) {
         order[row] = 1.0 * row;
     }
 
-    for (int64_t curr_row = 0; curr_row < NumSquares; ++curr_row) {
+    for (size_t curr_row = 0; curr_row < NumSquares; ++curr_row) {
         // Look for row in [curr_row, NumSquares) that has largest absolute value to pivot with.
         auto pivot_row{ curr_row };
         double max_val{ std::abs(lhs[curr_row][curr_row]) };
-        for (int64_t other_row = curr_row; other_row < NumSquares; ++other_row) {
+        for (size_t other_row = curr_row; other_row < NumSquares; ++other_row) {
             if (std::abs(lhs[other_row][curr_row]) > max_val) {
                 pivot_row = other_row;
                 max_val = std::abs(lhs[other_row][curr_row]);
@@ -350,13 +350,13 @@ Col solve_system(const Matrix& A) {
 
         // Scale the current row to put a 1 on the diagonal.
         double scale = 1.0 / lhs[curr_row][curr_row];
-        for (int64_t col = curr_row; col < NumSquares; ++col) {
+        for (size_t col = curr_row; col < NumSquares; ++col) {
             lhs[curr_row][col] *= scale;
         }
         // Subtract a scaled copy of current row from all subsequent rows.
-        for (int64_t row = curr_row + 1; row < NumSquares; ++row) {
+        for (size_t row = curr_row + 1; row < NumSquares; ++row) {
             double scale = lhs[row][curr_row];
-            for (int64_t col = curr_row; col < NumSquares; ++col) {
+            for (size_t col = curr_row; col < NumSquares; ++col) {
                 lhs[row][col] -= scale * lhs[curr_row][col];
             }
         }
@@ -378,16 +378,16 @@ Col solve_system(const Matrix& A) {
 
 
     std::cout << "lhs lower triangle" << std::endl;
-    for (int64_t row = 0; row < NumSquares; ++row) {
-        for (int64_t col = 0; col < row; ++col)
+    for (size_t row = 0; row < NumSquares; ++row) {
+        for (size_t col = 0; col < row; ++col)
             std::cout << lhs[row][col] << "  ";
         std::cout << std::endl;
     }
 
     std::cout << "lhs upper triangle" << std::endl;
-    for (int64_t row = 0; row < NumSquares; ++row) {
+    for (size_t row = 0; row < NumSquares; ++row) {
         double sum{ 0 };
-        for (int64_t col = row; col < NumSquares; ++col) {
+        for (size_t col = row; col < NumSquares; ++col) {
             std::cout << lhs[row][col] << "\t";
             sum += lhs[row][col];
         }
@@ -398,7 +398,7 @@ Col solve_system(const Matrix& A) {
     // To solve, start with the last element = 1 and work from bottom to top.
     Col prob{};
     prob[NumSquares-1] = 1.0;
-    for (int64_t row = NumSquares - 2; row >= 0; --row) {
+    for (size_t row = NumSquares - 2; row >= 0; --row) {
         // For a given row, we have the equation
         //   sum(lhs[row][col] * prob[col]) = 0
         // for col >= row.
@@ -407,7 +407,7 @@ Col solve_system(const Matrix& A) {
         //   prob[row] = -sum(lhs[row][col] * prob[col]) / lhs[row][row]
         // with the sum over col > row
         double sum{ 0 };
-        for (int64_t col = row + 1; col < NumSquares; ++col)
+        for (size_t col = row + 1; col < NumSquares; ++col)
             sum += lhs[row][col] * prob[col];
         prob[row] = -sum / lhs[row][row];
     }
@@ -437,12 +437,12 @@ int main()
         for (auto& el : sol)
             el /= sum;
         std::cout << "sum = " << sum << std::endl;
-        for (int64_t sq = 0; sq < NumSquares; ++sq) {
+        for (size_t sq = 0; sq < NumSquares; ++sq) {
             std::cout << sq << "\t" << sol[sq] << std::endl;
         }
 
-        std::map<double, int64_t> sorted_prob;
-        for (int64_t sq = 0; sq < NumSquares; ++sq) {
+        std::map<double, size_t> sorted_prob;
+        for (size_t sq = 0; sq < NumSquares; ++sq) {
             sorted_prob[sol[sq]] = sq;
         }
         std::cout << "sorted probabilities" << std::endl;
@@ -451,13 +451,13 @@ int main()
 
         // Verify we have a solution
         Col Ax;
-        for (int64_t row = 0; row < NumSquares; ++row) {
+        for (size_t row = 0; row < NumSquares; ++row) {
             double sum{ 0 };
-            for (int64_t col = 0; col < NumSquares; ++col)
+            for (size_t col = 0; col < NumSquares; ++col)
                 sum += prob[row][col] * sol[col];
             Ax[row] = sum;
         }
-        for (int64_t row = 0; row < NumSquares; ++row)
+        for (size_t row = 0; row < NumSquares; ++row)
             std::cout << sol[row] << "\t" << Ax[row] << "\t" << Ax[row] - sol[row] << std::endl;
     }
 
@@ -478,12 +478,12 @@ int main()
         for (auto& el : sol)
             el /= sum;
         std::cout << "sum = " << sum << std::endl;
-        for (int64_t sq = 0; sq < NumSquares; ++sq) {
+        for (size_t sq = 0; sq < NumSquares; ++sq) {
             std::cout << sq << "\t" << sol[sq] << std::endl;
         }
 
-        std::map<double, int64_t> sorted_prob;
-        for (int64_t sq = 0; sq < NumSquares; ++sq) {
+        std::map<double, size_t> sorted_prob;
+        for (size_t sq = 0; sq < NumSquares; ++sq) {
             sorted_prob[sol[sq]] = sq;
         }
         std::cout << "sorted probabilities" << std::endl;
@@ -492,13 +492,13 @@ int main()
 
         // Verify we have a solution
         Col Ax;
-        for (int64_t row = 0; row < NumSquares; ++row) {
+        for (size_t row = 0; row < NumSquares; ++row) {
             double sum{ 0 };
-            for (int64_t col = 0; col < NumSquares; ++col)
+            for (size_t col = 0; col < NumSquares; ++col)
                 sum += prob[row][col] * sol[col];
             Ax[row] = sum;
         }
-        for (int64_t row = 0; row < NumSquares; ++row)
+        for (size_t row = 0; row < NumSquares; ++row)
             std::cout << sol[row] << "\t" << Ax[row] << "\t" << Ax[row] - sol[row] << std::endl;
     }
 }

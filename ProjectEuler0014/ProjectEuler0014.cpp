@@ -89,7 +89,7 @@ int main()
     }
     std::cout << std::endl;
 
-    //for (int i = 1; i < 1'000'000; ++i) {
+    //for (int32_t i = 1; i < 1'000'000; ++i) {
     //    auto good_seq = get_collatz_sequence(i);
     //    auto bad_seq = get_collatz_sequence_bad(i);
     //    if (good_seq.size() != bad_seq.size()) {
@@ -101,7 +101,7 @@ int main()
     //auto lengths = get_collatz_sequence_lengths(1'000'000);
     //auto index = std::max_element(lengths.begin(), lengths.end());
     //std::cout << index - lengths.begin() << " = " << *index << std::endl;
-    //int i = 0;
+    //int32_t i = 0;
     //for (const auto& l : lengths) {
     //    if (l >= 400) {
     //        std::cout << "\t" << i << " = " << l << std::endl;

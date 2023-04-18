@@ -343,7 +343,7 @@ bool BigInt::is_perfect_square() const {
 	//    x_n+1 = x_n - x_n / 2 + this / (2 * x_n)
 	//    x_n+1 = (x_n + this / x_n) / 2
 	BigInt x_n{ ten_me };
-	int i{ 0 };
+	int8_t i{ 0 };
 	while (true) {
 		// We want x_n+1 = (x_n + this / x_n) / 2
 		// Can do this with a sequence of in-place operations:
@@ -655,7 +655,7 @@ BigInt& BigInt::operator++() {
 	else {
 		digits_.back()++;
 
-		int carry{ 0 };
+		int8_t carry{ 0 };
 		for (auto iter = digits_.rbegin(); iter != digits_.rend(); ++iter) {
 			if (*iter > 9) {
 				carry = *iter / 10;
@@ -697,7 +697,7 @@ BigInt& BigInt::operator--() {
 	else {
 		digits_.back()--;
 
-		int carry{ 0 };
+		int8_t carry{ 0 };
 		for (auto iter = digits_.rbegin(); iter != digits_.rend(); ++iter) {
 			if (*iter < 0) {
 				carry = -1;
@@ -789,7 +789,7 @@ BigInt& BigInt::operator+=(const BigInt& rhs) {
 			std::reverse(digits_.begin(), digits_.end());
 		}
 		// Iterate over digits right to left to handle any carries in addition.
-		int carry{ 0 };
+		int8_t carry{ 0 };
 		for (auto iter = digits_.rbegin(); iter != digits_.rend(); ++iter) {
 			if (*iter > 9) {
 				carry = *iter / 10;
@@ -913,7 +913,7 @@ BigInt& BigInt::operator-=(const BigInt& rhs) {
 				*iter -= *rhs_iter;
 			}
 			// Iterate over digits right to left to handle any carries in addition.
-			int carry{ 0 };
+			int8_t carry{ 0 };
 			for (auto iter = digits_.rbegin(); iter != digits_.rend(); ++iter) {
 				if (*iter < 0) {
 					carry = -1;
@@ -939,7 +939,7 @@ BigInt& BigInt::operator-=(const BigInt& rhs) {
 				std::reverse(digits_.begin(), digits_.end());
 			}
 			// Iterate over digits right to left to handle any carries in addition.
-			int carry{ 0 };
+			int8_t carry{ 0 };
 			for (auto iter = digits_.rbegin(); iter != digits_.rend(); ++iter) {
 				if (*iter < 0) {
 					carry = -1;
@@ -1078,7 +1078,7 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
 	for (auto rhs_iter = rhs.digits_.crbegin(); rhs_iter != rhs.digits_.crend(); ++rhs_iter) {
 		Digits tmp = multiply_helper(my_orig_digits, *rhs_iter);
 		// Add trailing 0s for the position of the rhs digit being multiplied
-		for (int i = 0; i < rhs_iter - rhs.digits_.crbegin(); ++i)
+		for (int64_t i = 0; i < rhs_iter - rhs.digits_.crbegin(); ++i)
 			tmp.push_back(0);
 
 		auto tmp_iter = tmp.crbegin();
@@ -1090,7 +1090,7 @@ BigInt& BigInt::operator*=(const BigInt& rhs) {
 			digits_.insert(digits_.begin(), *tmp_iter);
 		}
 		// Iterate over digits right to left to handle any carries in addition.
-		int carry{ 0 };
+		int8_t carry{ 0 };
 		for (auto iter = digits_.rbegin(); iter != digits_.rend(); ++iter) {
 			if (*iter > 9) {
 				carry = *iter / 10;

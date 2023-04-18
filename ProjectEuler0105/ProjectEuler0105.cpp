@@ -70,17 +70,17 @@ std::set<SubsetSet> get_disjoint_subset_pairs(size_t num_elements) {
         all_elems.insert(i);
 
     // Consider the first subset size to be in [1, num_elements-1].
-    for (int sub1_size = 1; sub1_size < num_elements; ++sub1_size) {
+    for (size_t sub1_size = 1; sub1_size < num_elements; ++sub1_size) {
         // Get all combinations of this sized subset.
         auto sub1_combos = get_combinations(num_elements, sub1_size);
-        for (const auto combo1 : sub1_combos) {
+        for (const auto &combo1 : sub1_combos) {
             const Subset sub1{ combo1.begin(), combo1.end() };
             // Construct the set of all elements not in sub1.
             Subset other_elems{ all_elems };
             for (const auto& el : sub1)
                 other_elems.erase(el);
             // Consider the second subset size to from 1 to the number of elements not in sub1.
-            for (int sub2_size = 1; sub2_size <= other_elems.size(); ++sub2_size) {
+            for (size_t sub2_size = 1; sub2_size <= other_elems.size(); ++sub2_size) {
                 // Get all combinations of this sized subset.
                 auto sub2_combos = get_combinations(other_elems.size(), sub2_size);
                 for (const auto& combo2 : sub2_combos) {

@@ -83,7 +83,6 @@ void test_ciphers() {
     
     uint8_t k[] = { 'e', 'x', 'p' };
     auto plain = cipher;
-    bool good = true;
     for (uint16_t i = 0; i < cipher_len; ++i)
         plain[i] ^= k[i % 3];
 

@@ -7,7 +7,7 @@
 #include "prime_helper.h"
 
 
-int64_t get_nth_prime(int index) {
+int64_t get_nth_prime(size_t index) {
     PrimeHelper helper;
 
     int64_t max_val = index;

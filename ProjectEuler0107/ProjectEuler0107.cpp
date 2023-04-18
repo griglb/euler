@@ -132,13 +132,13 @@ Cost get_network_cost(const Matrix& graph) {
 
 
 bool found_cycle(const Matrix& network, std::vector<Cost>& path, std::vector<bool>& visited, size_t &num_nodes) {
-    size_t graph_size = network.size();
+    int64_t graph_size = network.size();
 
     const auto curr_node = path[num_nodes - 1];
     const auto& row = network[curr_node];
 
     // See if any there are any edges from last_node to a node in nodes_left to complete a cycle
-    for (size_t ind = 0; ind < graph_size; ++ind) {
+    for (int64_t ind = 0; ind < graph_size; ++ind) {
         // No double backs to the node that got me to last_node
         if ((num_nodes > 1) && (path[num_nodes - 2] == ind))
             continue;

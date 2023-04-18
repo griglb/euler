@@ -39,8 +39,8 @@
 void find_answer() {
     double blue_percent = 1.0 / std::sqrt(2.0);
 
-    for (uint64_t tot = 1'006'000'000'000; tot < 2'000'000'000'000; ++tot) {
-        uint64_t blue = std::round(tot * blue_percent);
+    for (int64_t tot = 1'006'000'000'000; tot < 2'000'000'000'000; ++tot) {
+        int64_t blue = std::round(tot * blue_percent);
 
         if (tot % 100'000 == 0)
             std::cout << tot << "\t" << blue << "\t " << tot - blue << std::endl;
@@ -61,7 +61,7 @@ void find_answer() {
 
         std::cout << "B: " << blue << "\tR: " << tot - blue << "\ttotal: " << tot << std::endl;
         // answer is B: 756872327473 R: 313506783024 total: 1070379110497
-        int foo{ 0 };
+        int16_t foo{ 0 };
         std::cin >> foo;
         return;
     }

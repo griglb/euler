@@ -11,10 +11,10 @@
 #include "combinatorics.h"
 
 
-Permutation get_nth_permutation(int length, int64_t n) {
+Permutation get_nth_permutation(uint64_t length, int64_t n) {
     // Create a set of the elements that should be in the permutation.
     Combination elements;
-    for (int i = 0; i < length; ++i)
+    for (uint64_t i = 0; i < length; ++i)
         elements.insert(i);
 
     Permutation ret;

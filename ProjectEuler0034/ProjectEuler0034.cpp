@@ -7,9 +7,9 @@
 #include <vector>
 
 
-uint64_t factorial(int n) {
+uint64_t factorial(int16_t n) {
     uint64_t prod{ 1 };
-    for (int i = 2; i <= n; ++i)
+    for (int16_t i = 2; i <= n; ++i)
         prod *= i;
     return prod;
 }
@@ -19,7 +19,6 @@ std::vector<uint64_t> get_digit_factorials() {
     std::vector<uint64_t> ret;
 
     for (uint64_t num = 10; num < 1'000'000; ++num) {
-        uint64_t n{ num };
         uint64_t sum{ 0 };
         for (uint64_t n = num; n > 0; n /= 10) {
             sum += factorial(n % 10);
@@ -36,7 +35,7 @@ int main()
 {
     std::cout << "Hello World!\n";
 
-    for (int i = 1; i < 10; ++i) {
+    for (int16_t i = 1; i < 10; ++i) {
         std::cout << i << "! = " << factorial(i) << std::endl;
     }
 

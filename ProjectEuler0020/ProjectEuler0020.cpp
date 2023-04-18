@@ -9,7 +9,7 @@
 #include "big_int.h"
 
 
-BigInt factorial(int n) {
+BigInt factorial(int64_t n) {
     BigInt ret{ 1 };
     for (int64_t i = 2; i < n; ++i) {
         ret *= i;

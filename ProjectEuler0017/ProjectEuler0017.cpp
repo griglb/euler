@@ -11,7 +11,7 @@
 #include <iostream>
 
 
-std::string get_digit_word(int digit) {
+std::string get_digit_word(int8_t digit) {
     switch (digit) {
     case 1: return "one";
     case 2: return "two";
@@ -27,7 +27,7 @@ std::string get_digit_word(int digit) {
 }
 
 
-std::string get_word(int number) {
+std::string get_word(int16_t number) {
     if (number < 10) {
         return get_digit_word(number);
     }
@@ -74,7 +74,7 @@ std::string get_word(int number) {
 }
 
 
-std::string get_compact_word(int number) {
+std::string get_compact_word(int16_t number) {
     std::string ret = get_word(number);
     while (true) {
         auto ind = ret.find(' ');
@@ -96,7 +96,7 @@ std::string get_compact_word(int number) {
 int main()
 {
     std::cout << "Hello World!\n";
-    for (int i = 1; i < 1001; ++i) {
+    for (int16_t i = 1; i < 1001; ++i) {
         std::cout << i << "\t" << get_word(i) << "\t" << get_compact_word(i) << std::endl;
 
     }
@@ -105,7 +105,7 @@ int main()
     std::cout << "115 = " << get_compact_word(115).length() << std::endl;
 
     int64_t sum{ 0 };
-    for (int i = 1; i <= 1000; ++i) {
+    for (int16_t i = 1; i <= 1000; ++i) {
         sum += get_compact_word(i).length();
     }
     std::cout << sum << std::endl;

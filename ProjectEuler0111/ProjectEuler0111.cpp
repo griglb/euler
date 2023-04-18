@@ -36,7 +36,7 @@
 
 #include "big_int.h"
 #include "prime_helper.h"
-#include "cached_prime_helper.h"
+#include "chunked_prime_helper.h"
 
 
 using DigitCounts = std::array<uint64_t, 10>;
@@ -51,7 +51,7 @@ uint64_t S(int16_t num_digits) {
 
     ULongLongVec primes;
     {
-        CachedPrimeHelper helper;
+        ChunkedPrimeHelper<1'000'000'000> helper;
         primes = helper.get_primes(max_val);
         std::cout << "Got " << primes.size() << " primes" << std::endl;
     }

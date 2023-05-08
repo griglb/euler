@@ -781,6 +781,7 @@ uint64_t solve_for(uint16_t row_len) {
     return sum;
 }
 
+
 int main()
 {
     std::cout << "Hello World!\n";

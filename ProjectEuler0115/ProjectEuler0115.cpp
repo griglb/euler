@@ -176,7 +176,8 @@ void calculate_counts_for_length(uint16_t min_block_len, uint16_t row_len) {
     if (min_block_len > row_len)
         return;
 
-    // For N blocks, you need at least legnth L = 3N + N-1 = 4N - 1
+    // For N blocks of length k = min_block_len or longer, you need at least length
+    //    L = kN + N-1 = (k+1)N - 1
     // So for length L, the max number of blocks is (L + 1) / 4.
     uint16_t max_blocks = (row_len + 1) / (min_block_len + 1);
 

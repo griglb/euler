@@ -9,6 +9,8 @@
 //
 // Find a_30.
 
+
+#include <cstdint>
 #include <iostream>
 #include <numeric>
 #include <set>

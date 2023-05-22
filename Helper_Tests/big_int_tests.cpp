@@ -854,6 +854,35 @@ TEST(BigInt, InplaceDivideN) {
 	}
 }
 
+TEST(BigInt, InplaceMod1) {
+	BigInt one{ 1 };
+
+	{
+		std::vector<int64_t> test_vals{ 0, 1, 2, 3, 9, 99, 999, 123456789, 999999999, MaxInt64 };
+
+		for (auto& value : test_vals) {
+			BigInt bi{ value };
+			bi %= one;
+			EXPECT_EQ(bi.to_int(), value % 1);
+			EXPECT_EQ(one.to_int(), 1);
+		}
+	}
+}
+
+TEST(BigInt, InplaceModN) {
+	std::vector<int64_t> test_vals{ 2, 3, 7, 97, 997, 123456789, 999999999 };
+
+	for (const auto& value1 : test_vals) {
+		BigInt bi1{ value1 };
+		for (const auto& value2 : test_vals) {
+			BigInt bi2{ value2 };
+			bi2 %= bi1;
+			EXPECT_EQ(bi1.to_int(), value1);
+			EXPECT_EQ(bi2.to_int(), value2 % value1);
+		}
+	}
+}
+
 TEST(BigInt, StreamOut) {
 	std::vector<int64_t> test_vals{ 0, 1, -1, 12, -23, 123456789, -234567890, MaxInt64, MinInt64 };
 	std::vector<std::string> expect_vals{ "0", "1", "-1", "12", "-23", "123456789", "-234567890", "9223372036854775807", "-9223372036854775808" };

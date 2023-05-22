@@ -1237,6 +1237,67 @@ BigInt& BigInt::operator/=(const BigInt &rhs) {
 	return *this;
 }
 
+BigInt& BigInt::operator%=(int8_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(int16_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(int32_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(int64_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(uint8_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(uint16_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(uint32_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(uint64_t rhs) {
+	BigInt tmp{ rhs };
+	return operator%=(tmp);
+}
+
+BigInt& BigInt::operator%=(const BigInt & rhs) {
+	if (rhs > *this) {
+		// If modulus is greater than this, then no change.
+	}
+	else if (rhs == *this) {
+		// If modulus is equal to this, then change to 0.
+		*this = BigInt{ 0 };
+	}
+	else {
+		// Modulus is less than this, so calculate largest multiple less than
+		// this to subtract.
+		BigInt div{ *this };
+		// Integer division will return floor.
+		div /= rhs;
+		// Scale floor of quotient back up by modulus to get largest multiple.
+		div *= rhs;
+		// Subtract multiple from this to get answer.
+		operator-=(div);
+	}
+	return *this;
+}
 
 void BigInt::fix_digits() {
 	// Make sure we don't have any leading 0's.
@@ -1332,6 +1393,27 @@ BigInt operator/(BigInt lhs, uint64_t rhs) {
 BigInt operator/(BigInt lhs, const BigInt& rhs) {
 	BigInt ret{ lhs };
 	ret /= rhs;
+	return ret;
+}
+
+
+BigInt operator%(BigInt lhs, int64_t rhs) {
+	BigInt ret{ lhs };
+	ret %= rhs;
+	return ret;
+}
+
+
+BigInt operator%(BigInt lhs, uint64_t rhs) {
+	BigInt ret{ lhs };
+	ret %= rhs;
+	return ret;
+}
+
+
+BigInt operator%(BigInt lhs, const BigInt& rhs) {
+	BigInt ret{ lhs };
+	ret %= rhs;
 	return ret;
 }
 

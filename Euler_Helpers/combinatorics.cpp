@@ -265,15 +265,19 @@ PermutationList get_permutations(uint64_t num, uint64_t choose) {
         return get_permutations(elements);
     }
     else {
-
-        //CombinationList  subset_list = get_combinations(num, choose - 1);
-        //for (const auto& subset : subset_list) {
-        //    for (const auto& left : curr_indices) {
-        //        Combination this_perm = subset;
-        //        this_perm.insert(left);
-        //        ret.insert(this_perm);
-        //    }
-        //}
+        // TODO: this is not completely correct yet
+        for (uint64_t first = 0; first <= num - choose; ++first) {
+            std::cout << "first = " << first << ", recursing at (" << num - first - 1 << ", " << choose - 1 << ")" << std::endl;
+            PermutationList subsets = get_permutations(num - first - 1, choose - 1);
+            std::cout << "got " << subsets.size() << " subset permutations" << std::endl;
+            for (const auto& sub_perm : subsets) {
+                // Put the removed element first in the permutation, to keep them in lexicographic order.
+                Permutation perm{ first };
+                for (const auto & subp : sub_perm)
+                    perm.push_back(subp + first + 1);
+                ret.push_back(perm);
+            }
+        }
     }
 
     return ret;

@@ -16,6 +16,7 @@
 //
 // NOTE : This is related to Problem 116.
 
+#include <array>
 #include <cstdint>
 #include <iostream>
 #include <map>

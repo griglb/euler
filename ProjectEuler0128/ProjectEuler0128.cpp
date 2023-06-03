@@ -115,102 +115,91 @@ public :
     }
 
 
-    uint64_t PD(uint64_t x) {
-        // The center tile and first ring are special cases,
-        // so just hard-code the return values here
-        switch (x) {
-        case 1: return 3;  //  diffs = 1, 6, 5, 4, 3, 2
-        case 2: return 3;  //  diffs = 6, 17, 5, 1, 1, 7
-        case 3: return 2;  //  diffs = 6, 1, 2, 1, 8, 7
-        case 4: return 2;  //  diffs = 1, 3, 1, 9, 8, 7
-        case 5: return 0;  //  diffs = 4, 1, 10, 9, 8, 1
-        case 6: return 2;  //  diffs = 1, 11, 10, 9, 1, 5
-        case 7: return 2;  //  diffs = 12, 11, 10, 1, 6, 5
-        }
-
-        calc_diffs(x);
-        uint64_t ret{ 0 };
-        for (const auto& d : diffs_) {
-            if (primes_.find(d) != primes_.end())
-                ++ret;
-        }
-        return ret;
-    }
-
     std::vector<uint64_t> get_sequence(uint64_t length) {
         std::vector<uint64_t> ret;
 
-        uint64_t lo = get_lo(num_rings_);
+        // Special case for first ring
+        // PD(2) = 3  diffs = 6, 17, 5, 1, 1, 7
+        // PD(3) = 2  diffs = 6, 1, 2, 1, 8, 7
+        // PD(4) = 2  diffs = 1, 3, 1, 9, 8, 7
+        // PD(5) = 0  diffs = 4, 1, 10, 9, 8, 1
+        // PD(6) = 2  diffs = 1, 11, 10, 9, 1, 5
+        // PD(7) = 2  diffs = 12, 11, 10, 1, 6, 5
+        ret.push_back(1);
+        std::cout << "1\t0\t1" << std::endl;
+        ret.push_back(2);
+        std::cout << "2\t1\t2" << std::endl;
 
-        for (uint64_t x = 1; x < lo; ++x) {
-            if (PD(x) == 3) {
-                ret.push_back(x);
-                std::cout << ret.size() << "\t" << get_ring(x) << "\t" << x << std::endl;
-                //if (ret.size() > length)
-                //    break;
+        // Process each ring separately
+        uint64_t x{ 8 };
+        for (uint64_t n = 2; n < num_rings_; ++n) {
+            uint64_t six_n = 6 * n;
+
+            // Start with the vertex that starts this ring
+            {
+                // The neighbor on ring n-1 has a difference of 6*(n-1), which is even
+                // The neighbors on ring n are (1, 6*n-1)
+                // The neighbors on ring n+1 are (6*n, 6*n+1, 6*n+6*(n+1)-1)
+                //   Skip the 6*n number, since it is even.
+                if ((primes_.find(six_n - 1) != primes_.end()) &&
+                    (primes_.find(six_n + 1) != primes_.end()) &&
+                    (primes_.find(2 * six_n + 5) != primes_.end())) {
+                    x = get_lo(n);
+                    ret.push_back(x);
+                    std::cout << ret.size() << "\t" << n << "\t" << x << std::endl;
+                }
             }
+
+            // None of the other 5 vertices can be in the sequence:
+            //  - the neighbor on ring n-1 has a difference of 6*(n-1) + side
+            //  - the neighbors on ring n are both 1
+            //  - the neighbors on ring n+1 are (6*n + side - 1, 6*n + side, 6*n + side + 1)
+            // If side is even, then there are only 2 odd differences > 1
+            // If side is odd, then there are only 2 odd differences > 1
+
+            // Look at the tiles along the edge:
+            // The only edge tile that can possibly be in the sequence is the last
+            // tile in a ring.  Consider the diffs to the neighboring tiles:
+            //  - the neighbors on ring n-1 are of (6*(n-1) + side + 1, 6*(n-1) + side)
+            //  - the neighbors on ring n are both 1, unless this is the last tile in the ring
+            //  - the neighbors on ring n+1 are (6*n + side, 6*n + side + 1)
+            // For edge tiles on all sides, you will have adjacent tiles in the adjacent rings,
+            // so one even and one odd difference.  This means at most 2 of those neighbors can
+            // have prime differences.  For edge tiles on the first 5 sides, the neighbors in
+            // the same ring have a difference of 1.  The same holds for all but the last tile
+            // on the 6th side.  So PD(n) <= 2 for all these edge tiles.
+            // The lone exception to this rule is the last tile in the ring, where the neighbors
+            // on the same ring jump over the discontinuity, and you have the possibility of
+            // a third prime difference 6*n - 1.
+            {
+                // The neighbors on ring n-1 are of (6*n, 6*n+6*(n-1)-1)
+                //   6*n is even, so skip
+                // The neighbors on ring n are (1, 6*n - 1)
+                // The neighbors on ring n+1 are (6*n + 5, 6*n + 5 + 1)
+                //   6*n + 6 is even, so skip
+                if ((primes_.find(2 * six_n - 7) != primes_.end()) &&
+                    (primes_.find(six_n - 1) != primes_.end()) &&
+                    (primes_.find(six_n + 5) != primes_.end())) {
+                    x = get_hi(n);
+                    ret.push_back(x);
+                    std::cout << ret.size() << "\t" << n << "\t" << x << std::endl;
+                }
+            }
+
+            if (ret.size() > length)
+                break;
         }
+
 
         return ret;
     }
+
 
 private :
     uint64_t num_rings_;
     PrimeHelper helper_;
-    std::array<uint64_t, 6> diffs_;
     std::unordered_set<uint64_t> primes_;
 
-    void calc_diffs(uint64_t x) {
-        const uint64_t n = get_ring(x);
-        const uint64_t lo = get_lo(n);
-        const uint64_t pos = x - lo;
-        uint64_t six_n = 6 * n;
-
-        // Check special case of tile being first vertex in ring
-        if (pos == 0) {
-            // The neighbor on ring n-1 has a difference of 6*(n-1)
-            diffs_[0] = six_n - 6;
-            // The neighbors on ring n are (1, 6*n-1)
-            diffs_[1] = 1;
-            diffs_[2] = six_n - 1;
-            // The neighbors on ring n+1 are (6*n, 6*n+1, 6*n+6*(n+1)-1)
-            diffs_[3] = six_n;
-            diffs_[4] = six_n + 1;
-            diffs_[5] = 2 * six_n + 5;
-            return;
-        }
-
-        // The differences between adjacent rows change by 1 at each vertex,
-        // the side variable keeps track of this shift.
-        const uint64_t side = pos / n;
-
-        if ((pos % n) == 0) {
-            // We have a vertex tile
-
-            // The neighbor on ring n-1 has a difference of 6*(n-1) + side
-            diffs_[0] = six_n - 6 + side;
-            // The neighbors on ring n are both 1
-            diffs_[1] = 1;
-            diffs_[2] = 1;
-            // The neighbors on ring n+1 are (6*n + side - 1, 6*n + side, 6*n + side + 1)
-            diffs_[3] = six_n + side - 1;
-            diffs_[4] = six_n + side;
-            diffs_[5] = six_n + side + 1;
-        }
-        else {
-            // We have an edge tile
-
-            // The neighbors on ring n-1 are of (6*(n-1) + side + 1, 6*(n-1) + side)
-            diffs_[0] = six_n - 6 + side + 1;
-            diffs_[1] = six_n - 6 + side;
-            // The neighbors on ring n are both 1, unless this is the last tile in ring n
-            diffs_[2] = 1;
-            diffs_[3] = x == get_hi(n) ? six_n - 1 : 1;
-            // The neighbors on ring n+1 are (6*n + side - 1, 6*n + side, 6*n + side + 1)
-            diffs_[4] = six_n + side;
-            diffs_[5] = six_n + side + 1;
-        }
-    }
 };
 
 
@@ -233,19 +222,19 @@ int main()
     //        std::cout << ring << "\t" << get_hi(ring) << std::endl;
     //}
 
-    //{
-    //    RingCounter counter{ 10 };
-    //    std::cout << "PD(8) = " << counter.PD(8) << std::endl;
-    //    std::cout << "PD(17) = " << counter.PD(17) << std::endl;
-    //    std::cout << "PD(271) = " << counter.PD(271) << std::endl;
-    //    auto seq = counter.get_sequence(12);
-    //    for (const auto& x : seq)
-    //        std::cout << x << "\t";
-    //    std::cout << std::endl;
-    //}
-
+//    {
+//        RingCounter counter{ 11 };
+////        std::cout << "PD(8) = " << counter.PD(8) << std::endl;
+////        std::cout << "PD(17) = " << counter.PD(17) << std::endl;
+////        std::cout << "PD(271) = " << counter.PD(271) << std::endl;
+//        auto seq = counter.get_sequence(12);
+//        for (const auto& x : seq)
+//            std::cout << x << "\t";
+//        std::cout << std::endl;
+//    }
+//return 0;
     {
-        RingCounter counter{ 25000 };
+        RingCounter counter{ 75000 };
         auto seq = counter.get_sequence(2000);
         //for (size_t i = 0; i < seq.size(); ++i)
         //    std::cout << i << "\t" << seq[i] << std::endl;

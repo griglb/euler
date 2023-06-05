@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <array>
 #include <map>
+#include <numeric>
 #include <unordered_map>
 #include <vector>
 
@@ -92,7 +93,53 @@ public:
     }
 
     Factorization get_factorization(uint64_t number);
-    Factorization get_factorization_fast(uint64_t number);
+
+    Factorization get_factorization_fast(uint64_t number) {
+        // If we've already calculated this factorization, return it.
+        if (factors_.find(number) != factors_.end()) {
+            return factors_.at(number);
+        }
+
+        // Do we know enough primes to factor this number?
+        {
+            if (primes_.empty() || (number > primes_.back()))
+                get_primes(number);
+            // If number is prime, then return add the simple factorization and return.
+            if (std::binary_search(primes_.begin(), primes_.end(), number)) {
+                Factorization fact;
+                fact[number] = 1;
+                factors_[number] = fact;
+                return fact;
+            }
+        }
+
+        Factorization fact;
+        double root = sqrt(number);
+
+        for (auto p : primes_) {
+            if ((number % p) == 0) {
+                fact = get_factorization_fast(number / p);
+                if (fact.find(p) == fact.end()) {
+                    fact[p] = 1;
+                }
+                else {
+                    fact[p] = fact.at(p) + 1;
+                }
+                break;
+            }
+            if (p > root) {
+                break;
+            }
+        }
+
+        if (fact.empty()) {
+            fact[number] = 1;
+        }
+
+        factors_[number] = fact;
+
+        return factors_.at(number);
+    }
 
     ULongLongVec get_proper_divisors(uint64_t number);
 

@@ -38,6 +38,7 @@
 
 
 #include <array>
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <unordered_set>
@@ -100,7 +101,7 @@ public :
     uint64_t get_ring(uint64_t x) {
         if (1 == x)
             return 0;
-        double value = sqrt(x / 3.0 - 5.0 / 12.0) + 0.5;
+        double value = std::sqrt(x / 3.0 - 5.0 / 12.0) + 0.5;
         return static_cast<uint64_t>(value);
     }
 

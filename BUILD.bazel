@@ -7,6 +7,7 @@ cc_library(
     name = "euler_helpers_lib",
     hdrs = [
         "Euler_Helpers/big_int.h",
+        "Euler_Helpers/chunked_prime_helper.h",
         "Euler_Helpers/combinatorics.h",
         "Euler_Helpers/continued_fractions.h",
         "Euler_Helpers/fraction.h",

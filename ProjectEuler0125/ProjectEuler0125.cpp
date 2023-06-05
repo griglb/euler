@@ -9,6 +9,8 @@
 // and can be written as the sum of consecutive squares.
 
 
+#include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <numeric>
 #include <vector>
@@ -35,7 +37,7 @@ bool is_palindrome(uint64_t number) {
 std::vector<uint64_t> find_palindromes(uint64_t max_value) {
     std::vector<uint64_t> ret;
 
-    uint64_t max_root = sqrt(max_value);
+    uint64_t max_root = std::sqrt(max_value);
 
     for (uint64_t first = 1; first < max_root; ++first) {
         uint64_t sum{ first * first };

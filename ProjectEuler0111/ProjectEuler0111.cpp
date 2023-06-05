@@ -35,7 +35,6 @@
 #include <vector>
 
 #include "big_int.h"
-#include "prime_helper.h"
 #include "chunked_prime_helper.h"
 
 

@@ -15,16 +15,22 @@
 // Find the sum of all Eulercoins.
 
 
+#include <chrono>
+#include <ctime>
 #include <iostream>
 #include <numeric>
 #include <vector>
 
+#include "big_int.h"
 
-// The modulus is on the order of 2 {^52, so we can use uint64_t here and don't need BigInt.
+
+// The modulus is on the order of 2^52, so we can use uint64_t here and don't need BigInt.
+// 4503599627370517 is prime, so the modulus forms a unique cycle of that length.
 // 1504170715041707 = 17 x 1249 x 12043 x 5882353
 
 
 using Coin = uint64_t;
+using Index = uint64_t;
 
 std::vector<Coin> get_euler_coins() {
     constexpr Coin date{ 1504170715041707 };
@@ -34,7 +40,7 @@ std::vector<Coin> get_euler_coins() {
 
     ret.push_back(date);
     Coin current{ date };
-    Coin index{ 1 };
+    Index index{ 1 };
     while (true) {
         current += date;
         current %= modulus;
@@ -42,7 +48,99 @@ std::vector<Coin> get_euler_coins() {
 
         if (current < ret.back()) {
             ret.push_back(current);
-            std::cout << index << "\t= " << current << std::endl;
+            auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow) << std::endl;
+        }
+
+        if (0 == current)
+            break;
+    }
+
+    return ret;
+}
+
+
+std::vector<Coin> get_euler_coins_jumps() {
+    constexpr Coin increment{ 1504170715041707 };
+    constexpr Coin modulus{ 4503599627370517 };
+
+    std::vector<Coin> ret;
+
+    Coin current{ increment };
+    Index index{ 1 };
+    Index last_index{ index };
+
+    // The first coin is the increment value
+    {
+        ret.push_back(current);
+        auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
+    }
+
+    // The second coin is at n = 3
+    {
+        current += increment;
+        current %= modulus;
+        ++index;
+
+        current += increment;
+        current %= modulus;
+        ++index;
+
+        ret.push_back(current);
+        auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+        std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
+    }
+
+    Coin last_coin{ ret.back() };
+    Index delta_index{ index - last_index };
+    last_index = index;
+
+    while (true) {
+//    for (int i = 0; i < 50; ++i) {
+        // First try jumping another delta_index, to see if it is an Eulercoin
+        {
+            BigInt jump{ increment };
+            jump *= delta_index;
+            jump %= modulus;
+
+            current += jump.to_int();
+            current %= modulus;
+            index += delta_index;
+
+            if (current < last_coin) {
+                last_coin = current;
+                ret.push_back(last_coin);
+                auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                std::cout << index << "\t== " << current << "\t@ " << ctime(&timenow);
+                std::cout << "\t" << "jumped by delta_n = " << delta_index << std::endl;
+                last_index = index;
+
+                if (0 == current)
+                    break;
+
+                continue;
+            }
+        }
+
+        // If we got here, the delta_n increased, but at least we skipped a lot of test numbers
+        while (true) {
+            current += increment;
+            current %= modulus;
+            ++index;
+
+            if (current < last_coin) {
+                last_coin = current;
+                ret.push_back(last_coin);
+                auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
+                delta_index = index - last_index;
+                last_index = index;
+                break;
+            }
+
+            if (0 == current)
+                break;
         }
 
         if (0 == current)
@@ -58,7 +156,7 @@ int main()
     std::cout << "Hello World!\n";
 
     {
-        auto coins = get_euler_coins();
+        auto coins = get_euler_coins_jumps();
         std::cout << "There are " << coins.size() << " coins, summing to "
                   << std::accumulate(coins.begin(), coins.end(), Coin{ 0 }) << std::endl;
     }

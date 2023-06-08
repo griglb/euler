@@ -1405,6 +1405,16 @@ cc_binary(
         "ProjectEuler0700/ProjectEuler0700.cpp"
     ],
     deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe700_helper",
+    srcs = [
+        "ProjectEuler0700/ProjectEuler0700_helper.cpp"
+    ],
+    deps = [
     ],
 )
 

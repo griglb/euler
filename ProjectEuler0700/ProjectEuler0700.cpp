@@ -15,6 +15,7 @@
 // Find the sum of all Eulercoins.
 
 
+#include <array>
 #include <chrono>
 #include <ctime>
 #include <iostream>
@@ -23,6 +24,8 @@
 #include <vector>
 
 #include "big_int.h"
+
+#pragma warning(disable : 4996)
 
 
 using namespace std::chrono_literals;
@@ -158,15 +161,17 @@ struct ThreadParams {
     const Coin increment;
     const Coin modulus;
     const Coin *start;
+    const Index start_index;
     const Index count;
     const Coin last_coin;
     Coin *new_coin;
-    Index *delta_n;
+    Index *found_index;
 };
 
 void thread_func(const ThreadParams &params) {
     std::cout << "\tthread_func, thread id = " << std::this_thread::get_id()
-              << ", start = " << *params.start
+              << ", start coin = " << *params.start
+              << ", start_index = " << params.start_index
               << ", count = " << params.count
               << ", last_coin = " << params.last_coin
               << std::endl;
@@ -175,12 +180,12 @@ void thread_func(const ThreadParams &params) {
     Index index{ 0 };
 
     while (index < params.count) {
-        if (index % 10'000 == 0) {
+        if (index % 50'000'000 == 0) {
             if (Coin(-1) == *params.start) {
-                std::cout << "Thread " << std::this_thread::get_id() << " got poison pill, exiting thread..." << std::endl;
+//                std::cout << "\tThread " << std::this_thread::get_id() << " got poison pill, exiting thread..." << std::endl;
                 return;
             }
-            std::cout << "Thread " << std::this_thread::get_id() << ", index = " << index << ", current = " << current << std::endl;
+//            std::cout << "\tThread " << std::this_thread::get_id() << ", index = " << index << ", current = " << current << std::endl;
             std::this_thread::sleep_for(50ms);
         }
         current += params.increment;
@@ -189,13 +194,14 @@ void thread_func(const ThreadParams &params) {
 
         if (current < params.last_coin) {
             *params.new_coin = current;
-            *params.delta_n = index;
-            std::cout << "Thread " << std::this_thread::get_id() << " found the next coin, returning..." << std::endl;
+            *params.found_index = params.start_index + index;
+//            std::cout << "\tThread " << std::this_thread::get_id() << " found the next coin " << current << std::endl;
             return;
         }
     }
 
-    *params.new_coin = -1;
+//    std::cout << "\tThread " << std::this_thread::get_id() << " unsuccessful, exiting..." << std::endl;
+    *params.new_coin = -current;
 }
 
 
@@ -204,14 +210,15 @@ std::vector<Coin> get_euler_coins_threaded() {
     constexpr Coin modulus{ 4503599627370517 };
 
     std::vector<Coin> ret;
+    std::vector<Index> n_values;
 
     Coin current{ increment };
     Index index{ 1 };
-    Index last_index{ index };
 
     // The first coin is the increment value
     {
         ret.push_back(current);
+        n_values.push_back(1);
         auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
     }
@@ -227,16 +234,16 @@ std::vector<Coin> get_euler_coins_threaded() {
         ++index;
 
         ret.push_back(current);
+        n_values.push_back(3);
         auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
         std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
     }
 
     Coin last_coin{ ret.back() };
-    Index delta_index{ index - last_index };
-    last_index = index;
+    Index delta_index{ index - n_values.back() };
 
-//    while (true) {
-    for (int i = 0; i < 30; ++i) {
+    while (true) {
+//    for (int i = 0; i < 60; ++i) {
         // First try jumping another delta_index, to see if it is an Eulercoin
         {
             BigInt jump{ increment };
@@ -250,10 +257,11 @@ std::vector<Coin> get_euler_coins_threaded() {
             if (current < last_coin) {
                 last_coin = current;
                 ret.push_back(last_coin);
+                n_values.push_back(index);
+
                 auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
                 std::cout << index << "\t== " << current << "\t@ " << ctime(&timenow);
-                std::cout << "\t" << "jumped by delta_n = " << delta_index << std::endl;
-                last_index = index;
+                std::cout << "\tjumped by delta_n = " << delta_index << std::endl;
 
                 if (0 == current)
                     break;
@@ -262,107 +270,135 @@ std::vector<Coin> get_euler_coins_threaded() {
             }
         }
 
-        if (delta_index < 10000) {
-            Index delta_n;
+        // For small delta_n values, the cost of spinning up threads outweighs the search.
+        if (delta_index < 10'000'000) {
+            Index found_index;
             ThreadParams params{ .increment = increment,
                                  .modulus = modulus,
                                  .start = &current,
+                                 .start_index = index,
                                  .count = modulus,
                                  .last_coin = last_coin,
                                  .new_coin = &current,
-                                 .delta_n = &delta_n};
+                                 .found_index = &found_index };
             thread_func(params);
 
             last_coin = current;
+            index = found_index;
+            delta_index = index - n_values.back();
             ret.push_back(last_coin);
-            last_index = index;
-            delta_index += delta_n;
-            index += delta_n;
+            n_values.push_back(index);
             auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
             std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
 
             continue;
         }
 
+
         // If we got here, the delta_n increased, use threads to split up the searching.
+        std::cout << "\tusing threads" << std::endl;
+
         // Each thread is responsible to search delta_index values.
         constexpr size_t kNumThread{ 10 };
         std::array<std::thread, kNumThread> threads;
         std::array<Coin, kNumThread> start_values;
-        std::array<Coin, kNumThread> found_values;
-        std::array<Index, kNumThread> delta_n_values;
+        std::array<Coin, kNumThread> found_coin_values;
+        std::array<Index, kNumThread> found_index_values;
+        size_t group{ 0 };
 
-        std::cout << "using threads" << std::endl;
-
-
+        // Use a BigInt to calculate delta_n * increment mod modulus
         Coin start{ current };
-        BigInt jump{ increment };
-        jump *= delta_index;
-        jump %= modulus;
+        BigInt jump_big{ increment };
+        jump_big *= delta_index;
+        jump_big %= modulus;
+        auto jump = jump_big.to_int();
 
-        for (size_t ind = 0 ; ind < kNumThread; ++ind) {
-            start += jump.to_int();
-            start %= modulus;
-            start_values[ind] = start;
-            found_values[ind] = 0;
-            ThreadParams params{ .increment = increment,
-                                 .modulus = modulus,
-                                 .start = &start_values[ind],
-                                 .count = delta_index,
-                                 .last_coin = last_coin,
-                                 .new_coin = &found_values[ind],
-                                 .delta_n = &delta_n_values[ind]};
-            threads[ind] = std::thread(thread_func, params);
-            std::this_thread::sleep_for(5ms);
-        }
-
-        std::this_thread::sleep_for(50ms);
-
+        // Keep creating thread groups until we find the next coin.
         while (true) {
+            // Did any thread find a coin
             bool found_coin{ false };
-            bool thread_done{ false };
-            size_t thread_ind{ 0 };
-            for (const auto &value : found_values) {
-                if (value > 0) {
-                    found_coin = true;
+
+            // Start the threads at multiples of delta_n.
+            for (size_t ind = 0; ind < kNumThread; ++ind) {
+                start_values[ind] = start;
+                found_coin_values[ind] = 0;
+                found_index_values[ind] = 0;
+                ThreadParams params{ .increment = increment,
+                                     .modulus = modulus,
+                                     .start = &start_values[ind],
+                                     .start_index = index + ind * delta_index,
+                                     .count = delta_index,
+                                     .last_coin = last_coin,
+                                     .new_coin = &found_coin_values[ind],
+                                     .found_index = &found_index_values[ind] };
+                threads[ind] = std::thread(thread_func, params);
+                std::this_thread::sleep_for(5ms);
+
+                start += jump;
+                start %= modulus;
+            }
+
+            // Let the threads run for a little while before inspecting them.
+            std::this_thread::sleep_for(50ms);
+
+            // Poll threads until one finds a coin or all terminate.
+            while (true) {
+                // Did any thread run to completion
+                bool threads_all_done = std::all_of(found_coin_values.begin(), found_coin_values.end(),
+                    [](const Coin& value) { return value != 0; });
+                if (!threads_all_done) {
+                    std::this_thread::sleep_for(100ms);
+                    continue;
+                }
+
+                // 0-based index of the thread that found a coin
+                size_t thread_ind{ 0 };
+                found_coin = std::any_of(found_coin_values.begin(), found_coin_values.end(),
+                    [](const Coin& value) { return value > 0; });
+                if (found_coin) {
+                    for (size_t ind = 0; ind < kNumThread; ++ind) {
+                        if ((0 == thread_ind) && (0 < found_coin_values[ind])) {
+                            thread_ind = ind;
+                        }
+                        if (0 == found_coin_values[ind]) {
+                            start_values[ind] = -1;
+                        }
+                    }
+                    for (auto& th : threads)
+                        th.join();
+
+                    current = found_coin_values[thread_ind];
+                    last_coin = current;
+                    index = found_index_values[thread_ind];
+                    delta_index = index - n_values.back();
+                    ret.push_back(last_coin);
+                    n_values.push_back(index);
+
+                    auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                    std::cout << index << "\t= " << current << " in thread " << kNumThread * group + thread_ind << "\t@ " << ctime(&timenow);
+                    std::cout << "\tindex = " << index << ", last_index = " << n_values[n_values.size()-2] << ", delta_n = " << delta_index << std::endl;
                     break;
                 }
-                if (value < 0) {
-                    thread_done = true;
+                else {
+                    for (auto& th : threads)
+                        th.join();
+
+                    // Update index and current for next group of threads
+                    index += kNumThread * delta_index;
+                    current = -found_coin_values[kNumThread - 1];
+
+                    break;
                 }
-                ++thread_ind;
             }
-            if (found_coin) {
-                for (size_t ind = 0 ; ind < kNumThread; ++ind) {
-                    if (0 == found_values[ind]) {
-                        start_values[ind] = -1;
-                    }
-                }
-                for (auto& th : threads)
-                    th.join();
 
-                current = found_values[thread_ind];
-                last_coin = current;
-                ret.push_back(last_coin);
-                delta_index = delta_n_values[thread_ind];
-                last_index = index;
-                index += delta_index;
-
-                auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-                std::cout << index << "\t= " << current << " in thread " << thread_ind << "\t@ " << ctime(&timenow);
+            if (0 == current)
                 break;
-            }
-            else if (thread_done) {
-                for (auto& th : threads)
-                    th.join();
-                continue;
-            }
 
-            std::this_thread::sleep_for(500ms);
+            if (found_coin)
+                break;
+
+            ++group;
         }
-
-        if (0 == current)
-            break;
     }
 
     return ret;

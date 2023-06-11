@@ -15,6 +15,7 @@
 // Find the sum of all Eulercoins.
 
 
+#include <algorithm>
 #include <array>
 #include <chrono>
 #include <ctime>
@@ -25,7 +26,9 @@
 
 #include "big_int.h"
 
+#ifdef _WIN32
 #pragma warning(disable : 4996)
+#endif
 
 
 using namespace std::chrono_literals;
@@ -508,7 +511,7 @@ public:
             BigInt jump{ inv_big };
             jump *= (kModulus - c);
             jump %= kModulus;
-            auto tmp = jump.to_int();
+            Index tmp = jump.to_int();
             if (tmp < min_delta_n) {
                 min_delta_n = tmp;
                 coin_for_min = c;
@@ -639,7 +642,7 @@ public:
     }
 
 private:
-    static constexpr size_t kTailSize{ 1'000'000 };
+    static constexpr Coin kTailSize{ 1'000'000 };
     std::vector<Index> delta_n_for_delta_coin_;
 
 };
@@ -667,22 +670,22 @@ int main()
     //              << std::accumulate(coins.begin(), coins.end(), Coin{ 0 }) << std::endl;
     //}
 
-    {
-        CoinFinder finder;
+    // {
+    //     CoinFinder finder;
 
-        std::cout << "inverse of 5 mod 13 = " << finder.get_inverse(5, 13) << std::endl;
-        std::cout << "inverse of -137 mod " << kModulus << " = " << finder.get_inverse(-137, kModulus) << std::endl;
-        std::cout << "inverse of " << kIncrement << " mod " << kModulus << " = " << finder.get_inverse(kIncrement, kModulus) << std::endl;
+    //     std::cout << "inverse of 5 mod 13 = " << finder.get_inverse(5, 13) << std::endl;
+    //     std::cout << "inverse of -137 mod " << kModulus << " = " << finder.get_inverse(-137, kModulus) << std::endl;
+    //     std::cout << "inverse of " << kIncrement << " mod " << kModulus << " = " << finder.get_inverse(kIncrement, kModulus) << std::endl;
 
-        std::cout << "delta_n for -137 = " << finder.get_delta_n(-137) << std::endl;
+    //     std::cout << "delta_n for -137 = " << finder.get_delta_n(-137) << std::endl;
 
-        std::cout << "delta_n for Coin 107 = " << finder.get_next_delta_n(107).first << " -> " << 107 - finder.get_next_delta_n(107).second << std::endl;
-        std::cout << "delta_n for Coin 1888 = " << finder.get_next_delta_n(1888).first << " -> " << 1888 - finder.get_next_delta_n(1888).second << std::endl;
-        std::cout << "delta_n for Coin 63315 = " << finder.get_next_delta_n(63315).first << " -> " << 63315 - finder.get_next_delta_n(63315).second << std::endl;
-        std::cout << "delta_n for Coin 107159 = " << finder.get_next_delta_n(107159).first << " -> " << 107159 - finder.get_next_delta_n(107159).second << std::endl;
-        std::cout << "delta_n for Coin 258162 = " << finder.get_next_delta_n(258162).first << " -> " << 258162 - finder.get_next_delta_n(258162).second << std::endl;
-        std::cout << "delta_n for Coin 667327 = " << finder.get_next_delta_n(667327).first << " -> " << 667327 - finder.get_next_delta_n(667327).second << std::endl;
-    }
+    //     std::cout << "delta_n for Coin 107 = " << finder.get_next_delta_n(107).first << " -> " << 107 - finder.get_next_delta_n(107).second << std::endl;
+    //     std::cout << "delta_n for Coin 1888 = " << finder.get_next_delta_n(1888).first << " -> " << 1888 - finder.get_next_delta_n(1888).second << std::endl;
+    //     std::cout << "delta_n for Coin 63315 = " << finder.get_next_delta_n(63315).first << " -> " << 63315 - finder.get_next_delta_n(63315).second << std::endl;
+    //     std::cout << "delta_n for Coin 107159 = " << finder.get_next_delta_n(107159).first << " -> " << 107159 - finder.get_next_delta_n(107159).second << std::endl;
+    //     std::cout << "delta_n for Coin 258162 = " << finder.get_next_delta_n(258162).first << " -> " << 258162 - finder.get_next_delta_n(258162).second << std::endl;
+    //     std::cout << "delta_n for Coin 667327 = " << finder.get_next_delta_n(667327).first << " -> " << 667327 - finder.get_next_delta_n(667327).second << std::endl;
+    // }
 
     {
         CoinFinder finder;

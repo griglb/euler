@@ -35,22 +35,62 @@ using namespace std::chrono_literals;
 // 4503599627370517 is prime, so the modulus forms a unique cycle of that length.
 // 1504170715041707 = 17 x 1249 x 12043 x 5882353
 
+// The modulus is a little less than 3 times the increment, so the sequence of terms
+// generally increases, with the mod being invoked every 3rd or 4th element.
+// To go from n=X to n=Y, we don't need to iterate over every value, we can jump:
+//    F(Y) = (F(X) + increment * (Y - X)) mod modulus
+
+// There are very few Eulercoins, because they form a monotonically decreasing sequence.
+// If we know that F(N) is an Eulercoin, then the next Eulercoin is at N' such that
+//    F(N') < F(N)
+// Using the above expression:
+//    (F(N) + increment * (N' - N)) mod modulus < F(N)
+// This implies that:
+//    -F(N) <= ((increment * (N' - N)) mod modulus) - modulus < 0
+//    (increment * (N' - N)) mod modulus >= modulus - F(N)
+// There could by multiple values of n for which this is true, N' is the smallest value greater than N.
+
+// There are times when (F(N') - F(N)) < F(N).  When this happens, the same jump in n will
+// happen over and over, resulting in the same decrease in coin value.  This will repeat until
+// we reach an F(k) < F(N') - F(N).
+
+// The expression above tells us the change in F(n) due to a given change in n, but we can
+// can also calculate the difference in n needed for a given change in F(n).  This requires
+// calculating the modular multiplicative inverse of the increment.
+//    1504170715041707^-1 mod 4503599627370517 = 3451657199285664
+// So F(n + 3451657199285664) = F(n) + 1
+// If we want to decrease F(k) by 1, we take the additive inverse of 3451657199285664, which
+// is just modulus - 3451657199285664 = 1051942428084853
+// So F(n + 1051942428084853) = F(n) - 1
+// Repeated applications of this can be used to get us any change in F(n) value:
+//    F(n + d * 1051942428084853) = F(n) - d
+// Of course the F(n) function cycles on the modulus, so it can be reduced to:
+//    F((n + d * 1051942428084853) mod modulus) = F(n) - d
+
+// One way to attack the problem is for a given Eulercoin C = F(N) to minimize this:
+//   min((n + d * 1051942428084853) mod modulus; d < C)
+// We can't do this efficiently for large values of n, but once n is small enough, we can
+// search through a list of delta_n values for all the values of d < C.  This is what the
+// CoinFinder class does, calculating the values of delta_n for d in [0, 1000000] in the
+// delta_n_for_delta_coin_ member.
+
 
 using Coin = int64_t;
 using Index = size_t;
 
-std::vector<Coin> get_euler_coins() {
-    constexpr Coin date{ 1504170715041707 };
-    constexpr Coin modulus{ 4503599627370517 };
+constexpr Coin kIncrement{ 1504170715041707 };
+constexpr Coin kModulus{ 4503599627370517 };
 
+
+std::vector<Coin> get_euler_coins() {
     std::vector<Coin> ret;
 
-    ret.push_back(date);
-    Coin current{ date };
+    ret.push_back(kIncrement);
+    Coin current{ kIncrement };
     Index index{ 1 };
     while (true) {
-        current += date;
-        current %= modulus;
+        current += kIncrement;
+        current %= kModulus;
         ++index;
 
         if (current < ret.back()) {
@@ -68,16 +108,14 @@ std::vector<Coin> get_euler_coins() {
 
 
 std::vector<Coin> get_euler_coins_jumps() {
-    constexpr Coin increment{ 1504170715041707 };
-    constexpr Coin modulus{ 4503599627370517 };
 
     std::vector<Coin> ret;
 
-    Coin current{ increment };
+    Coin current{ kIncrement };
     Index index{ 1 };
     Index last_index{ index };
 
-    // The first coin is the increment value
+    // The first coin is the kIncrement value
     {
         ret.push_back(current);
         auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
@@ -86,12 +124,12 @@ std::vector<Coin> get_euler_coins_jumps() {
 
     // The second coin is at n = 3
     {
-        current += increment;
-        current %= modulus;
+        current += kIncrement;
+        current %= kModulus;
         ++index;
 
-        current += increment;
-        current %= modulus;
+        current += kIncrement;
+        current %= kModulus;
         ++index;
 
         ret.push_back(current);
@@ -106,12 +144,12 @@ std::vector<Coin> get_euler_coins_jumps() {
     while (true) {
         // First try jumping another delta_index, to see if it is an Eulercoin
         {
-            BigInt jump{ increment };
+            BigInt jump{ kIncrement };
             jump *= delta_index;
-            jump %= modulus;
+            jump %= kModulus;
 
             current += jump.to_int();
-            current %= modulus;
+            current %= kModulus;
             index += delta_index;
 
             if (current < last_coin) {
@@ -131,8 +169,8 @@ std::vector<Coin> get_euler_coins_jumps() {
 
         // If we got here, the delta_n increased, but at least we skipped a lot of test numbers
         while (true) {
-            current += increment;
-            current %= modulus;
+            current += kIncrement;
+            current %= kModulus;
             ++index;
 
             if (current < last_coin) {
@@ -158,8 +196,6 @@ std::vector<Coin> get_euler_coins_jumps() {
 
 
 struct ThreadParams {
-    const Coin increment;
-    const Coin modulus;
     const Coin *start;
     const Index start_index;
     const Index count;
@@ -188,8 +224,8 @@ void thread_func(const ThreadParams &params) {
 //            std::cout << "\tThread " << std::this_thread::get_id() << ", index = " << index << ", current = " << current << std::endl;
             std::this_thread::sleep_for(50ms);
         }
-        current += params.increment;
-        current %= params.modulus;
+        current += kIncrement;
+        current %= kModulus;
         ++index;
 
         if (current < params.last_coin) {
@@ -206,16 +242,13 @@ void thread_func(const ThreadParams &params) {
 
 
 std::vector<Coin> get_euler_coins_threaded() {
-    constexpr Coin increment{ 1504170715041707 };
-    constexpr Coin modulus{ 4503599627370517 };
-
     std::vector<Coin> ret;
     std::vector<Index> n_values;
 
-    Coin current{ increment };
+    Coin current{ kIncrement };
     Index index{ 1 };
 
-    // The first coin is the increment value
+    // The first coin is the kIncrement value
     {
         ret.push_back(current);
         n_values.push_back(1);
@@ -225,12 +258,12 @@ std::vector<Coin> get_euler_coins_threaded() {
 
     // The second coin is at n = 3
     {
-        current += increment;
-        current %= modulus;
+        current += kIncrement;
+        current %= kModulus;
         ++index;
 
-        current += increment;
-        current %= modulus;
+        current += kIncrement;
+        current %= kModulus;
         ++index;
 
         ret.push_back(current);
@@ -246,12 +279,12 @@ std::vector<Coin> get_euler_coins_threaded() {
 //    for (int i = 0; i < 60; ++i) {
         // First try jumping another delta_index, to see if it is an Eulercoin
         {
-            BigInt jump{ increment };
+            BigInt jump{ kIncrement };
             jump *= delta_index;
-            jump %= modulus;
+            jump %= kModulus;
 
             current += jump.to_int();
-            current %= modulus;
+            current %= kModulus;
             index += delta_index;
 
             if (current < last_coin) {
@@ -273,11 +306,9 @@ std::vector<Coin> get_euler_coins_threaded() {
         // For small delta_n values, the cost of spinning up threads outweighs the search.
         if (delta_index < 10'000'000) {
             Index found_index;
-            ThreadParams params{ .increment = increment,
-                                 .modulus = modulus,
-                                 .start = &current,
+            ThreadParams params{ .start = &current,
                                  .start_index = index,
-                                 .count = modulus,
+                                 .count = kModulus,
                                  .last_coin = last_coin,
                                  .new_coin = &current,
                                  .found_index = &found_index };
@@ -306,11 +337,11 @@ std::vector<Coin> get_euler_coins_threaded() {
         std::array<Index, kNumThread> found_index_values;
         size_t group{ 0 };
 
-        // Use a BigInt to calculate delta_n * increment mod modulus
+        // Use a BigInt to calculate delta_n * kIncrement mod kModulus
         Coin start{ current };
-        BigInt jump_big{ increment };
+        BigInt jump_big{ kIncrement };
         jump_big *= delta_index;
-        jump_big %= modulus;
+        jump_big %= kModulus;
         auto jump = jump_big.to_int();
 
         // Keep creating thread groups until we find the next coin.
@@ -323,9 +354,7 @@ std::vector<Coin> get_euler_coins_threaded() {
                 start_values[ind] = start;
                 found_coin_values[ind] = 0;
                 found_index_values[ind] = 0;
-                ThreadParams params{ .increment = increment,
-                                     .modulus = modulus,
-                                     .start = &start_values[ind],
+                ThreadParams params{ .start = &start_values[ind],
                                      .start_index = index + ind * delta_index,
                                      .count = delta_index,
                                      .last_coin = last_coin,
@@ -335,7 +364,7 @@ std::vector<Coin> get_euler_coins_threaded() {
                 std::this_thread::sleep_for(5ms);
 
                 start += jump;
-                start %= modulus;
+                start %= kModulus;
             }
 
             // Let the threads run for a little while before inspecting them.
@@ -405,15 +434,265 @@ std::vector<Coin> get_euler_coins_threaded() {
 }
 
 
+class CoinFinder {
+public:
+    CoinFinder() : delta_n_for_delta_coin_(kTailSize + 1, 0) {
+        // Populate delta_n_for_delta_coin_
+        delta_n_for_delta_coin_[0] = kModulus;
+        auto inv = get_inverse(kIncrement, kModulus);
+        auto delta_n = kModulus - inv;
+        for (size_t c = 1; c <= kTailSize; ++c)
+            delta_n_for_delta_coin_[c] = (delta_n_for_delta_coin_[c - 1] + delta_n) % kModulus;
+    }
+    ~CoinFinder() = default;
+       
+
+    int64_t get_egcd(int64_t a, int64_t b) {
+        int64_t x{ 0 };
+        int64_t y{ 1 };
+        int64_t u{ 1 };
+        int64_t v{ 0 };
+
+        while (a != 0) {
+            int64_t q = b / a;
+            int64_t r = b % a;
+
+            int64_t m = x - u * q;
+            int64_t n = y - v * q;
+
+            b = a;
+            a = r;
+            x = u;
+            y = v;
+            u = m;
+            v = n;
+        }
+
+        return x;
+    }
+
+
+    int64_t get_inverse(int64_t value, int64_t modulus) {
+        int64_t x = get_egcd(value, modulus);
+
+        int64_t ret{ x % modulus };
+        if (ret < 0)
+            ret += modulus;
+
+        return ret;
+    }
+
+
+    Index get_delta_n(Coin delta_coin) {
+        Coin value{ delta_coin };
+        if (value < 0)
+            value += kModulus;
+        auto inv = get_inverse(kIncrement, kModulus);
+
+        BigInt jump{ value };
+        jump *= inv;
+        jump %= kModulus;
+
+        return jump.to_int();
+    }
+
+
+    std::pair<Index, Coin> get_next_delta_n_naive(Coin coin) {
+        auto inv = get_inverse(kIncrement, kModulus);
+        BigInt inv_big{ inv };
+
+        Index min_delta_n{ kModulus };
+        Coin coin_for_min{ -1 };
+
+        for (Coin c = 1; c < coin; ++c) {
+            BigInt jump{ inv_big };
+            jump *= (kModulus - c);
+            jump %= kModulus;
+            auto tmp = jump.to_int();
+            if (tmp < min_delta_n) {
+                min_delta_n = tmp;
+                coin_for_min = c;
+            }
+        }
+
+        return { min_delta_n, coin_for_min };
+    }
+
+
+    std::pair<Index, Coin> get_next_delta_n(Coin coin) {
+        if (coin > kTailSize)
+            return get_next_delta_n_naive(coin);
+
+        Index min_delta_n{ kModulus };
+        Coin coin_for_min{ -1 };
+
+        for (Coin c = 1; c < coin; ++c) {
+            if (delta_n_for_delta_coin_[c] < min_delta_n) {
+                min_delta_n = delta_n_for_delta_coin_[c];
+                coin_for_min = c;
+            }
+        }
+
+        return { min_delta_n, coin_for_min };
+    }
+
+
+    std::vector<Coin> get_euler_coins_jumps() {
+        std::vector<Coin> ret;
+
+        Coin current{ kIncrement };
+        Index index{ 1 };
+        Index last_index{ index };
+
+        // The first coin is the kIncrement value
+        {
+            ret.push_back(current);
+            auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
+        }
+
+        // The second coin is at n = 3
+        {
+            current += kIncrement;
+            current %= kModulus;
+            ++index;
+
+            current += kIncrement;
+            current %= kModulus;
+            ++index;
+
+            ret.push_back(current);
+            auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+            std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
+        }
+
+        Coin last_coin{ ret.back() };
+        Index delta_index{ index - last_index };
+        last_index = index;
+
+        while (true) {
+            // First try jumping another delta_index, to see if it is an Eulercoin
+            {
+                BigInt jump{ kIncrement };
+                jump *= delta_index;
+                jump %= kModulus;
+
+                current += jump.to_int();
+                current %= kModulus;
+                index += delta_index;
+
+                if (current < last_coin) {
+                    last_coin = current;
+                    ret.push_back(last_coin);
+                    auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                    std::cout << index << "\t== " << current << "\t@ " << ctime(&timenow);
+                    std::cout << "\t" << "jumped by delta_n = " << delta_index << std::endl;
+                    last_index = index;
+
+                    if (0 == current)
+                        break;
+
+                    continue;
+                }
+            }
+
+            // Is the last Eulercoin small enough to use the tail
+            if (last_coin <= kTailSize) {
+                auto [delta_n, delta_coin] = get_next_delta_n(last_coin);
+                last_index = index - delta_index;
+                index = last_index + delta_n;
+                ret.push_back(last_coin - delta_coin);
+                current = last_coin = ret.back();
+                delta_index = delta_n;
+                auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                std::cout << index << "\t== " << current << "\t@ " << ctime(&timenow);
+                std::cout << "\t" << "tail jump by delta_n = " << delta_index << std::endl;
+
+                continue;
+            }
+
+            // If we got here, the delta_n increased, but at least we skipped a lot of test numbers
+            while (true) {
+                current += kIncrement;
+                current %= kModulus;
+                ++index;
+
+                if (current < last_coin) {
+                    last_coin = current;
+                    ret.push_back(last_coin);
+                    auto timenow = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+                    std::cout << index << "\t= " << current << "\t@ " << ctime(&timenow);
+                    delta_index = index - last_index;
+                    last_index = index;
+                    break;
+                }
+
+                if (0 == current)
+                    break;
+            }
+
+            if (0 == current)
+                break;
+        }
+
+        return ret;
+    }
+
+private:
+    static constexpr size_t kTailSize{ 1'000'000 };
+    std::vector<Index> delta_n_for_delta_coin_;
+
+};
+
+
 int main()
 {
     std::cout << "Hello World!\n";
 
+    //{
+    //    auto coins = get_euler_coins();
+    //    std::cout << "There are " << coins.size() << " coins, summing to "
+    //              << std::accumulate(coins.begin(), coins.end(), Coin{ 0 }) << std::endl;
+    //}
+
+    //{
+    //    auto coins = get_euler_coins_jump();
+    //    std::cout << "There are " << coins.size() << " coins, summing to "
+    //              << std::accumulate(coins.begin(), coins.end(), Coin{ 0 }) << std::endl;
+    //}
+
+    //{
+    //    auto coins = get_euler_coins_threaded();
+    //    std::cout << "There are " << coins.size() << " coins, summing to "
+    //              << std::accumulate(coins.begin(), coins.end(), Coin{ 0 }) << std::endl;
+    //}
+
     {
-        auto coins = get_euler_coins_threaded();
-        std::cout << "There are " << coins.size() << " coins, summing to "
-                  << std::accumulate(coins.begin(), coins.end(), Coin{ 0 }) << std::endl;
+        CoinFinder finder;
+
+        std::cout << "inverse of 5 mod 13 = " << finder.get_inverse(5, 13) << std::endl;
+        std::cout << "inverse of -137 mod " << kModulus << " = " << finder.get_inverse(-137, kModulus) << std::endl;
+        std::cout << "inverse of " << kIncrement << " mod " << kModulus << " = " << finder.get_inverse(kIncrement, kModulus) << std::endl;
+
+        std::cout << "delta_n for -137 = " << finder.get_delta_n(-137) << std::endl;
+
+        std::cout << "delta_n for Coin 107 = " << finder.get_next_delta_n(107).first << " -> " << 107 - finder.get_next_delta_n(107).second << std::endl;
+        std::cout << "delta_n for Coin 1888 = " << finder.get_next_delta_n(1888).first << " -> " << 1888 - finder.get_next_delta_n(1888).second << std::endl;
+        std::cout << "delta_n for Coin 63315 = " << finder.get_next_delta_n(63315).first << " -> " << 63315 - finder.get_next_delta_n(63315).second << std::endl;
+        std::cout << "delta_n for Coin 107159 = " << finder.get_next_delta_n(107159).first << " -> " << 107159 - finder.get_next_delta_n(107159).second << std::endl;
+        std::cout << "delta_n for Coin 258162 = " << finder.get_next_delta_n(258162).first << " -> " << 258162 - finder.get_next_delta_n(258162).second << std::endl;
+        std::cout << "delta_n for Coin 667327 = " << finder.get_next_delta_n(667327).first << " -> " << 667327 - finder.get_next_delta_n(667327).second << std::endl;
     }
+
+    {
+        CoinFinder finder;
+
+        auto coins = finder.get_euler_coins_jumps();
+        std::cout << "There are " << coins.size() << " coins, summing to "
+                    << std::accumulate(coins.begin(), coins.end(), Coin{ 0 }) << std::endl;
+    }
+
+    return 0;
 }
 
 
@@ -513,4 +792,8 @@ int main()
 //   30301735647020 = 381                924571768317
 //   31226307415337 = 244                924571768317
 //   32150879183654 = 107                924571768317
+//   65226330135625 = 77               33075450951971
+//   98301781087596 = 47               33075450951971
+//  131377232039567 = 17               33075450951971
+//
 // 4503599627370517 = 0

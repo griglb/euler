@@ -1424,6 +1424,65 @@ cc_binary(
 )
 
 cc_binary(
+    name = "pe131",
+    srcs = [
+        "ProjectEuler0131/ProjectEuler0131.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe132",
+    srcs = [
+        "ProjectEuler0132/ProjectEuler0132.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe133",
+    srcs = [
+        "ProjectEuler0133/ProjectEuler0133.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe134",
+    srcs = [
+        "ProjectEuler0134/ProjectEuler0134.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe135",
+    srcs = [
+        "ProjectEuler0135/ProjectEuler0135.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+    ],
+)
+
+cc_binary(
     name = "pe206",
     srcs = [
         "ProjectEuler0206/ProjectEuler0206.cpp"

@@ -71,6 +71,12 @@ BigInt gcd(const BigInt &a, const BigInt &b) {
 }
 
 
+int64_t lcm(int64_t a, int64_t b) {
+    auto div = gcd(a, b);
+    return (a / div) * b;
+}
+
+
 Fraction::Fraction(int64_t value) : num_{ value }, den_{ 1 }, is_negative_{ value < 0 } {
     if (num_ < 0.0)
         num_ = -num_;

@@ -10,6 +10,7 @@
 // How many primes below one-million have this remarkable property?
 
 
+#include <cmath>
 #include <iostream>
 #include <unordered_set>
 #include <vector>
@@ -103,14 +104,14 @@ std::vector<P_N> find_primes(uint64_t max_value) {
             if (squares.find(disc) == squares.end())
                 continue;
 
-            double n1 = (-B + k * sqrt(disc)) / (2 * A);
-            double n2 = (-B - k * sqrt(disc)) / (2 * A);
+            double n1 = (-B + k * std::sqrt(disc)) / (2 * A);
+            double n2 = (-B - k * std::sqrt(disc)) / (2 * A);
 
-            if ((n1 > 0) && (floor(n1) == n1)) {
+            if ((n1 > 0) && (std::floor(n1) == n1)) {
                 ret.push_back({ p, n1 });
                 break;
             }
-            else if ((n2 > 0) && (floor(n2) == n2)) {
+            else if ((n2 > 0) && (std::floor(n2) == n2)) {
                 ret.push_back({ p, n2 });
                 break;
             }

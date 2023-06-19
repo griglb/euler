@@ -65,7 +65,6 @@ private:
 };
 
 
-
 int main()
 {
     std::cout << "Hello World!\n";
@@ -89,5 +88,4 @@ int main()
         }
         std::cout << "There are " << num << " values of n with exactly 10 sequences." << std::endl;
     }
-
 }

@@ -1,7 +1,7 @@
 // Consider the infinite polynomial series,
 //      A_F(x) = x*F_1 + x^2*F_2 + x^3*F_3 + ...
 // where F_k is the k'th term in the Fibonacci sequence : 1, 1, 2, 3, 5, 8, ...;
-// that is, F_k = F_k-2 + F_k-1, and F_1 = F_2 = 1.
+// that is, F_k = F_k-1 + F_k-2, and F_1 = F_2 = 1.
 //
 // For this problem we shall be interested in values of x for which F(x) is a positive integer.
 // Surprisingly:
@@ -35,8 +35,8 @@
 //      A_F(x) = x*F_1 + x^2*F_2 + x^3*F_3 + x^4*F_4 + x^5*F_5 + ...
 //      A_F(x) = x*F_1 + x^2*(F_1 + 0) + x^3*(F_2 + F_1) + x^4*(F_3 + F_2) + x^5*(F_4 + F_3) + ...
 //             = x + (x^2 + x^3)*F_1 + (x^3 + x^4)*F_2 + (x^4 + x^5)*F_3 + ...
-//      A_F(x) = x + (x+x^2) * {x*F_1 + x^2*F_2 + x^3*F_3 + ... }
-//      A_F(x) = x + (x+x^2) * A_F(x)
+//      A_F(x) = x + (x + x^2) * {x*F_1 + x^2*F_2 + x^3*F_3 + ... }
+//      A_F(x) = x + (x + x^2) * A_F(x)
 //      A_F(x) = x + x*A_F(x) + x^2*A_F(x)
 
 // Call k = A_F(x):

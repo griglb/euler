@@ -25,6 +25,7 @@
 // Find the sum of the first thirty golden nuggets.
 
 
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <tuple>
@@ -151,7 +152,7 @@ Triplet get_x(int64_t k) {
     int64_t C = 2 * k + 6;
 
     double root_A = std::sqrt(A);
-    uint64_t trunc_root_A = root_A;
+    int64_t trunc_root_A = root_A;
     if (trunc_root_A * trunc_root_A == A) {
         // We have a perfect square, turn into a rational return value
         A = 0;
@@ -210,7 +211,7 @@ std::vector<Triplet> get_golden_nuggets(size_t how_many) {
     int64_t even_M{ 1 };
     int64_t even_N{ 2 };
 
-    for (int64_t k = 1; k <= how_many; k += 2) {
+    for (size_t k = 1; k <= how_many; k += 2) {
         int64_t odd_A_G = odd_M * (3 * odd_M + odd_N) / 11;
         ret.push_back({ odd_A_G, odd_M, odd_N });
 

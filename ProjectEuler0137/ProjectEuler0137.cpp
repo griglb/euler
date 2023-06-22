@@ -87,7 +87,7 @@ Triplet get_x(int64_t k) {
     int64_t C = 2 * k;
 
     double root_A = std::sqrt(A);
-    uint64_t trunc_root_A = root_A;
+    int64_t trunc_root_A = root_A;
     if (trunc_root_A * trunc_root_A == A) {
         // We have a perfect square, turn into a rational return value
         A = 0;
@@ -127,18 +127,18 @@ Triplet get_x(BigInt k) {
     A += k;
     A += 1;
 
-    BigInt B = k + 1ULL;
-    BigInt C = k * 2ULL;
+    BigInt B = k + 1L;
+    BigInt C = k * 2L;
 
     BigInt root_A = A.sqrt();
     if (root_A * root_A == A) {
         // We have a perfect square, turn into a rational return value
-        A = 0LL;
-        B = root_A - k - 1ULL;
+        A = 0L;
+        B = root_A - k - 1L;
 
         // Reduce the fraction
         auto div = gcd(B, C);
-        if (div > 1ULL) {
+        if (div > 1L) {
             B /= div;
             C /= div;
         }

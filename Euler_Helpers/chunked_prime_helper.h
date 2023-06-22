@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 #include <map>
 #include <numeric>
 #include <unordered_map>
@@ -114,7 +115,7 @@ public:
         }
 
         Factorization fact;
-        double root = sqrt(number);
+        double root = std::sqrt(number);
 
         for (auto p : primes_) {
             if ((number % p) == 0) {

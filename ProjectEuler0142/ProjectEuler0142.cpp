@@ -2,12 +2,15 @@
 // x + y, x - y, x + z, x - z, y + z, and y - z are all perfect squares.
 
 
+#include <cmath>
 #include <cstdint>
 #include <iostream>
 #include <map>
 #include <set>
 #include <tuple>
 #include <unordered_map>
+#include <vector>
+
 
 // Let:
 //      x + y = a^2

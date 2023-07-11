@@ -570,8 +570,7 @@ void big_thread_func3(const ThreadParams3& params) {
                     continue;
 
                 // Use the CO length to identify potential triangles
-//                BigInt discriminant = 3L * (2L * big_a2 * big_b2 + 2L * big_a2 * big_c2 + 2L * big_b2 * big_c2 - big_a2 * big_a2 - big_b2 * big_b2 - big_c2 * big_c2);
-                BigInt discriminant = (big_a2 * (two * big_b2 - big_a2) + big_c2 * (two * big_a2 - big_c2) + big_b2 * (two * big_c2 - big_b2)) * 3L;
+                BigInt discriminant = (big_a2 * (two * big_b2 - big_a2) + big_c2 * (two * big_a2 - big_c2) + big_b2 * (two * big_c2 - big_b2)) * int64_t(3);
                 BigInt root = discriminant.sqrt();
                 if (root * root != discriminant)
                     continue;

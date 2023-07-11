@@ -127,18 +127,18 @@ Triplet get_x(BigInt k) {
     A += k;
     A += 1;
 
-    BigInt B = k + 1L;
-    BigInt C = k * 2L;
+    BigInt B = k + int64_t(1);
+    BigInt C = k * int64_t(2);
 
     BigInt root_A = A.sqrt();
     if (root_A * root_A == A) {
         // We have a perfect square, turn into a rational return value
-        A = 0L;
-        B = root_A - k - 1L;
+        A = int64_t(0);
+        B = root_A - k - int64_t(1);
 
         // Reduce the fraction
         auto div = gcd(B, C);
-        if (div > 1L) {
+        if (div > int64_t(1)) {
             B /= div;
             C /= div;
         }

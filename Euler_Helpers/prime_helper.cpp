@@ -148,6 +148,16 @@ Factorization PrimeHelper::get_factorization_fast(uint64_t number) {
 ULongLongVec PrimeHelper::get_proper_divisors(uint64_t number) {
     Factorization factors = get_factorization_fast(number);
 
+    // Special case for p^n power of exponent.
+    if (factors.size() == 1) {
+        const auto &[prime, exponent] = *factors.cbegin();
+        ULongLongVec ret;
+        uint64_t val{ 1 };
+        for (uint64_t exp = 0; exp < exponent; ++exp, val *= prime)
+            ret.push_back(val);
+        return ret;
+    }
+
     std::vector<uint64_t> fact;
     for (const auto& [prime, exponent] : factors) {
         for (uint64_t i = 0; i < exponent; ++i) {

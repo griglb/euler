@@ -99,6 +99,10 @@ Factorization PrimeHelper::get_factorization(uint64_t number) {
 }
 
 Factorization PrimeHelper::get_factorization_fast(uint64_t number) {
+    if (0 == number) {
+        return { };
+    }
+
     // If we've already calculated this factorization, return it.
     if (factors_.find(number) != factors_.end()) {
         return factors_.at(number);

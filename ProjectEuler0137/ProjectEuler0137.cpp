@@ -28,7 +28,7 @@
 #include <vector>
 
 #include "big_int.h"
-#include "fraction.h"
+#include "gcd.h"
 
 
 // Look for a recurrence relation:

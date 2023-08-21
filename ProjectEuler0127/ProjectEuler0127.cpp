@@ -23,7 +23,7 @@
 #include <tuple>
 #include <vector>
 
-#include "fraction.h"
+#include "gcd.h"
 #include "prime_helper.h"
 
 

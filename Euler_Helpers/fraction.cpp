@@ -3,78 +3,7 @@
 #include <cmath>
 #include <utility>
 
-
-int64_t gcd(int64_t a, int64_t b) {
-    if ((0 == a) || (0 == b))
-        return 1;
-
-    int64_t mag_a = std::abs(a);
-    int64_t mag_b = std::abs(b);
-
-    if ((1 == mag_a) || (1 == mag_b))
-        return 1;
-    if (mag_a == mag_b)
-        return mag_a;
-
-    //    std::cout << a << "\t" << b << std::endl;
-    int64_t bigger = std::max(mag_a, mag_b);
-    int64_t smaller = std::min(mag_a, mag_b);
-
-    while (bigger > smaller) {
-        int64_t quot = bigger / smaller;
-        bigger -= quot * smaller;
-    }
-
-    if (0 == bigger)
-        return smaller;
-    if (smaller == bigger)
-        return smaller;
-
-    return gcd(smaller, bigger);
-}
-
-
-BigInt gcd(const BigInt &a, const BigInt &b) {
-    if ((a == 0) || (b == 0))
-        return BigInt{ 1 };
-
-    BigInt mag_a = a.abs();
-    BigInt mag_b = b.abs();
-
-    if ((mag_a == 1) || (mag_b == 1))
-        return BigInt{ 1 };
-    if (mag_a == mag_b)
-        return mag_a;
-
-    //    std::cout << a << "\t" << b << std::endl;
-    BigInt bigger, smaller;
-    if (mag_a >= mag_b) {
-        bigger = mag_a;
-        smaller = mag_b;
-    }
-    else {
-        bigger = mag_b;
-        smaller = mag_a;
-    }
-
-    while (bigger > smaller) {
-        BigInt quot = bigger / smaller;
-        bigger -= quot * smaller;
-    }
-
-    if (bigger == 0)
-        return smaller;
-    if (smaller == bigger)
-        return smaller;
-
-    return gcd(smaller, bigger);
-}
-
-
-int64_t lcm(int64_t a, int64_t b) {
-    auto div = gcd(a, b);
-    return (a / div) * b;
-}
+#include "gcd.h"
 
 
 Fraction::Fraction(int64_t value) : num_{ value }, den_{ 1 }, is_negative_{ value < 0 } {
@@ -93,23 +22,18 @@ Fraction::Fraction(int64_t num, int64_t den) : num_{ num }, den_{ den }, is_nega
 }
 
 
-Fraction::Fraction(const BigInt& num, const BigInt& den) : num_{ num }, den_{ den }, is_negative_{ false } {
-    is_negative_ = (num_ < 0.0) ^ (den_ < 0.0);
-    if (num_ < 0.0)
-        num_ = -num_;
-    if (den_ < 0.0)
-        den_ = -den_;
-    canonicalize();
-}
-
-
-std::pair<BigInt, BigInt> Fraction::get_components() const {
+std::pair<int64_t, int64_t> Fraction::get_components() const {
     return { is_negative_ ? -num_ : num_, den_ };
 }
 
 
 Fraction Fraction::abs() const {
     return Fraction{ num_, den_ };
+}
+
+
+Fraction Fraction::inverse() const {
+    return Fraction{ den_, num_ };
 }
 
 
@@ -189,7 +113,7 @@ bool Fraction::operator>(const Fraction& rhs) const {
 //Fraction& operator+=(uint64_t rhs);
 Fraction& Fraction::operator+=(const Fraction& rhs) {
     // Easy out for adding 0.
-    if (BigInt{ 0 } == rhs.num_)
+    if (MyType{ 0 } == rhs.num_)
         return *this;
 
     if (is_negative_ == rhs.is_negative_) {
@@ -199,8 +123,8 @@ Fraction& Fraction::operator+=(const Fraction& rhs) {
     }
     else {
         // Opposite signs, need to handle a potential sign change.
-        BigInt my_num = num_ * rhs.den_;
-        BigInt rhs_num = rhs.num_ * den_;
+        MyType my_num = num_ * rhs.den_;
+        MyType rhs_num = rhs.num_ * den_;
         if (my_num >= rhs_num)
             num_ = my_num - rhs_num;
         else {
@@ -227,11 +151,11 @@ Fraction& Fraction::operator+=(const Fraction& rhs) {
 //Fraction& operator-=(uint64_t rhs);
 Fraction& Fraction::operator-=(const Fraction& rhs) {
     // Easy out for adding 0.
-    if (BigInt{ 0 } == rhs.num_)
+    if (MyType{ 0 } == rhs.num_)
         return *this;
 
-    BigInt my_num = num_ * rhs.den_;
-    BigInt rhs_num = rhs.num_ * den_;
+    MyType my_num = num_ * rhs.den_;
+    MyType rhs_num = rhs.num_ * den_;
 
     if (is_negative_)
         my_num = -my_num;
@@ -240,8 +164,8 @@ Fraction& Fraction::operator-=(const Fraction& rhs) {
 
     num_ = my_num - rhs_num;
     den_ *= rhs.den_;
-    is_negative_ = num_ < BigInt{ 0 };
-    if (num_ < BigInt{ 0 }) {
+    is_negative_ = num_ < MyType{ 0 };
+    if (num_ < MyType{ 0 }) {
         num_ = -num_;
     }
 
@@ -295,7 +219,7 @@ Fraction& Fraction::operator*=(const Fraction& rhs) {
 //Fraction& operator/=(uint32_t rhs);
 //Fraction& operator/=(uint64_t rhs);
 Fraction& Fraction::operator/=(const Fraction& rhs) {
-    if (BigInt{ 0 } == rhs.num_)
+    if (MyType{ 0 } == rhs.num_)
         throw "Divide by 0";
 
     num_ *= rhs.den_;
@@ -309,8 +233,8 @@ Fraction& Fraction::operator/=(const Fraction& rhs) {
 
 
 void Fraction::canonicalize() {
-    if (BigInt{ 0 } == num_) {
-        den_ = BigInt{ 1 };
+    if (MyType{ 0 } == num_) {
+        den_ = MyType{ 1 };
         is_negative_ = false;
         return;
     }

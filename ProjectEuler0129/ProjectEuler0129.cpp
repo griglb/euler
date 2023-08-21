@@ -18,7 +18,7 @@
 
 #include "big_int.h"
 #include "chunked_prime_helper.h"
-#include "fraction.h"
+#include "gcd.h"
 #include "prime_helper.h"
 
 

@@ -12,7 +12,7 @@
 #include <cmath>
 #include <iostream>
 
-#include "fraction.h"
+#include "gcd.h"
 
 
 // When there are N_B blue discs and N_R red discs, then the probability of 2 blues is:

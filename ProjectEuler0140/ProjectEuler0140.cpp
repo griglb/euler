@@ -31,7 +31,7 @@
 #include <tuple>
 #include <vector>
 
-#include "fraction.h"
+#include "gcd.h"
 
 
 // Look for a recurrence relation:

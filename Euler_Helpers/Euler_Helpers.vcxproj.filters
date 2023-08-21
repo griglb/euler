@@ -36,6 +36,12 @@
     <ClInclude Include="chunked_prime_helper.h">
       <Filter>Header Files</Filter>
     </ClInclude>
+    <ClInclude Include="big_fraction.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="gcd.h">
+      <Filter>Header Files</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="prime_helper.cpp">
@@ -54,6 +60,12 @@
       <Filter>Source Files</Filter>
     </ClCompile>
     <ClCompile Include="fraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="big_fraction.cpp">
+      <Filter>Source Files</Filter>
+    </ClCompile>
+    <ClCompile Include="gcd.cpp">
       <Filter>Source Files</Filter>
     </ClCompile>
   </ItemGroup>

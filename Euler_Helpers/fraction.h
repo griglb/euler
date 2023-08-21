@@ -5,26 +5,20 @@
 #include <iostream>
 #include <utility>
 
-#include "big_int.h"
-
-
-int64_t gcd(int64_t a, int64_t b);
-BigInt gcd(const BigInt& a, const BigInt& b);
-
-int64_t lcm(int64_t a, int64_t b);
-
 
 class Fraction {
 public:
+	using MyType = int64_t;
+
 	Fraction() = default;
 	Fraction(int64_t value);
 	Fraction(int64_t num, int64_t den);
-	Fraction(const BigInt &num, const BigInt& den);
 	~Fraction() = default;
 
-	std::pair<BigInt, BigInt> get_components() const;
+	std::pair<int64_t, int64_t> get_components() const;
 
 	Fraction abs() const;
+	Fraction inverse() const;
 
 	// Comparison operators
 	bool operator==(int8_t rhs) const;
@@ -128,8 +122,8 @@ public:
 	friend std::istream& operator>>(std::istream& in, Fraction& value);
 
 private :
-	BigInt num_ = BigInt(0);
-	BigInt den_ = BigInt(1);
+	int64_t num_ = 0;
+	int64_t den_ = 1;
 	bool is_negative_ = false;
 
 	void canonicalize();

@@ -7,18 +7,22 @@ cc_library(
     name = "euler_helpers_lib",
     hdrs = [
         "Euler_Helpers/big_int.h",
+        "Euler_Helpers/big_fraction.h",
         "Euler_Helpers/chunked_prime_helper.h",
         "Euler_Helpers/combinatorics.h",
         "Euler_Helpers/continued_fractions.h",
         "Euler_Helpers/fraction.h",
+        "Euler_Helpers/gcd.h",
         "Euler_Helpers/prime_helper.h",
         "Euler_Helpers/totient.h"
     ],
     srcs = [
         "Euler_Helpers/big_int.cpp",
+        "Euler_Helpers/big_fraction.cpp",
         "Euler_Helpers/combinatorics.cpp",
         "Euler_Helpers/continued_fractions.cpp",
         "Euler_Helpers/fraction.cpp",
+        "Euler_Helpers/gcd.cpp",
         "Euler_Helpers/prime_helper.cpp",
         "Euler_Helpers/totient.cpp"
     ],
@@ -32,7 +36,9 @@ cc_test(
     name = "helper_tests",
     srcs = [
         "Helper_Tests/big_int_tests.cpp",
+        "Helper_Tests/big_fraction_tests.cpp",
         "Helper_Tests/combinatorics_tests.cpp",
+        "Helper_Tests/fraction_tests.cpp",
         "Helper_Tests/test_main.cpp",
     ],
     deps = [

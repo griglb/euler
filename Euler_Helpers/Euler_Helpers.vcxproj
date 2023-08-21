@@ -155,19 +155,23 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="big_fraction.h" />
     <ClInclude Include="big_int.h" />
     <ClInclude Include="chunked_prime_helper.h" />
     <ClInclude Include="combinatorics.h" />
     <ClInclude Include="continued_fractions.h" />
     <ClInclude Include="fraction.h" />
+    <ClInclude Include="gcd.h" />
     <ClInclude Include="prime_helper.h" />
     <ClInclude Include="totient.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="big_fraction.cpp" />
     <ClCompile Include="big_int.cpp" />
     <ClCompile Include="combinatorics.cpp" />
     <ClCompile Include="continued_fractions.cpp" />
     <ClCompile Include="fraction.cpp" />
+    <ClCompile Include="gcd.cpp" />
     <ClCompile Include="prime_helper.cpp" />
     <ClCompile Include="totient.cpp" />
   </ItemGroup>

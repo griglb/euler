@@ -38,7 +38,7 @@
 #include <iostream>
 #include <vector>
 
-#include "fraction.h"
+#include "big_fraction.h"
 
 
 int64_t u_n(int64_t n) {
@@ -54,7 +54,7 @@ int64_t u_n(int64_t n) {
 }
 
 
-using Vector = std::vector<Fraction>;
+using Vector = std::vector<BigFraction>;
 using Matrix = std::vector<Vector>;
 
 
@@ -76,12 +76,12 @@ Vector solve_system(const Matrix& A, const Vector& b) {
         rhs.push_back({ });
         for (size_t c = 0; c < A.size(); ++c)
             rhs.back().push_back(0);
-        rhs.back()[r] = Fraction(1);
+        rhs.back()[r] = BigFraction(1);
     }
 
     Vector order;
     for (size_t r = 0; r < A.size(); ++r) {
-        order.push_back(Fraction(r));
+        order.push_back(BigFraction(r));
     }
 
     const size_t numRows = A.size();
@@ -89,7 +89,7 @@ Vector solve_system(const Matrix& A, const Vector& b) {
     for (size_t curr_row = 0; curr_row < numRows; ++curr_row) {
         // Look for row in [curr_row, numRows) that has largest absolute value to pivot with.
         auto pivot_row{ curr_row };
-        Fraction max_val = lhs[curr_row][curr_row].abs();
+        BigFraction max_val = lhs[curr_row][curr_row].abs();
         for (size_t other_row = curr_row; other_row < numRows; ++other_row) {
             if (lhs[other_row][curr_row].abs() > max_val) {
                 pivot_row = other_row;
@@ -104,11 +104,11 @@ Vector solve_system(const Matrix& A, const Vector& b) {
         }
 
         // If we have a row of all 0's, then we're done.
-        if (Fraction{} == lhs[curr_row][curr_row])
+        if (BigFraction{} == lhs[curr_row][curr_row])
             break;
 
         // Scale the current row to put a 1 on the diagonal.
-        const Fraction scale = Fraction{ 1 } / lhs[curr_row][curr_row];
+        const BigFraction scale = BigFraction{ 1 } / lhs[curr_row][curr_row];
         for (size_t col = 0; col < numRows; ++col) {
             lhs[curr_row][col] *= scale;
             rhs[curr_row][col] *= scale;
@@ -118,7 +118,7 @@ Vector solve_system(const Matrix& A, const Vector& b) {
         for (size_t row = 0; row < numRows; ++row) {
             if (row == curr_row)
                 continue;
-            const Fraction scale = lhs[row][curr_row];
+            const BigFraction scale = lhs[row][curr_row];
             for (size_t col = 0; col < numRows; ++col) {
                 lhs[row][col] -= scale * lhs[curr_row][col];
                 rhs[row][col] -= scale * rhs[curr_row][col];
@@ -144,7 +144,7 @@ Vector solve_system(const Matrix& A, const Vector& b) {
     // To solve, start with the last element = 1 and work from bottom to top.
     Vector ret{};
     for (size_t row = 0; row < numRows; ++row) {
-        Fraction sum{ };
+        BigFraction sum{ };
         for (size_t col = 0; col < numRows; ++col)
             sum += rhs[row][col] * b[col];
         ret.push_back(sum);
@@ -185,7 +185,7 @@ Vector solve_system(const Matrix& A, const Vector& b) {
 //
 
 
-Fraction get_fit(int64_t k) {
+BigFraction get_fit(int64_t k) {
     Matrix A;
     Vector b;
     const int64_t n{ k + 1 };
@@ -205,14 +205,14 @@ Fraction get_fit(int64_t k) {
         std::cout << el << " ";
     std::cout << std::endl;
 
-    //Fraction ret{ 0 };
-    //Fraction term{ 1 };
+    //BigFraction ret{ 0 };
+    //BigFraction term{ 1 };
     //for (int64_t r = 0; r <= k; ++r) {
     //    ret += x[r] * term;
     //    term *= n + 1;
     //}
 
-    Fraction ret{ x[k] };
+    BigFraction ret{ x[k] };
     for (int64_t r = k-1; r >= 0; --r) {
         ret *= n + 1;
         ret += x[r];
@@ -238,7 +238,7 @@ int main()
     }
 
     {
-        Fraction fit_sum{ 1 };
+        BigFraction fit_sum{ 1 };
         for (uint64_t k = 1; k < 10; ++k) {
             auto fit = get_fit(k);
             std::cout << "FIT(" << k << ") = " << fit << std::endl;

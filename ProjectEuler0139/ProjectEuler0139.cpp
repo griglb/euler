@@ -19,7 +19,7 @@
 #include <utility>
 #include <vector>
 
-#include "fraction.h"
+#include "gcd.h"
 
 
 // One way to calculate the hole side h is by area.  We know the square is c^2 in size, and the

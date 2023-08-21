@@ -38,7 +38,7 @@
 #include <set>
 #include <vector>
 
-#include "fraction.h"
+#include "big_fraction.h"
 
 
 // We know that on the first job, there will be an A1 sheet in the envelop, so it gets
@@ -372,7 +372,7 @@
 
 
 using Sheets = std::multiset<int16_t>;
-using Probabilities = std::vector<Fraction>;
+using Probabilities = std::vector<BigFraction>;
 using EnvelopProbs = std::map<Sheets, Probabilities>;
 using JobEnvelops = std::map<int16_t, EnvelopProbs>;
 
@@ -381,7 +381,7 @@ JobEnvelops get_envelops(int16_t max_size) {
     JobEnvelops ret;
 
     Sheets first_sheet{ max_size };
-    Probabilities first_prob{ Fraction{ 1, 1 } };
+    Probabilities first_prob{ BigFraction{ 1, 1 } };
     EnvelopProbs start_env;
     start_env[first_sheet] = first_prob;
     ret[max_size] = start_env;
@@ -390,7 +390,7 @@ JobEnvelops get_envelops(int16_t max_size) {
         const auto& env_probs = ret.at(curr_size + 1);
         EnvelopProbs new_env_probs;
         for (const auto& [sheets, probs] : env_probs) {
-            Fraction new_prob = std::accumulate(probs.begin(), probs.end(), Fraction{}) * Fraction(1, sheets.size());
+            BigFraction new_prob = std::accumulate(probs.begin(), probs.end(), BigFraction{}) * BigFraction(1, sheets.size());
             for (const auto& sh : sheets) {
                 Sheets new_sheets{ sheets };
                 new_sheets.erase(new_sheets.find(sh));
@@ -447,18 +447,18 @@ int main()
                 std::cout << "} : ";
                 for (const auto &pr: probs)
                     std::cout << pr << " + ";
-                std::cout << " = " << std::accumulate(probs.begin(), probs.end(), Fraction{ 0, 0 }) << std::endl;
+                std::cout << " = " << std::accumulate(probs.begin(), probs.end(), BigFraction{ 0, 0 }) << std::endl;
             }
         }
 
-        Fraction p8 = job_envelops[8][{8}].front();
-        Fraction p4 = job_envelops[4][{4}].front();
-        Fraction p2 = job_envelops[2][{2}].front();
+        BigFraction p8 = job_envelops[8][{8}].front();
+        BigFraction p4 = job_envelops[4][{4}].front();
+        BigFraction p2 = job_envelops[2][{2}].front();
         std::cout << "Single sheet probabilities:" << std::endl;
         std::cout << "\t8 = " << p8 << std::endl;
         std::cout << "\t4 = " << p4 << std::endl;
         std::cout << "\t2 = " << p2 << std::endl;
-        Fraction total = p8 + p4 + p2;
+        BigFraction total = p8 + p4 + p2;
         const auto& [num, den] = total.get_components();
         std::cout << "Sum = " << total << " = " << (double)num.to_int() / (double)den.to_int() << std::endl;
     }

@@ -64,7 +64,6 @@
 #include <unordered_set>
 #include <utility>
 
-#include "fraction.h"
 #include "chunked_prime_helper.h"
 
 

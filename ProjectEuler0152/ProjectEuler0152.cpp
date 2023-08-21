@@ -28,6 +28,7 @@
 
 #include "combinatorics.h"
 #include "fraction.h"
+#include "gcd.h"
 
 
 // If we include all reciprocal squares in [2, N], how many terms must be there?

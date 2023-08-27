@@ -168,7 +168,7 @@ uint64_t get_num_permutations(uint64_t num, uint64_t choose) {
     }
 
     Factorization denominator;
-    for (uint64_t i = choose; i > 1; --i) {
+    for (uint64_t i = num - choose; i > 1; --i) {
         Factorization factors = helper.get_factorization(i);
         for (const auto [prime, exponent] : factors) {
             if (denominator.find(prime) == denominator.end()) {
@@ -265,19 +265,34 @@ PermutationList get_permutations(uint64_t num, uint64_t choose) {
         return get_permutations(elements);
     }
     else {
-        // TODO: this is not completely correct yet
+        PermutationList unique;
         for (uint64_t first = 0; first <= num - choose; ++first) {
-            std::cout << "first = " << first << ", recursing at (" << num - first - 1 << ", " << choose - 1 << ")" << std::endl;
             PermutationList subsets = get_permutations(num - first - 1, choose - 1);
-            std::cout << "got " << subsets.size() << " subset permutations" << std::endl;
             for (const auto& sub_perm : subsets) {
                 // Put the removed element first in the permutation, to keep them in lexicographic order.
                 Permutation perm{ first };
                 for (const auto & subp : sub_perm)
                     perm.push_back(subp + first + 1);
-                ret.push_back(perm);
+                unique.push_back(perm);
             }
         }
+        // The unique vector only contains one permutation of each unique
+        // subset of elements, which are in sorted order.  We now need to
+        // iterate over unique and generate the choose! permutations for each
+        // of those unqiue subsets.
+        const auto reorders = get_permutations(choose, choose);
+
+        std::set<Permutation> perms;
+        for (const auto& un : unique) {
+            for (const auto& order : reorders) {
+                Permutation p;
+                for (const auto& i : order) {
+                    p.push_back(un[i]);
+                }
+                perms.insert(p);
+            }
+        }
+        ret.insert(ret.cbegin(), perms.cbegin(), perms.cend());
     }
 
     return ret;

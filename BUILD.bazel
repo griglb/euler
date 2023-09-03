@@ -13,6 +13,7 @@ cc_library(
         "Euler_Helpers/continued_fractions.h",
         "Euler_Helpers/fraction.h",
         "Euler_Helpers/gcd.h",
+        "Euler_Helpers/partitions.h",
         "Euler_Helpers/prime_helper.h",
         "Euler_Helpers/totient.h"
     ],
@@ -23,6 +24,7 @@ cc_library(
         "Euler_Helpers/continued_fractions.cpp",
         "Euler_Helpers/fraction.cpp",
         "Euler_Helpers/gcd.cpp",
+        "Euler_Helpers/partitions.cpp",
         "Euler_Helpers/prime_helper.cpp",
         "Euler_Helpers/totient.cpp"
     ],
@@ -1745,6 +1747,18 @@ cc_binary(
     name = "pe158",
     srcs = [
         "ProjectEuler0158/ProjectEuler0158.cpp"
+    ],
+    data = [
+    ],
+    deps = [
+        "euler_helpers_lib",
+    ],
+)
+
+cc_binary(
+    name = "pe159",
+    srcs = [
+        "ProjectEuler0159/ProjectEuler0159.cpp"
     ],
     data = [
     ],

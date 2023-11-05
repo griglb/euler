@@ -138,7 +138,7 @@ public :
         return ret;
     }
 
-    int64_t mdrs(const int64_t num) {
+    int64_t mdrs(const uint64_t num) {
         if ((mdrs_.size() > num) && (mdrs_[num] > 0))
             return mdrs_[num];
 
@@ -161,7 +161,7 @@ public :
         return mdrs_[num];
     }
 
-    int64_t mdrs_recurse(const int64_t num) {
+    int64_t mdrs_recurse(const uint64_t num) {
         if ((mdrs_.size() > num) && (mdrs_[num] > 0))
             return mdrs_[num];
 
@@ -239,7 +239,7 @@ public :
         return mdrs_[num];
     }
 
-    int64_t mdrs_recurse_all(const int64_t num) {
+    int64_t mdrs_recurse_all(const uint64_t num) {
         if ((mdrs_.size() > num) && (mdrs_[num] > 0))
             return mdrs_[num];
 
@@ -402,7 +402,7 @@ int main()
 
 //        std::ofstream out_file{ "d:\\temp\\pe159_recurse_all.csv" };
 
-        for (int64_t num = 2; num < kMaxNum; ++num) {
+        for (uint64_t num = 2; num < kMaxNum; ++num) {
             const auto mdrs = helper.mdrs_recurse_all(num);
             std::cout << "mdrs(" << num << ") = " << mdrs << std::endl;
 //            out_file << "mdrs(" << num << ") = " << mdrs << std::endl;

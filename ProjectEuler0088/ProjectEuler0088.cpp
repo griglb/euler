@@ -22,14 +22,15 @@
 
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <list>
 #include <map>
 #include <numeric>
 #include <vector>
 
-#include "prime_helper.h"
 #include "combinatorics.h"
+#include "prime_helper.h"
 
 
 // To complete the set up to k = 12:
@@ -44,258 +45,152 @@
 // Posit 1 : MPS(k) is a not strictly monotonically increasing function
 // Posit 2 : MPS(k) is never a prime number - the only way to have a prime product
 //           is (k-1) 1's and the prime, which is never going to sum to the same number
-// Posit 3 : For any even k, the number 2*k is a product-sum number, but rarely the minimal product-sum number.
+// Posit 3 : For any even k, the number 2*k is a product-sum number, but rarely the minimal
+//           product-sum number.
 //           It is {(k-2) 1's, 2, k}, which yields yields 2*k as both a sum and product.
-// Posit 4 : For any composite N, every possible combination of factors can be a product-sum with enough 1's,
-//           but not always a minimum product-sum number.
+//           This provides an upper bound for MPS(k).
+// Posit 4 : For any composite N, every possible combination of factors can be a product-sum
+//           with enough 1's, but not necessarily a minimum product-sum number.
 
-// k = 22 : 32 = {20 x 1, 4, 8}
-// k = 23 : 32 = {20 x 1, 2, 2, 8}
-// k = 24 : 32 = {20 x 1, 2, 2, 2, 4}
-// k = 25 : 32 = {22 x 1, 2, 4, 4}
-// k = 26 : 32 = {21 x 1, 2, 2, 2, 2, 2}
+// Let us examine a couple numbers to see how many product-sums they can form:
+//      N = 24 = 2^3*3
+// Factorizations of 24: 2*12, 2*2*6, 2*2*2*3, 2*3*4, 3*8, 4*6
+// This yields these product-sums:
+//      {10 x 1, 2, 12}         -> k = 12
+//      {14 x 1, 2, 2, 6}       -> k = 17
+//      {15 x 1, 2, 2, 2, 3}    -> k = 19
+//      {15 x 1, 2, 3, 4}       -> k = 18
+//      {13 x 1, 3, 8}          -> k = 15
+//      {14 x 1, 4, 6}          -> k = 16
+//
+//      N = 32 = 2^5
+// Factorizations of 32: 2*16, 2*2*8, 2*2*2*4, 2*2*2*2*2, 2*4*4, 4*8
+// This yields these product-sums:
+//      {14 x 1, 2, 16}         -> k = 16
+//      {20 x 1, 2, 2, 8}       -> k = 23
+//      {22 x 1, 2, 2, 2, 4}    -> k = 26
+//      {22 x 1, 2, 2, 2, 2, 2} -> k = 27 
+//      {22 x 1, 2, 4, 4}       -> k = 25
+//      {20 x 1, 4, 8}          -> k = 22
+//
+
+using Factors = std::multiset<uint64_t>;
+using AllFactorizations = std::set<Factors>;
+using AllKnownFactorizations = std::vector<AllFactorizations>;
+using NsforK = std::set<uint64_t>;
+using KValues = std::vector<NsforK>;
+
+AllKnownFactorizations g_allKnownFactorizations;
+KValues g_K;
+PrimeHelper g_helper;
 
 
-class ProductSumFinder {
-public :
-    using Addends = std::multiset<uint64_t>;
-    using SameSum = std::set<Addends>;
-    using Factors = std::vector<uint64_t>;
-    using FactorSet = std::set<Factors>;
-    using ProductSum = std::vector<uint64_t>;  // 0-based list of cardinalities - {0, 2, 3} is k=5 for N=8
-    using ProductSumMap = std::map<uint64_t, std::map<uint64_t, ProductSum>>;  // map of k to map of N to factor cardinalities
+AllFactorizations get_all_factorizations(uint64_t number) {
+// std::cout << "In get_all_factorizations(" << number << ")" << std::endl;
+    // Resize the global collection if it isn't big enough.
+    if (number > g_allKnownFactorizations.size())
+        g_allKnownFactorizations.resize(number+1);
 
-    ProductSumFinder() {
-        summations_.push_back({ {} });
-        summations_.push_back({ {1} });
-    }
+    // If we've already calculated the factorizations, return them.
+    if (!g_allKnownFactorizations[number].empty())
+        return g_allKnownFactorizations[number];
 
+    auto primes = g_helper.get_primes(number);
+    // Skip prime numbers
+    if (*primes.crbegin() == number)
+        return {{number}};
 
-    ~ProductSumFinder() = default;
+    AllFactorizations all_my_factorizations;
+    all_my_factorizations.insert({number});
 
+    Factorization my_factors = g_helper.get_factorization(number);
 
-    SameSum get_sum_sets(uint64_t total, bool add_total) {
-        // This function works correctly, but does not scale well in time or space.
-        // It ran out of memory on a 128GB machine before it got to 100.
-        for (uint64_t sum = summations_.size(); sum <= total; ++sum) {
-            // Set of all sets of addends to add to 'sum'
-            SameSum this_sum;
-            // If we aren't processing total, then add current number to
-            this_sum.insert({ sum });
-
-            for (uint64_t n = 1; n < sum; ++n) {
-                SameSum sub_sums = summations_[sum - n];
-                for (auto sub : sub_sums) {
-                    sub.insert(n);
-                    this_sum.insert(sub);
-                }
+    for (const auto &[prime, exp] : my_factors) {
+        AllFactorizations all_subfactorizations = get_all_factorizations(number / prime);
+        for (const auto &subfactorizations : all_subfactorizations) {
+            size_t num_factors = subfactorizations.size();
+            for (size_t i = 0; i < num_factors; ++i) {
+                Factors my_factorization = subfactorizations;
+                Factors::iterator iter = my_factorization.begin();
+                std::advance(iter, i);
+                uint64_t new_factor = *iter * prime;
+                my_factorization.erase(iter);
+                my_factorization.insert(new_factor);
+//                *iter *= prime;
+                all_my_factorizations.insert(my_factorization);
             }
-            summations_.push_back(this_sum);
+            Factors my_factorization = subfactorizations;
+            my_factorization.insert(prime);
+            all_my_factorizations.insert(my_factorization);
         }
+    }
+    g_allKnownFactorizations[number] = all_my_factorizations;
+    return all_my_factorizations;
+}
 
-        SameSum ret{ summations_[total] };
-        if (!add_total) {
-            ret.erase({total});
+
+uint64_t get_product_sum_for_factorization(const Factors &factors) {
+    if (factors.size() == 1)
+        return 0;
+
+    uint64_t number = std::accumulate(factors.cbegin(), factors.cend(), 1ULL, std::multiplies<uint64_t>());
+    uint64_t sum = std::accumulate(factors.cbegin(), factors.cend(), 0ULL);
+    uint64_t num_ones = number - sum;
+    return num_ones + factors.size();
+}
+
+
+uint64_t solve_it(uint64_t max_k) {
+    g_allKnownFactorizations.resize(2 * max_k + 1);
+    g_K.resize(max_k+1);
+    auto tmp = g_helper.get_primes(2 * max_k);
+    std::set<uint64_t> primes{tmp.cbegin(), tmp.cend()};
+
+    for (uint64_t N = 2; N <= 2 * max_k; ++N) {
+        if (primes.find(N) != primes.cend())
+            continue;
+        auto all_factorizations = get_all_factorizations(N);
+        for (const auto &factorizations : all_factorizations) {
+            uint64_t k = get_product_sum_for_factorization(factorizations);
+// std::cout << N << " = ";
+// for (const auto &f : factorizations)
+//     std::cout << f << "  ";
+// std::cout << " -> " << k << std::endl;
+            if (k <= max_k)
+                g_K[k].insert(N);
         }
-        return ret;
     }
 
-
-    FactorSet merge_factors(const FactorSet &set1, const FactorSet &set2) {
-        FactorSet ret;
-
-        for (const auto &fact1 : set1) {
-            for (const auto &fact2 : set2) {
-                Factors concat{fact1};
-                std::copy(fact2.begin(), fact2.end(), std::back_inserter(concat));
-                std::sort(concat.begin(), concat.end());
-                ret.insert(concat);
-
-                for (size_t ind1 = 0; ind1 < fact1.size(); ++ind1) {
-                    for (size_t ind2 = 0; ind2 < fact2.size(); ++ind2) {
-                        Factors combo;
-                        for (size_t copy_ind = 0; copy_ind < fact1.size(); ++copy_ind) {
-                            if (copy_ind == ind1)
-                                continue;
-                            combo.push_back(fact1[copy_ind]);
-                        }
-                        combo.push_back(fact1[ind1] * fact2[ind2]);
-                        for (size_t copy_ind = 0; copy_ind < fact2.size(); ++copy_ind) {
-                            if (copy_ind == ind2)
-                                continue;
-                            combo.push_back(fact2[copy_ind]);
-                        }
-
-                        std::sort(combo.begin(), combo.end());
-                        ret.insert(combo);
-                    }
-                }
-            }
-        }
-
-        return ret;
+    for (uint64_t k = 2; k <= max_k; ++k) {
+        std::cout << k << " : ";
+        for (const auto & N: g_K[k])
+            std::cout << N << ", ";
+        std::cout << std::endl;
     }
 
+    std::set<uint64_t> unique_n;
+    for (uint64_t k = 2; k <= max_k; ++k)
+        unique_n.insert(*g_K[k].cbegin());
 
-    FactorSet get_all_factorizations(uint64_t number) {
-        FactorSet ret;
-
-        const auto &prime_factorization = helper_.get_factorization_fast(number);
-
-        // First convert each factorization pn^en into collection of every
-        // permutation of multiplications.
-        std::list<FactorSet> prime_factors;
-        for (const auto &[prime, exp] : prime_factorization) {
-            FactorSet prime_perms;
-            auto sum_sets = get_sum_sets(exp, prime_factorization.size() > 1);
-            for (const auto & set : sum_sets) {
-                Factors factors;
-                for (const auto &el : set) {
-                    uint64_t factor{ 1 };
-                    for (uint64_t i = 0; i < el; ++i) {
-                        factor *= prime;
-                    }
-                    factors.push_back(factor);
-                }
-                prime_perms.insert(factors);
-            }
-            prime_factors.push_back(prime_perms);
-        }
-
-        ret = prime_factors.front();
-        prime_factors.pop_front();
-
-        while (!prime_factors.empty()) {
-            ret = merge_factors(ret, prime_factors.front());
-            prime_factors.pop_front();
-        }
-
-        auto last_iter = std::prev(ret.end());
-        if (last_iter->size() == 1)
-            ret.erase(last_iter);
-
-        return ret;
-    }
+    return std::accumulate(unique_n.cbegin(), unique_n.cend(), 0ULL);
+}
 
 
-    ProductSumMap get_product_sums(uint64_t max_N) {
-        ProductSumMap ret;
-
-        auto tmp = helper_.get_primes(max_N);
-        std::set<uint64_t> primes{tmp.begin(), tmp.end()};
-
-        for (uint64_t N = 2; N <= max_N; ++N) {
-            // Skip prime numbers;
-            if (primes.find(N) != primes.end())
-                continue;
-
-            auto factor_set = get_all_factorizations(N);
-             //std::cout << N << "\t";
-             //for (const auto & factors : factor_set) {
-             //    std::cout << " {";
-             //    for (const auto & f : factors)
-             //        std::cout << f << ", ";
-             //    std::cout << "}; ";
-             //}
-             //std::cout << std::endl;
-            if (N % 10'000 == 0)
-                std::cout << N << std::endl;
-            for (const auto & factors : factor_set) {
-                uint64_t sum = std::accumulate(factors.begin(), factors.end(), 0ULL);
-                uint64_t num_ones = N - sum;
-                uint64_t k = num_ones + factors.size();
-
-                if (ret.find(k) == ret.end())
-                    ret[k] = { };
-                ret[k][N] = { };
-            }
-        }
-
-        return ret;
-    }
-
-private:
-    std::vector<SameSum> summations_;
-    PrimeHelper helper_;
-
-};
-
-
-int main()
-{
+int main() {
     std::cout << "Hello World!\n";
 
-    // {
-    //     ProductSumFinder finder;
-    //     std::cout << "get_sum_sets(1)" << std::endl;
-    //     auto sum_sets = finder.get_sum_sets(1, true);
-    //     for (const auto & set : sum_sets) {
-    //         for (const auto & el : set) {
-    //             std::cout << el << " ";
-    //         }
-    //         std::cout << std::endl;
-    //     }
-    //     std::cout << "get_sum_sets(2)" << std::endl;
-    //     auto sum_sets2 = finder.get_sum_sets(2, true);
-    //     for (const auto & set : sum_sets2) {
-    //         for (const auto & el : set) {
-    //             std::cout << el << " ";
-    //         }
-    //         std::cout << std::endl;
-    //     }
-    //     std::cout << "get_sum_sets(4)" << std::endl;
-    //     auto sum_sets4 = finder.get_sum_sets(4, false);
-    //     for (const auto & set : sum_sets4) {
-    //         for (const auto & el : set) {
-    //             std::cout << el << " ";
-    //         }
-    //         std::cout << std::endl;
-    //     }
-    // }
-
-    //{
-    //     ProductSumFinder finder;
-    //     auto all_factors = finder.get_all_factorizations(30);
-    //     for (const auto & factors: all_factors) {
-    //         for (const auto &f : factors)
-    //             std::cout << f << " ";
-    //         std::cout << std::endl;
-    //     }
-    //}
-
-    //{
-    //    ProductSumFinder finder;
-    //    auto all_factors = finder.get_all_factorizations(18);
-    //    for (const auto & factors: all_factors) {
-    //        for (const auto &f : factors)
-    //            std::cout << f << " ";
-    //        std::cout << std::endl;
-    //    }
-    //    auto all_factors2 = finder.get_all_factorizations(16);
-    //    for (const auto & factors: all_factors2) {
-    //        for (const auto &f : factors)
-    //            std::cout << f << " ";
-    //        std::cout << std::endl;
-    //    }
-    //}
-
+//     {
+//         auto all_my_factors = get_all_factorizations(15);
+//         std::cout << "printing..." << std::endl;
+//         for (const auto &my_factors : all_my_factors) {
+//             for (const auto &fac : my_factors)
+//                 std::cout << fac << "  ";
+//             std::cout << "  ->  k = " << get_product_sum_for_factorization(my_factors);
+//             std::cout << std::endl;
+//         }
+//     }
+// return 0;
     {
-        ProductSumFinder finder;
-        auto product_sum_map = finder.get_product_sums(20'000);
-        std::set<uint64_t> unique_Ns;
-        for (const auto &[k, product_sums] : product_sum_map) {
-            if (k > 12'000)
-                continue;
-             unique_Ns.insert(product_sums.begin()->first);
-             std::cout << k << ":\t";// << product_sums.begin()->first << std::endl;
-             for (const auto &[N, factors] : product_sums) {
-                 std::cout << N << " ";
-             }
-             std::cout << std::endl;
-        }
-        for (const auto& N : unique_Ns)
-            std::cout << N << " + ";
-        std::cout << std::endl;
-        std::cout << "sum = " << std::accumulate(unique_Ns.begin(), unique_Ns.end(), 0ULL) << std::endl;
+        std::cout << solve_it(12000) << std::endl;
     }
 }

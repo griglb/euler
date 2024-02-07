@@ -1,4 +1,5 @@
 ﻿/.vs
+/.vscode
 /bazel-bin
 /bazel-euler
 /bazel-out
@@ -8,6 +9,8 @@
 /x64
 /Euler_Helpers/x64
 /Helper_Tests/x64
+/MODULE.bazel
+/MODULE.bazel.lock
 /ProjectEuler0001/x64
 /ProjectEuler0002/x64
 /ProjectEuler0003/x64

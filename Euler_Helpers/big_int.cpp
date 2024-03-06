@@ -102,6 +102,10 @@ BigInt::BigInt(uint64_t value) : is_negative_(false) {
 	store_unsigned_digits(value, digits_);
 }
 
+BigInt::BigInt(const BigInt::Digits& digits, bool is_negative)
+  : digits_(digits),
+	is_negative_(is_negative) {
+}
 
 BigInt::BigInt(double value) : is_negative_(value < 0) {
 	if (is_negative_)

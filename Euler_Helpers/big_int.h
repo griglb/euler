@@ -21,6 +21,7 @@ public:
 	explicit BigInt(uint32_t value);
 	explicit BigInt(uint64_t value);
 	explicit BigInt(double value);
+	explicit BigInt(const Digits& digits, bool is_negative = false);
 	BigInt(const BigInt& other);
 
 	// Assignment operators

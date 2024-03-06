@@ -1930,3 +1930,12 @@ cc_binary(
         ":euler_helpers_lib",
     ],
 )
+
+cc_binary(
+    name = "pe816",
+    srcs = [
+        "ProjectEuler0816/ProjectEuler0816.cpp"
+    ],
+    deps = [
+    ],
+)

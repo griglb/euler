@@ -20,6 +20,8 @@
 // Give your answer rounded to 24 places after the decimal point.
 
 
+#include <algorithm>
+#include <cmath>
 #include <iomanip>
 #include <iostream>
 #include <vector>
@@ -158,7 +160,7 @@ BigInt solve_it() {
         BigInt lower_seq = get_sequence(lower);
         BigInt upper_seq = get_sequence(upper);
 
-        BigInt mid = (upper + lower) / 2ull;
+        BigInt mid = (upper + lower) / uint64_t{ 2 };
         BigInt mid_seq = get_sequence(mid);
 
         std::cout << lower_seq << "\t" << mid << "\t" << mid_seq << "\t" << upper_seq << std::endl;

@@ -5,8 +5,6 @@ VisualStudioVersion = 17.1.32228.430
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Euler_Helpers", "Euler_Helpers\Euler_Helpers.vcxproj", "{AE2686DC-4D0F-446A-83EA-E91F42B73D32}"
 EndProject
-Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0800", "ProjectEuler0800\ProjectEuler800.vcxproj", "{BC216C3D-1B6D-445E-804F-03F35907ED23}"
-EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0807", "ProjectEuler0807\ProjectEuler807.vcxproj", "{D5A7F618-2B12-470A-9B3D-7B6C21FB2627}"
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "Helper_Tests", "Helper_Tests\Helper_Tests.vcxproj", "{5FC84EB7-F4CB-45FD-BCF3-C234EBBA9DD6}"
@@ -67,6 +65,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0751", "Project
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0816", "ProjectEuler0816\ProjectEuler0816.vcxproj", "{148819F6-0E27-4377-8EDF-CEE44268B5EE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0800", "ProjectEuler0800\ProjectEuler0800.vcxproj", "{B4CEECDC-98B0-49DC-9C0D-001181FCB825}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -83,14 +83,6 @@ Global
 		{AE2686DC-4D0F-446A-83EA-E91F42B73D32}.Release|x64.Build.0 = Release|x64
 		{AE2686DC-4D0F-446A-83EA-E91F42B73D32}.Release|x86.ActiveCfg = Release|Win32
 		{AE2686DC-4D0F-446A-83EA-E91F42B73D32}.Release|x86.Build.0 = Release|Win32
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Debug|x64.ActiveCfg = Debug|x64
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Debug|x64.Build.0 = Debug|x64
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Debug|x86.ActiveCfg = Debug|Win32
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Debug|x86.Build.0 = Debug|Win32
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Release|x64.ActiveCfg = Release|x64
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Release|x64.Build.0 = Release|x64
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Release|x86.ActiveCfg = Release|Win32
-		{BC216C3D-1B6D-445E-804F-03F35907ED23}.Release|x86.Build.0 = Release|Win32
 		{D5A7F618-2B12-470A-9B3D-7B6C21FB2627}.Debug|x64.ActiveCfg = Debug|x64
 		{D5A7F618-2B12-470A-9B3D-7B6C21FB2627}.Debug|x64.Build.0 = Debug|x64
 		{D5A7F618-2B12-470A-9B3D-7B6C21FB2627}.Debug|x86.ActiveCfg = Debug|Win32
@@ -331,6 +323,14 @@ Global
 		{148819F6-0E27-4377-8EDF-CEE44268B5EE}.Release|x64.Build.0 = Release|x64
 		{148819F6-0E27-4377-8EDF-CEE44268B5EE}.Release|x86.ActiveCfg = Release|Win32
 		{148819F6-0E27-4377-8EDF-CEE44268B5EE}.Release|x86.Build.0 = Release|Win32
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Debug|x64.ActiveCfg = Debug|x64
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Debug|x64.Build.0 = Debug|x64
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Debug|x86.ActiveCfg = Debug|Win32
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Debug|x86.Build.0 = Debug|Win32
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Release|x64.ActiveCfg = Release|x64
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Release|x64.Build.0 = Release|x64
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Release|x86.ActiveCfg = Release|Win32
+		{B4CEECDC-98B0-49DC-9C0D-001181FCB825}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

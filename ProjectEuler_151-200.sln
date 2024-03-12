@@ -71,6 +71,8 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0686", "Project
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0684", "ProjectEuler0684\ProjectEuler0684.vcxproj", "{581C24D8-07ED-4BC7-AC58-A0EF30AFD2DD}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0853", "ProjectEuler0853\ProjectEuler0853.vcxproj", "{1BAD2C56-646F-4634-A07F-965E1CF6036E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -351,6 +353,14 @@ Global
 		{581C24D8-07ED-4BC7-AC58-A0EF30AFD2DD}.Release|x64.Build.0 = Release|x64
 		{581C24D8-07ED-4BC7-AC58-A0EF30AFD2DD}.Release|x86.ActiveCfg = Release|Win32
 		{581C24D8-07ED-4BC7-AC58-A0EF30AFD2DD}.Release|x86.Build.0 = Release|Win32
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Debug|x64.ActiveCfg = Debug|x64
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Debug|x64.Build.0 = Debug|x64
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Debug|x86.ActiveCfg = Debug|Win32
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Debug|x86.Build.0 = Debug|Win32
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Release|x64.ActiveCfg = Release|x64
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Release|x64.Build.0 = Release|x64
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Release|x86.ActiveCfg = Release|Win32
+		{1BAD2C56-646F-4634-A07F-965E1CF6036E}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

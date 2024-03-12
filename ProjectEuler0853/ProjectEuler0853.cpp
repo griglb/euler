@@ -119,7 +119,8 @@ SpecialFibs get_special_fibs() {
 
 std::vector<int64_t> get_n_values(int64_t max_n) {
     const auto spec = get_special_fibs();
-    const int64_t pi_n{ 120 };
+    const BigInt zero{ 0 };
+    const BigInt one{ 1 };
 
     std::vector<int64_t> ret;
 
@@ -131,7 +132,7 @@ std::vector<int64_t> get_n_values(int64_t max_n) {
             continue;
         if ((spec.fib59 % n == 1) && (spec.fib60 % n == 0))
             continue;
-        if ((spec.fib119 % n != 1) || (spec.fib120 % n != 0))
+        if ((spec.fib119 % n != one) || (spec.fib120 % n != zero))
             continue;
         ret.push_back(n);
     }

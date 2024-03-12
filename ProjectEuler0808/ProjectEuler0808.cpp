@@ -10,6 +10,7 @@
 // Find the sum of the first 50 reversible prime squares.
 
 
+#include <algorithm>
 #include <iostream>
 #include <numeric>
 #include <map>

@@ -14,6 +14,7 @@
 
 
 #include <algorithm>
+#include <cmath>
 #include <iostream>
 #include <set>
 #include <vector>
@@ -138,6 +139,15 @@
 //      1, 1, 1
 //
 
+// An interesting observation from the discussion list:
+// The digit root of the sum must equal that of the square root.
+// This is also the numbers mod 9.  The sum of the substrings mod 9
+// is also equal to the square mod 9:
+//      n mod 9 == k mod 9
+//    k*k mod 9 == k mod 9
+// This is only true when k mod 9 is in {0, 1}, which can be used to
+// eliminate 7/9 of the k values.
+
 using Partition = std::vector<int16_t>;
 using PartitionSet = std::set<Partition>;
 using AllPartitions = std::vector<PartitionSet>;
@@ -170,6 +180,10 @@ void populate_partition_sets(int16_t max_size) {
 
 bool is_s_number(const int64_t n, const int64_t k) {
     std::vector<int16_t> digits;
+
+    // Skip any value where k mod 9 is not in {0, 1}.
+    if ((k % 9 != 0) && (k % 9 != 1))
+        return false;
 
     {
         int64_t tmp = n;

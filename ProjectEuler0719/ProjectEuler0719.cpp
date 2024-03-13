@@ -13,677 +13,652 @@
 // Find T(10^12).
 
 
+#include <algorithm>
 #include <iostream>
-#include <numeric>
 #include <set>
 #include <vector>
 
-#include "combinatorics.h"
+
+// Even for T(10^12), we are only checking 1E6 numbers, because we only care about
+// perfect squares.  So a brute force approach is probably doable.
+
+// Let's say we are evaluating a number n = k^2, which has digits ABCDEFG...
+// One thing we immediately know is that none of the substring numbers can have more digits than k.
+// This still leaves many permutations of how to split the number n into substring numbers.
+// We do know that since the sum of the substring numbers equals k, the sum of their units digits
+// equals k's unit digit, which could maybe be used as a way to filter the set of permutations.
+
+// How to enumerate the substring permutations?
+// There are 2 parameters to this:
+//      - the number of digits in n
+//      - the number of digits in k, where n = k^2
+// We want to find all the partitions of n, but such that none of the substrings exceed k.
+// For example, let k = 123, n = 15129.  Then we need the partitions of 5 that only contain
+// values in [1, 3].  Possible partions include:
+//      1, 1, 1, 1, 1
+//      2, 1, 1, 1
+//      2, 2, 1
+//      3, 1, 1
+//      3, 2
+//      4, 1    XXX
+//      5       XXX
+// The last two partitions are invalid, because they use >3 digits.  But if n has 0s in it,
+// then maybe the the (4, 1) partition is possible at (1, 4) if the second digit is 0.  The
+// only partition that can be definitely excluded is (5).
+// Note that in the above partition list, it only lists the set of cardinalities, but not their
+// order permutations.  So the full list is actually:
+//      1, 1, 1, 1, 1
+//      2, 1, 1, 1
+//      1, 2, 1, 1
+//      1, 1, 2, 1
+//      1, 1, 1, 2
+//      2, 2, 1
+//      2, 1, 2
+//      1, 2, 2
+//      3, 1, 1
+//      1, 3, 1
+//      1, 1, 3
+//      3, 2
+//      2, 3
+//      4, 1
+//      1, 4
+//      5
+// As the number of digits of n grows, the number of permutations grows too.  The worse case is
+// when n has 11 digits (and k has 6):
+//      1, 1, 1, 1, 1, 1, 1, 1, 1, 1, 1
+//      2, 1, 1, 1, 1, 1, 1, 1, 1, 1
+//      2, 2, 1, 1, 1, 1, 1, 1, 1
+//      2, 2, 2, 1, 1, 1, 1, 1
+//      2, 2, 2, 2, 1, 1, 1
+//      2, 2, 2, 2, 2, 1
+//      3, 1, 1, 1, 1, 1, 1, 1, 1
+//      3, 2, 1, 1, 1, 1, 1 ,1
+//      3, 2, 2, 1, 1, 1, 1
+//      3, 2, 2, 2, 1, 1
+//      3, 2, 2, 2, 2
+//      3, 3, 1, 1, 1, 1, 1
+//      3, 3, 2, 1, 1, 1
+//      3, 3, 2, 2, 1
+//      3, 3, 3, 1, 1
+//      3, 3, 3, 2
+//      4, 1, 1, 1, 1, 1, 1, 1
+//      4, 2, 1, 1, 1, 1, 1
+//      4, 2, 2, 1, 1, 1
+//      4, 2, 2, 2, 1
+//      4, 3, 1, 1, 1, 1
+//      4, 3, 2, 1, 1
+//      4, 3, 2, 2
+//      4, 3, 3, 1
+//      5, 1, 1, 1, 1, 1, 1
+//      5, 2, 1, 1, 1, 1
+//      5, 2, 2, 1, 1
+//      5, 2, 2, 2
+//      5, 3, 1, 1, 1
+//      5, 3, 2, 1
+//      5, 3, 3
+//      5, 4, 1, 1
+//      5, 4, 2
+//      6, 1, 1, 1, 1, 1
+//      6, 2, 1, 1, 1
+//      6, 2, 2, 1
+//      6, 3, 1, 1
+//      6, 3, 2
+//      6, 4, 1
+//      6, 5
+//      7, 1, 1, 1, 1
+//      7, 2, 1, 1
+//      7, 2, 2
+//      7, 3, 1
+//      7, 4
+//      8, 1, 1, 1
+//      8, 2, 1
+//      8, 3
+//      9, 1, 1
+//      9, 2
+//      10, 1
+//      11
+
+// Constructing the permutations.
+// We will do this recursively, and memoize since it is a little involved.
+// Start with 1 digit, which only has 1 partition:
+//      1
+// Then for 2 digits, there are 2 options:
+//      2 by itself
+//      1 inserted into each slot of each partiton for 1
+// The latter technically yields (1, 1) and (1, 1), which reduce to the single (1, 1):
+//      2
+//      1, 1
+// For 3 digits, we have:
+//      3 by itself
+//      1 inserted into each slot of each partition for 2: (1, 2), (2, 1), (1, 1, 1), (1, 1, 1), (1, 1, 1)
+// this reduces to:
+//      3
+//      1, 2
+//      2, 1
+//      1, 1, 1
+//
+
+using Partition = std::vector<int16_t>;
+using PartitionSet = std::set<Partition>;
+using AllPartitions = std::vector<PartitionSet>;
+
+AllPartitions g_allPartitions;
 
 
-// It is not explicitly stated, but there seems to be the implication that
-// when the digits of n are split into smaller numbers, the order of the
-// digits must be maintained.  Calculating T(10^4) will verify this.
+void populate_partition_sets(int16_t max_size) {
+    g_allPartitions.push_back({});          // empty partitions for 0 elements
+    g_allPartitions.push_back({ {1} });     // only partition for 1 element is (1)
 
+    for (int16_t n = 2; n <= max_size; ++n) {
+        PartitionSet next_set{ {n} };
 
-// The splitting of the digits of sq is the same as Problem 76 (https://projecteuler.net/problem=76).
-// So I copied over the counting code from there and modified it to return
-// the sets of addends instead of just their count.
+        for (int16_t new_elem = 1; new_elem < n; ++new_elem) {
+            const PartitionSet& prev_set = g_allPartitions[n - new_elem];
 
-class S_Number_Finder {
-public :
-    S_Number_Finder() {
-        addends_for_sum_.push_back({});  // no addends to sum to 0
-        addends_for_sum_.push_back({});  // no addends to sum to 1
-        perms_.push_back({});
-        perms_.push_back({});
-    }
-    ~S_Number_Finder() = default;
-
-    uint64_t get_T(uint64_t N) {
-        uint64_t sum{ 0 };
-        for (uint64_t n = 4; n <= N; ++n) {
-//            std::cout << n << "\t" << n * n << std::endl;
-            if (is_s_number(n))
-                sum += n * n;
+            for (const auto& part : prev_set) {
+                for (size_t index = 0; index <= part.size(); ++index) {
+                    Partition new_part = part;
+                    new_part.insert(new_part.cbegin() + index, new_elem);
+                    next_set.insert(new_part);
+                }
+            }
         }
-        return sum;
+        g_allPartitions.emplace_back(std::move(next_set));
     }
+}
 
 
-    // The input is not the square, but the number being squared, to save time
-    // having to take its root.
-    bool is_s_number(uint64_t number) {
-        uint64_t sq = number * number;
+bool is_s_number(const int64_t n, const int64_t k) {
+    std::vector<int16_t> digits;
 
-        Digits digits;
-        while (sq > 0) {
-            digits.push_back(sq % 10);
-            sq /= 10;
+    {
+        int64_t tmp = n;
+        while (tmp > 0) {
+            digits.push_back(tmp % 10);
+            tmp /= 10;
         }
         std::reverse(digits.begin(), digits.end());
-
-        // Special check for 10^n, which is always an S-number
-        if (*digits.begin() == 1) {
-            bool is_pow_10{ true };
-            for (size_t i = 1; i < digits.size(); ++i) {
-                if (digits[i] != 0)
-                    is_pow_10 = false;
-            }
-            if (is_pow_10) {
-                std::cout << number * number << " is an S-number" << std::endl;
-                return true;
-            }
-        }
-
-        while (digits.size() >= perms_.size())
-            perms_.emplace_back(get_permutations(perms_.size(), perms_.size()));
-
-        AddendSets sets = get_sums(digits.size());
-
-        for (const auto& addends : sets) {
-            Counts tmp{ addends.begin(), addends.end() };
-            for (const auto& perm : perms_[addends.size()]) {
-                Counts count_perm;
-                for (const auto& el : perm)
-                    count_perm.push_back(tmp[el]);
-                if (get_digit_sum(digits, count_perm) == number) {
-                    std::cout << number * number << " is an S-number" << std::endl;
-                    return true;
-                }
-            }
-        }
-
-        return false;
     }
 
-private :
-    using Addends = std::multiset<int16_t>;
-    using AddendSets = std::set<Addends>;
-    using AddendsForSum = std::vector<AddendSets>;
-    using Digits = std::vector<int16_t>;
-    using Counts = std::vector<int16_t>;
+    const PartitionSet part_set = g_allPartitions[digits.size()];
 
-    AddendsForSum addends_for_sum_;
-    std::vector<PermutationList> perms_;
-
-
-    AddendSets get_sums_with_n_terms(int16_t total, int16_t num_terms) {
-        AddendSets ret;
-
-        // The use of these sets of addends is to define how many digits to use in each
-        // addend, which we want to sum to the square root of the number with said digits.
-        // Sets with lots of small numbers will never be able to sum to a number with
-        // enough digits.
-        //   For example, if you have a 10 digit number, and the set is all 1's, then the
-        //   maximum sum is 10 * 9 = 90, which is way too small for a 5 digit sum.
-        // We can throw out lots of sets that cannot sum to a big enough number.
-        // The opposite is not true.  If the number has many 0s in it, then a set with a
-        // large number in it could be encompass these 0s and result in a small value
-        // that contributes to a valid sum.
-
-        uint64_t min_sum{ 1 };
-        for (size_t n = 1; n < (total + 1) / 2; ++n)
-            min_sum *= 10;
-        if (total % 2 == 0)
-            min_sum *= 3.2;
-
-        Digits all_nines;
-        for (int16_t n = 0; n < total; ++n)
-            all_nines.push_back(9);
-
-        if (2 == num_terms) {
-            // With symmetry, there are total/2 sets of addends, so build and return them.
-            for (int16_t i = 1; i <= total / 2; ++i) {
-                Addends addends{ i, static_cast<int16_t>(total - i) };
-                if (this->get_digit_sum(all_nines, addends) >= min_sum)
-                    ret.insert(addends);
-                else {
-                    std::cout << "Skipping Addends set { ";
-                    for (const auto& el : addends)
-                        std::cout << el << ", ";
-                    std::cout << " }" << std::endl;
-                }
+    for (const auto& part : part_set) {
+        int64_t sum{ 0 };
+        size_t offset{ 0 };
+        for (const auto& num : part) {
+            // Construct the next number using num digits, starting at offset
+            int64_t next_term{ 0 };
+            for (size_t i = 0; i < num; ++i) {
+                next_term *= 10;
+                next_term += digits[offset + i];
             }
-            return ret;
+            sum += next_term;
+            // advance the offset for the next term
+            offset += num;
         }
 
-        if (num_terms == total) {
-            std::vector<int16_t> smallest_terms(num_terms, 1);
-            Addends addends{ smallest_terms.begin(), smallest_terms.end() };
-            if (this->get_digit_sum(all_nines, addends) >= min_sum)
-                ret.insert(addends);
-            else {
-                std::cout << "Skipping Addends set { ";
-                for (const auto& el : addends)
-                    std::cout << el << ", ";
-                std::cout << " }" << std::endl;
-            }
-            return ret;
-        }
-
-        std::vector<int16_t> smallest_terms(num_terms - 2, 1);
-        int16_t smallest_sum{ num_terms };
-        // For the different sets of fixed smallest terms, we start by incrementing the last term
-        // and move forward.
-        while (true) {
-            // 1. Add new sets to ret
-            // 2. Increment odometer
-            //   a. Loop index from back to front
-            //     i. If incrementing current index stays under total, then break out of for loop for next while loop
-            //    ii. If not last index, then reset all subsequent values to new value
-            //   b. If run out of indices to increment, then break out of while loop
-
-            int16_t max_i = (total - smallest_sum + 2) / 2;
-            for (int16_t i = 1; i <= max_i; ++i) {
-                Addends addends{ smallest_terms.begin(), smallest_terms.end() };
-                addends.insert(i);
-                addends.insert(total - i - std::accumulate(smallest_terms.cbegin(), smallest_terms.cend(), 0));
-                if (*addends.begin() < 1)
-                    throw "wtf?";
-
-                if (this->get_digit_sum(all_nines, addends) >= min_sum)
-                    ret.insert(addends);
-                else {
-                    std::cout << "Skipping Addends set { ";
-                    for (const auto& el : addends)
-                        std::cout << el << ", ";
-                    std::cout << " }" << std::endl;
-                }
-            }
-
-            // Increment varying_index to next value.
-            for (int16_t varying_index = smallest_terms.size() - 1; varying_index >= 0; --varying_index) {
-                ++smallest_terms[varying_index];
-                for (size_t later_index = varying_index + 1; later_index < smallest_terms.size(); ++later_index)
-                    smallest_terms[later_index] = smallest_terms[varying_index];
-                // Get the sum of all the terms, adding the smallest values for the last 2,
-                // which is the last element of smallest_terms.
-                smallest_sum = std::accumulate(smallest_terms.cbegin(), smallest_terms.cend(), 2 * (*smallest_terms.rbegin()));
-                // 
-                if (smallest_sum <= total)
-                    break;
-            }
-
-            if (smallest_sum > total)
-                break;
-        }
-
-        return ret;
+        if (k == sum)
+            return true;
     }
 
+    return false;
+}
 
-    AddendSets get_sums(int16_t total) {
-        while (total >= addends_for_sum_.size()) {
-            AddendSets sets;
-            for (int16_t num_terms = 2; num_terms <= addends_for_sum_.size(); ++num_terms) {
-                auto sums = get_sums_with_n_terms(total, num_terms);
-                sets.insert(sums.begin(), sums.end());
-            }
-            addends_for_sum_.emplace_back(sets);
+
+int64_t T(int64_t N) {
+    populate_partition_sets(13);
+
+    const int64_t root_N = std::ceil(std::sqrt(N));
+    int64_t sum{ 0 };
+
+    for (int64_t k = 2; k <= root_N; ++k) {
+        if (is_s_number(k * k, k)) {
+            sum += k * k;
+            std::cout << k * k << " = " << k << "^2 is an S-number" << std::endl;
         }
-
-        return addends_for_sum_[total];
     }
 
-
-    template <typename CountType>
-    uint64_t get_digit_sum(const Digits& digits, const CountType& counts) {
-        uint64_t ret{ 0 };
-
-        size_t pos{ 0 };
-        for (const auto& count : counts) {
-            uint64_t term{ 0 };
-            for (uint16_t i = 0; i < count; ++i, ++pos) {
-                term *= 10;
-                term += digits[pos];
-            }
-            ret += term;
-        }
-
-        return ret;
-    }
-
-};
+    return sum;
+}
 
 
-// This is not returning the correct answer!
 int main()
 {
     std::cout << "Hello World!\n";
 
     //{
-    //    auto sets = get_sums(5);
-    //    for (const auto& sum : sets) {
-    //        for (const auto& el : sum)
-    //            std::cout << el << " ";
+    //    populate_partition_sets(5);
+    //    for (const auto& part_set : g_allPartitions) {
+    //        for (const auto& part : part_set) {
+    //            for (const auto& num : part)
+    //                std::cout << num << ", ";
+    //            std::cout << std::endl;
+    //        }
     //        std::cout << std::endl;
+    //    }
+    //    for (size_t n = 0; n < g_allPartitions.size(); ++n) {
+    //        std::cout << n << "\t" << g_allPartitions[n].size() << std::endl;;
     //    }
     //}
 
     //{
-    //    std::cout << sqrt(9) << "\t" << get_digit_sum({8, 1}, {1, 1}) << std::endl;
-    //    std::cout << sqrt(6724) << "\t" << get_digit_sum({ 6, 7, 2, 4 }, { 1, 2, 1 }) << std::endl;
-    //    std::cout << sqrt(8281) << "\t" << get_digit_sum({ 8, 2, 8, 1 }, { 1, 1, 2 }) << std::endl;
-    //    std::cout << sqrt(8281) << "\t" << get_digit_sum({ 8, 2, 8, 1 }, { 2, 1, 1 }) << std::endl;
-    //    std::cout << sqrt(9801) << "\t" << get_digit_sum({ 9, 8, 0, 1 }, { 2, 1, 1 }) << std::endl;
-    //}
+    //    populate_partition_sets(5);
 
-    //{
-    //    std::cout << is_s_number(8) << std::endl;
-    //    std::cout << is_s_number(9) << std::endl;
-    //    std::cout << is_s_number(10) << std::endl;
-    //    std::cout << is_s_number(82) << std::endl;
-    //    std::cout << is_s_number(91) << std::endl;
-    //    std::cout << is_s_number(99) << std::endl;
+    //    for (int64_t k : { 8, 9, 10, 81, 82, 83, 90, 91, 92, 98, 99 })
+    //        std::cout << k*k << "\t" << is_s_number(k*k, k) << std::endl;
     //}
 
     {
-        S_Number_Finder finder;
-        std::cout << "sum = " << finder.get_T(100) << std::endl;
-    }
-
-    {
-        S_Number_Finder finder;
-        std::cout << "sum = " << finder.get_T(1'000'000) << std::endl;
+//        std::cout << T(10'000) << std::endl;
+        std::cout << T(1'000'000'000'000) << std::endl;
     }
 }
 
 
-//81 is an S-number
-//100 is an S-number
-//1296 is an S-number
-//2025 is an S-number
-//3025 is an S-number
-//6724 is an S-number
-//8281 is an S-number
-//9801 is an S-number
-//10000 is an S-number
-//55225 is an S-number
-//88209 is an S-number
-//136161 is an S-number
-//136900 is an S-number
-//143641 is an S-number
-//171396 is an S-number
-//431649 is an S-number
-//455625 is an S-number
-//494209 is an S-number
-//571536 is an S-number
-//627264 is an S-number
-//826281 is an S-number
-//842724 is an S-number
-//893025 is an S-number
-//929296 is an S-number
-//980100 is an S-number
-//982081 is an S-number
-//998001 is an S-number
-//1000000 is an S-number
-//1679616 is an S-number
-//2896804 is an S-number
-//3175524 is an S-number
-//4941729 is an S-number
-//7441984 is an S-number
-//11329956 is an S-number
-//13293316 is an S-number
-//13557124 is an S-number
-//17073424 is an S-number
-//23804641 is an S-number
-//24068836 is an S-number
-//24502500 is an S-number
-//25502500 is an S-number
-//26512201 is an S-number
-//28005264 is an S-number
-//46676224 is an S-number
-//51710481 is an S-number
-//52881984 is an S-number
-//54597321 is an S-number
-//56746089 is an S-number
-//56896849 is an S-number
-//57562569 is an S-number
-//60481729 is an S-number
-//63297936 is an S-number
-//70829056 is an S-number
-//71284249 is an S-number
-//76860289 is an S-number
-//78428736 is an S-number
-//79388100 is an S-number
-//79887844 is an S-number
-//84787264 is an S-number
-//86769225 is an S-number
-//86955625 is an S-number
-//91891396 is an S-number
-//92563641 is an S-number
-//92929600 is an S-number
-//95355225 is an S-number
-//98029801 is an S-number
-//98188281 is an S-number
-//98366724 is an S-number
-//98903025 is an S-number
-//99102025 is an S-number
-//99281296 is an S-number
-//99800100 is an S-number
-//99820081 is an S-number
-//99980001 is an S-number
-//100000000 is an S-number
-//110502144 is an S-number
-//149377284 is an S-number
-//161976529 is an S-number
-//298287441 is an S-number
-//300814336 is an S-number
-//493817284 is an S-number
-//494217361 is an S-number
-//642825316 is an S-number
-//751527396 is an S-number
-//1133601561 is an S-number
-//1178342929 is an S-number
-//1256135364 is an S-number
-//1336487364 is an S-number
-//1358291025 is an S-number
-//1518037444 is an S-number
-//1553936400 is an S-number
-//1693240201 is an S-number
-//1748410596 is an S-number
-//1818425449 is an S-number
-//2084561649 is an S-number
-//2141745841 is an S-number
-//2380464100 is an S-number
-//2384857225 is an S-number
-//2449458064 is an S-number
-//2456490969 is an S-number
-//2490608836 is an S-number
-//2505002500 is an S-number
-//2647514116 is an S-number
-//2800526400 is an S-number
-//2805291225 is an S-number
-//2853162225 is an S-number
-//3293956449 is an S-number
-//3311657209 is an S-number
-//3514592656 is an S-number
-//3862125316 is an S-number
-//4139764281 is an S-number
-//4256518564 is an S-number
-//4506705424 is an S-number
-//4682391184 is an S-number
-//4769007364 is an S-number
-//4782690649 is an S-number
-//4853769561 is an S-number
-//5272502544 is an S-number
-//5572174609 is an S-number
-//5674759561 is an S-number
-//5906076201 is an S-number
-//5947648641 is an S-number
-//6039776656 is an S-number
-//6049417284 is an S-number
-//6067786816 is an S-number
-//6322794256 is an S-number
-//6580129924 is an S-number
-//6731382025 is an S-number
-//6826064400 is an S-number
-//6832014336 is an S-number
-//7261084944 is an S-number
-//7385855481 is an S-number
-//7668680041 is an S-number
-//7879757824 is an S-number
-//7887571344 is an S-number
-//7887748969 is an S-number
-//8033895424 is an S-number
-//8248090761 is an S-number
-//8419163536 is an S-number
-//8723933604 is an S-number
-//8756093476 is an S-number
-//8862527881 is an S-number
-//8945565561 is an S-number
-//9048004641 is an S-number
-//9435596769 is an S-number
-//9811893025 is an S-number
-//9845799076 is an S-number
-//9849371536 is an S-number
-//9869031649 is an S-number
-//9911994481 is an S-number
-//9926136900 is an S-number
-//9926336161 is an S-number
-//9940688209 is an S-number
-//9953055225 is an S-number
-//9980010000 is an S-number
-//9980209801 is an S-number
-//9981808281 is an S-number
-//9983606724 is an S-number
-//9989003025 is an S-number
-//9991002025 is an S-number
-//9992801296 is an S-number
-//9998000100 is an S-number
-//9998200081 is an S-number
-//9999800001 is an S-number
-//10000000000 is an S-number
-//10999394884 is an S-number
-//11048532544 is an S-number
-//11105365924 is an S-number
-//13769379649 is an S-number
-//14937972841 is an S-number
-//16913002500 is an S-number
-//17413177681 is an S-number
-//19614002500 is an S-number
-//20408122449 is an S-number
-//20601435024 is an S-number
-//21948126201 is an S-number
-//26754163489 is an S-number
-//28167580224 is an S-number
-//29869171929 is an S-number
-//33058148761 is an S-number
-//35010152100 is an S-number
-//41320319076 is an S-number
-//43470165025 is an S-number
-//46582157241 is an S-number
-//62416028224 is an S-number
-//76024275625 is an S-number
-//80612837776 is an S-number
-//92982304900 is an S-number
-//96310294921 is an S-number
-//100316625984 is an S-number
-//101558217124 is an S-number
-//101873318976 is an S-number
-//102432002500 is an S-number
-//108878221089 is an S-number
-//113366216601 is an S-number
-//113366890000 is an S-number
-//113433566401 is an S-number
-//114758337600 is an S-number
-//115228339209 is an S-number
-//118434404449 is an S-number
-//122349546225 is an S-number
-//123448227904 is an S-number
-//124392352249 is an S-number
-//125594398449 is an S-number
-//126970356241 is an S-number
-//127194229449 is an S-number
-//128017977616 is an S-number
-//132801936400 is an S-number
-//136353686121 is an S-number
-//136746123264 is an S-number
-//136912580289 is an S-number
-//136999177956 is an S-number
-//137013243409 is an S-number
-//147134383561 is an S-number
-//151803744400 is an S-number
-//151838812225 is an S-number
-//152344237969 is an S-number
-//168141002500 is an S-number
-//174164328900 is an S-number
-//174172675600 is an S-number
-//176282419600 is an S-number
-//183542839561 is an S-number
-//188643417561 is an S-number
-//194369883876 is an S-number
-//194672441089 is an S-number
-//204424249689 is an S-number
-//204521922081 is an S-number
-//213018248521 is an S-number
-//214632064656 is an S-number
-//217930248900 is an S-number
-//222347142369 is an S-number
-//224644717089 is an S-number
-//224739520489 is an S-number
-//232910481664 is an S-number
-//240149002500 is an S-number
-//249321461041 is an S-number
-//249500250000 is an S-number
-//249906008836 is an S-number
-//250050002500 is an S-number
-//250500250000 is an S-number
-//251501247001 is an S-number
-//262975121721 is an S-number
-//265148785476 is an S-number
-//275245031044 is an S-number
-//280052640000 is an S-number
-//280529122500 is an S-number
-//284000528889 is an S-number
-//284270248900 is an S-number
-//285316222500 is an S-number
-//287600528656 is an S-number
-//289940248521 is an S-number
-//301905192681 is an S-number
-//303628550625 is an S-number
-//305527035025 is an S-number
-//315597891961 is an S-number
-//326571103296 is an S-number
-//341415838864 is an S-number
-//341584140304 is an S-number
-//355954231161 is an S-number
-//360760000689 is an S-number
-//371718237969 is an S-number
-//393900588225 is an S-number
-//409265988121 is an S-number
-//412264158084 is an S-number
-//413908229449 is an S-number
-//414313643584 is an S-number
-//418646526841 is an S-number
-//420744227904 is an S-number
-//422216647524 is an S-number
-//430656187536 is an S-number
-//448944221089 is an S-number
-//448967002500 is an S-number
-//453805669801 is an S-number
-//455674951369 is an S-number
-//464194217124 is an S-number
-//467991441801 is an S-number
-//475793689284 is an S-number
-//483123695041 is an S-number
-//486972291556 is an S-number
-//508712724081 is an S-number
-//542707735969 is an S-number
-//547397258769 is an S-number
-//564375060001 is an S-number
-//569754742041 is an S-number
-//575284325625 is an S-number
-//575873052769 is an S-number
-//577676002500 is an S-number
-//592977002500 is an S-number
-//609487805809 is an S-number
-//615121784209 is an S-number
-//623450788921 is an S-number
-//624687898384 is an S-number
-//626480165025 is an S-number
-//626879147049 is an S-number
-//628347923856 is an S-number
-//632794794256 is an S-number
-//637987185081 is an S-number
-//646803586081 is an S-number
-//648047540196 is an S-number
-//657427450761 is an S-number
-//658215803025 is an S-number
-//660790152100 is an S-number
-//669420148761 is an S-number
-//682087684996 is an S-number
-//682398253476 is an S-number
-//691678315584 is an S-number
-//691754831524 is an S-number
-//699108360129 is an S-number
-//699183613584 is an S-number
-//718474921641 is an S-number
-//721684230400 is an S-number
-//723428498116 is an S-number
-//725650126201 is an S-number
-//726185187225 is an S-number
-//726785235289 is an S-number
-//728533945764 is an S-number
-//729088853689 is an S-number
-//734694122449 is an S-number
-//734707836801 is an S-number
-//739686002500 is an S-number
-//748643718564 is an S-number
-//760638645316 is an S-number
-//770008005001 is an S-number
-//775718801001 is an S-number
-//788231454976 is an S-number
-//789188819769 is an S-number
-//791462888164 is an S-number
-//792181882116 is an S-number
-//821609906329 is an S-number
-//822278985616 is an S-number
-//823991907600 is an S-number
-//824890815225 is an S-number
-//829409096961 is an S-number
-//844891872400 is an S-number
-//847309204036 is an S-number
-//849213854784 is an S-number
-//850026836961 is an S-number
-//864092948356 is an S-number
-//875693566225 is an S-number
-//883694002500 is an S-number
-//894252031201 is an S-number
-//894573580761 is an S-number
-//899483424921 is an S-number
-//901039491361 is an S-number
-//904494200401 is an S-number
-//904800464100 is an S-number
-//906941952225 is an S-number
-//912695533201 is an S-number
-//923594037444 is an S-number
-//937519681536 is an S-number
-//938495937600 is an S-number
-//940257969561 is an S-number
-//956032217361 is an S-number
-//974940986881 is an S-number
-//979903989801 is an S-number
-//980296029801 is an S-number
-//982366428736 is an S-number
-//982542860289 is an S-number
-//983238829056 is an S-number
-//984990746089 is an S-number
-//985276597321 is an S-number
-//986382676224 is an S-number
-//988994448324 is an S-number
-//989444005264 is an S-number
-//989728512201 is an S-number
-//989925502500 is an S-number
-//993279329956 is an S-number
-//996439175524 is an S-number
-//998002998001 is an S-number
-//998018982081 is an S-number
-//998020980100 is an S-number
-//998072929296 is an S-number
-//998110893025 is an S-number
-//998164842724 is an S-number
-//998182826281 is an S-number
-//998416627264 is an S-number
-//998488571536 is an S-number
-//998650455625 is an S-number
-//998686431649 is an S-number
-//999172171396 is an S-number
-//999242143641 is an S-number
-//999260136900 is an S-number
-//999262136161 is an S-number
-//999406088209 is an S-number
-//999530055225 is an S-number
-//999800010000 is an S-number
-//999802009801 is an S-number
-//999818008281 is an S-number
-//999836006724 is an S-number
-//999890003025 is an S-number
-//999910002025 is an S-number
-//999928001296 is an S-number
-//999980000100 is an S-number
-//999982000081 is an S-number
-//999998000001 is an S-number
-//1000000000000 is an S-number
-//sum = 121874663231088
+//81 = 9 ^ 2 is an S - number
+//100 = 10 ^ 2 is an S - number
+//1296 = 36 ^ 2 is an S - number
+//2025 = 45 ^ 2 is an S - number
+//3025 = 55 ^ 2 is an S - number
+//6724 = 82 ^ 2 is an S - number
+//8281 = 91 ^ 2 is an S - number
+//9801 = 99 ^ 2 is an S - number
+//10000 = 100 ^ 2 is an S - number
+//55225 = 235 ^ 2 is an S - number
+//88209 = 297 ^ 2 is an S - number
+//136161 = 369 ^ 2 is an S - number
+//136900 = 370 ^ 2 is an S - number
+//143641 = 379 ^ 2 is an S - number
+//171396 = 414 ^ 2 is an S - number
+//431649 = 657 ^ 2 is an S - number
+//455625 = 675 ^ 2 is an S - number
+//494209 = 703 ^ 2 is an S - number
+//571536 = 756 ^ 2 is an S - number
+//627264 = 792 ^ 2 is an S - number
+//826281 = 909 ^ 2 is an S - number
+//842724 = 918 ^ 2 is an S - number
+//893025 = 945 ^ 2 is an S - number
+//929296 = 964 ^ 2 is an S - number
+//980100 = 990 ^ 2 is an S - number
+//982081 = 991 ^ 2 is an S - number
+//998001 = 999 ^ 2 is an S - number
+//1000000 = 1000 ^ 2 is an S - number
+//1679616 = 1296 ^ 2 is an S - number
+//2896804 = 1702 ^ 2 is an S - number
+//3175524 = 1782 ^ 2 is an S - number
+//4941729 = 2223 ^ 2 is an S - number
+//7441984 = 2728 ^ 2 is an S - number
+//11329956 = 3366 ^ 2 is an S - number
+//13293316 = 3646 ^ 2 is an S - number
+//13557124 = 3682 ^ 2 is an S - number
+//17073424 = 4132 ^ 2 is an S - number
+//23804641 = 4879 ^ 2 is an S - number
+//24068836 = 4906 ^ 2 is an S - number
+//24502500 = 4950 ^ 2 is an S - number
+//25502500 = 5050 ^ 2 is an S - number
+//26512201 = 5149 ^ 2 is an S - number
+//28005264 = 5292 ^ 2 is an S - number
+//46676224 = 6832 ^ 2 is an S - number
+//51710481 = 7191 ^ 2 is an S - number
+//52881984 = 7272 ^ 2 is an S - number
+//54597321 = 7389 ^ 2 is an S - number
+//56746089 = 7533 ^ 2 is an S - number
+//56896849 = 7543 ^ 2 is an S - number
+//57562569 = 7587 ^ 2 is an S - number
+//60481729 = 7777 ^ 2 is an S - number
+//63297936 = 7956 ^ 2 is an S - number
+//70829056 = 8416 ^ 2 is an S - number
+//71284249 = 8443 ^ 2 is an S - number
+//76860289 = 8767 ^ 2 is an S - number
+//78428736 = 8856 ^ 2 is an S - number
+//79388100 = 8910 ^ 2 is an S - number
+//79887844 = 8938 ^ 2 is an S - number
+//84787264 = 9208 ^ 2 is an S - number
+//86769225 = 9315 ^ 2 is an S - number
+//86955625 = 9325 ^ 2 is an S - number
+//91891396 = 9586 ^ 2 is an S - number
+//92563641 = 9621 ^ 2 is an S - number
+//92929600 = 9640 ^ 2 is an S - number
+//95355225 = 9765 ^ 2 is an S - number
+//98029801 = 9901 ^ 2 is an S - number
+//98188281 = 9909 ^ 2 is an S - number
+//98366724 = 9918 ^ 2 is an S - number
+//98903025 = 9945 ^ 2 is an S - number
+//99102025 = 9955 ^ 2 is an S - number
+//99281296 = 9964 ^ 2 is an S - number
+//99800100 = 9990 ^ 2 is an S - number
+//99820081 = 9991 ^ 2 is an S - number
+//99980001 = 9999 ^ 2 is an S - number
+//100000000 = 10000 ^ 2 is an S - number
+//110502144 = 10512 ^ 2 is an S - number
+//149377284 = 12222 ^ 2 is an S - number
+//161976529 = 12727 ^ 2 is an S - number
+//298287441 = 17271 ^ 2 is an S - number
+//300814336 = 17344 ^ 2 is an S - number
+//493817284 = 22222 ^ 2 is an S - number
+//494217361 = 22231 ^ 2 is an S - number
+//642825316 = 25354 ^ 2 is an S - number
+//751527396 = 27414 ^ 2 is an S - number
+//1133601561 = 33669 ^ 2 is an S - number
+//1178342929 = 34327 ^ 2 is an S - number
+//1256135364 = 35442 ^ 2 is an S - number
+//1336487364 = 36558 ^ 2 is an S - number
+//1358291025 = 36855 ^ 2 is an S - number
+//1518037444 = 38962 ^ 2 is an S - number
+//1553936400 = 39420 ^ 2 is an S - number
+//1693240201 = 41149 ^ 2 is an S - number
+//1748410596 = 41814 ^ 2 is an S - number
+//1818425449 = 42643 ^ 2 is an S - number
+//2084561649 = 45657 ^ 2 is an S - number
+//2141745841 = 46279 ^ 2 is an S - number
+//2380464100 = 48790 ^ 2 is an S - number
+//2384857225 = 48835 ^ 2 is an S - number
+//2449458064 = 49492 ^ 2 is an S - number
+//2456490969 = 49563 ^ 2 is an S - number
+//2490608836 = 49906 ^ 2 is an S - number
+//2505002500 = 50050 ^ 2 is an S - number
+//2647514116 = 51454 ^ 2 is an S - number
+//2800526400 = 52920 ^ 2 is an S - number
+//2805291225 = 52965 ^ 2 is an S - number
+//2853162225 = 53415 ^ 2 is an S - number
+//3293956449 = 57393 ^ 2 is an S - number
+//3311657209 = 57547 ^ 2 is an S - number
+//3514592656 = 59284 ^ 2 is an S - number
+//3862125316 = 62146 ^ 2 is an S - number
+//4139764281 = 64341 ^ 2 is an S - number
+//4256518564 = 65242 ^ 2 is an S - number
+//4506705424 = 67132 ^ 2 is an S - number
+//4682391184 = 68428 ^ 2 is an S - number
+//4769007364 = 69058 ^ 2 is an S - number
+//4782690649 = 69157 ^ 2 is an S - number
+//4853769561 = 69669 ^ 2 is an S - number
+//5272502544 = 72612 ^ 2 is an S - number
+//5572174609 = 74647 ^ 2 is an S - number
+//5674759561 = 75331 ^ 2 is an S - number
+//5906076201 = 76851 ^ 2 is an S - number
+//5947648641 = 77121 ^ 2 is an S - number
+//6039776656 = 77716 ^ 2 is an S - number
+//6049417284 = 77778 ^ 2 is an S - number
+//6067786816 = 77896 ^ 2 is an S - number
+//6322794256 = 79516 ^ 2 is an S - number
+//6580129924 = 81118 ^ 2 is an S - number
+//6731382025 = 82045 ^ 2 is an S - number
+//6826064400 = 82620 ^ 2 is an S - number
+//6832014336 = 82656 ^ 2 is an S - number
+//7261084944 = 85212 ^ 2 is an S - number
+//7385855481 = 85941 ^ 2 is an S - number
+//7668680041 = 87571 ^ 2 is an S - number
+//7879757824 = 88768 ^ 2 is an S - number
+//7887571344 = 88812 ^ 2 is an S - number
+//7887748969 = 88813 ^ 2 is an S - number
+//8033895424 = 89632 ^ 2 is an S - number
+//8248090761 = 90819 ^ 2 is an S - number
+//8419163536 = 91756 ^ 2 is an S - number
+//8723933604 = 93402 ^ 2 is an S - number
+//8756093476 = 93574 ^ 2 is an S - number
+//8862527881 = 94141 ^ 2 is an S - number
+//8945565561 = 94581 ^ 2 is an S - number
+//9048004641 = 95121 ^ 2 is an S - number
+//9435596769 = 97137 ^ 2 is an S - number
+//9811893025 = 99055 ^ 2 is an S - number
+//9845799076 = 99226 ^ 2 is an S - number
+//9849371536 = 99244 ^ 2 is an S - number
+//9869031649 = 99343 ^ 2 is an S - number
+//9911994481 = 99559 ^ 2 is an S - number
+//9926136900 = 99630 ^ 2 is an S - number
+//9926336161 = 99631 ^ 2 is an S - number
+//9940688209 = 99703 ^ 2 is an S - number
+//9953055225 = 99765 ^ 2 is an S - number
+//9980010000 = 99900 ^ 2 is an S - number
+//9980209801 = 99901 ^ 2 is an S - number
+//9981808281 = 99909 ^ 2 is an S - number
+//9983606724 = 99918 ^ 2 is an S - number
+//9989003025 = 99945 ^ 2 is an S - number
+//9991002025 = 99955 ^ 2 is an S - number
+//9992801296 = 99964 ^ 2 is an S - number
+//9998000100 = 99990 ^ 2 is an S - number
+//9998200081 = 99991 ^ 2 is an S - number
+//9999800001 = 99999 ^ 2 is an S - number
+//10000000000 = 100000 ^ 2 is an S - number
+//10999394884 = 104878 ^ 2 is an S - number
+//11048532544 = 105112 ^ 2 is an S - number
+//11105365924 = 105382 ^ 2 is an S - number
+//13769379649 = 117343 ^ 2 is an S - number
+//14937972841 = 122221 ^ 2 is an S - number
+//16913002500 = 130050 ^ 2 is an S - number
+//17413177681 = 131959 ^ 2 is an S - number
+//19614002500 = 140050 ^ 2 is an S - number
+//20408122449 = 142857 ^ 2 is an S - number
+//20601435024 = 143532 ^ 2 is an S - number
+//21948126201 = 148149 ^ 2 is an S - number
+//26754163489 = 163567 ^ 2 is an S - number
+//28167580224 = 167832 ^ 2 is an S - number
+//29869171929 = 172827 ^ 2 is an S - number
+//33058148761 = 181819 ^ 2 is an S - number
+//35010152100 = 187110 ^ 2 is an S - number
+//41320319076 = 203274 ^ 2 is an S - number
+//43470165025 = 208495 ^ 2 is an S - number
+//46582157241 = 215829 ^ 2 is an S - number
+//62416028224 = 249832 ^ 2 is an S - number
+//76024275625 = 275725 ^ 2 is an S - number
+//80612837776 = 283924 ^ 2 is an S - number
+//92982304900 = 304930 ^ 2 is an S - number
+//96310294921 = 310339 ^ 2 is an S - number
+//100316625984 = 316728 ^ 2 is an S - number
+//101558217124 = 318682 ^ 2 is an S - number
+//101873318976 = 319176 ^ 2 is an S - number
+//102432002500 = 320050 ^ 2 is an S - number
+//108878221089 = 329967 ^ 2 is an S - number
+//111332999556 = 333666 ^ 2 is an S - number
+//113366216601 = 336699 ^ 2 is an S - number
+//113366890000 = 336700 ^ 2 is an S - number
+//113433566401 = 336799 ^ 2 is an S - number
+//114758337600 = 338760 ^ 2 is an S - number
+//115228339209 = 339453 ^ 2 is an S - number
+//118434404449 = 344143 ^ 2 is an S - number
+//122349546225 = 349785 ^ 2 is an S - number
+//123448227904 = 351352 ^ 2 is an S - number
+//124392352249 = 352693 ^ 2 is an S - number
+//125594398449 = 354393 ^ 2 is an S - number
+//126970356241 = 356329 ^ 2 is an S - number
+//127194229449 = 356643 ^ 2 is an S - number
+//128017977616 = 357796 ^ 2 is an S - number
+//132801936400 = 364420 ^ 2 is an S - number
+//133175364624 = 364932 ^ 2 is an S - number
+//136353686121 = 369261 ^ 2 is an S - number
+//136746123264 = 369792 ^ 2 is an S - number
+//136912580289 = 370017 ^ 2 is an S - number
+//136999177956 = 370134 ^ 2 is an S - number
+//137013243409 = 370153 ^ 2 is an S - number
+//147134383561 = 383581 ^ 2 is an S - number
+//151803744400 = 389620 ^ 2 is an S - number
+//151838812225 = 389665 ^ 2 is an S - number
+//152344237969 = 390313 ^ 2 is an S - number
+//168141002500 = 410050 ^ 2 is an S - number
+//174164328900 = 417330 ^ 2 is an S - number
+//174172675600 = 417340 ^ 2 is an S - number
+//176282419600 = 419860 ^ 2 is an S - number
+//183542839561 = 428419 ^ 2 is an S - number
+//188643417561 = 434331 ^ 2 is an S - number
+//194369883876 = 440874 ^ 2 is an S - number
+//194672441089 = 441217 ^ 2 is an S - number
+//204424249689 = 452133 ^ 2 is an S - number
+//204521922081 = 452241 ^ 2 is an S - number
+//213018248521 = 461539 ^ 2 is an S - number
+//214632064656 = 463284 ^ 2 is an S - number
+//217930248900 = 466830 ^ 2 is an S - number
+//222347142369 = 471537 ^ 2 is an S - number
+//224644717089 = 473967 ^ 2 is an S - number
+//224739520489 = 474067 ^ 2 is an S - number
+//232910481664 = 482608 ^ 2 is an S - number
+//240149002500 = 490050 ^ 2 is an S - number
+//249321461041 = 499321 ^ 2 is an S - number
+//249500250000 = 499500 ^ 2 is an S - number
+//249906008836 = 499906 ^ 2 is an S - number
+//250050002500 = 500050 ^ 2 is an S - number
+//250500250000 = 500500 ^ 2 is an S - number
+//251501247001 = 501499 ^ 2 is an S - number
+//262975121721 = 512811 ^ 2 is an S - number
+//265148785476 = 514926 ^ 2 is an S - number
+//275245031044 = 524638 ^ 2 is an S - number
+//280052640000 = 529200 ^ 2 is an S - number
+//280529122500 = 529650 ^ 2 is an S - number
+//284000528889 = 532917 ^ 2 is an S - number
+//284270248900 = 533170 ^ 2 is an S - number
+//285316222500 = 534150 ^ 2 is an S - number
+//287600528656 = 536284 ^ 2 is an S - number
+//289940248521 = 538461 ^ 2 is an S - number
+//301905192681 = 549459 ^ 2 is an S - number
+//303628550625 = 551025 ^ 2 is an S - number
+//305527035025 = 552745 ^ 2 is an S - number
+//315597891961 = 561781 ^ 2 is an S - number
+//326571103296 = 571464 ^ 2 is an S - number
+//341415838864 = 584308 ^ 2 is an S - number
+//341584140304 = 584452 ^ 2 is an S - number
+//355954231161 = 596619 ^ 2 is an S - number
+//360760000689 = 600633 ^ 2 is an S - number
+//371718237969 = 609687 ^ 2 is an S - number
+//393595626384 = 627372 ^ 2 is an S - number
+//393900588225 = 627615 ^ 2 is an S - number
+//409265988121 = 639739 ^ 2 is an S - number
+//412264158084 = 642078 ^ 2 is an S - number
+//413908229449 = 643357 ^ 2 is an S - number
+//414313643584 = 643672 ^ 2 is an S - number
+//418646526841 = 647029 ^ 2 is an S - number
+//420744227904 = 648648 ^ 2 is an S - number
+//422216647524 = 649782 ^ 2 is an S - number
+//430656187536 = 656244 ^ 2 is an S - number
+//446667662224 = 668332 ^ 2 is an S - number
+//448944221089 = 670033 ^ 2 is an S - number
+//448967002500 = 670050 ^ 2 is an S - number
+//453805669801 = 673651 ^ 2 is an S - number
+//455674951369 = 675037 ^ 2 is an S - number
+//464194217124 = 681318 ^ 2 is an S - number
+//467991441801 = 684099 ^ 2 is an S - number
+//475793689284 = 689778 ^ 2 is an S - number
+//483123695041 = 695071 ^ 2 is an S - number
+//486972291556 = 697834 ^ 2 is an S - number
+//508712724081 = 713241 ^ 2 is an S - number
+//517363718400 = 719280 ^ 2 is an S - number
+//542707735969 = 736687 ^ 2 is an S - number
+//547397258769 = 739863 ^ 2 is an S - number
+//564375060001 = 751249 ^ 2 is an S - number
+//569754742041 = 754821 ^ 2 is an S - number
+//575284325625 = 758475 ^ 2 is an S - number
+//575873052769 = 758863 ^ 2 is an S - number
+//577676002500 = 760050 ^ 2 is an S - number
+//592977002500 = 770050 ^ 2 is an S - number
+//609487805809 = 780697 ^ 2 is an S - number
+//615121784209 = 784297 ^ 2 is an S - number
+//623450788921 = 789589 ^ 2 is an S - number
+//624687898384 = 790372 ^ 2 is an S - number
+//626480165025 = 791505 ^ 2 is an S - number
+//626879147049 = 791757 ^ 2 is an S - number
+//628347923856 = 792684 ^ 2 is an S - number
+//632794794256 = 795484 ^ 2 is an S - number
+//637987185081 = 798741 ^ 2 is an S - number
+//646803586081 = 804241 ^ 2 is an S - number
+//648047540196 = 805014 ^ 2 is an S - number
+//657427450761 = 810819 ^ 2 is an S - number
+//658215803025 = 811305 ^ 2 is an S - number
+//660790152100 = 812890 ^ 2 is an S - number
+//669420148761 = 818181 ^ 2 is an S - number
+//682087684996 = 825886 ^ 2 is an S - number
+//682398253476 = 826074 ^ 2 is an S - number
+//691678315584 = 831672 ^ 2 is an S - number
+//691754831524 = 831718 ^ 2 is an S - number
+//695832915556 = 834166 ^ 2 is an S - number
+//699108360129 = 836127 ^ 2 is an S - number
+//699183613584 = 836172 ^ 2 is an S - number
+//718474921641 = 847629 ^ 2 is an S - number
+//721684230400 = 849520 ^ 2 is an S - number
+//723428498116 = 850546 ^ 2 is an S - number
+//725650126201 = 851851 ^ 2 is an S - number
+//726185187225 = 852165 ^ 2 is an S - number
+//726785235289 = 852517 ^ 2 is an S - number
+//728533945764 = 853542 ^ 2 is an S - number
+//729088853689 = 853867 ^ 2 is an S - number
+//734694122449 = 857143 ^ 2 is an S - number
+//734707836801 = 857151 ^ 2 is an S - number
+//739686002500 = 860050 ^ 2 is an S - number
+//748643718564 = 865242 ^ 2 is an S - number
+//760638645316 = 872146 ^ 2 is an S - number
+//770008005001 = 877501 ^ 2 is an S - number
+//775718801001 = 880749 ^ 2 is an S - number
+//788231454976 = 887824 ^ 2 is an S - number
+//789188819769 = 888363 ^ 2 is an S - number
+//791462888164 = 889642 ^ 2 is an S - number
+//792181882116 = 890046 ^ 2 is an S - number
+//821609906329 = 906427 ^ 2 is an S - number
+//822278985616 = 906796 ^ 2 is an S - number
+//823991907600 = 907740 ^ 2 is an S - number
+//824890815225 = 908235 ^ 2 is an S - number
+//829409096961 = 910719 ^ 2 is an S - number
+//844891872400 = 919180 ^ 2 is an S - number
+//847309204036 = 920494 ^ 2 is an S - number
+//849213854784 = 921528 ^ 2 is an S - number
+//850026836961 = 921969 ^ 2 is an S - number
+//864092948356 = 929566 ^ 2 is an S - number
+//875693566225 = 935785 ^ 2 is an S - number
+//883694002500 = 940050 ^ 2 is an S - number
+//894252031201 = 945649 ^ 2 is an S - number
+//894573580761 = 945819 ^ 2 is an S - number
+//899483424921 = 948411 ^ 2 is an S - number
+//901039491361 = 949231 ^ 2 is an S - number
+//904494200401 = 951049 ^ 2 is an S - number
+//904800464100 = 951210 ^ 2 is an S - number
+//906941952225 = 952335 ^ 2 is an S - number
+//912695533201 = 955351 ^ 2 is an S - number
+//923594037444 = 961038 ^ 2 is an S - number
+//923595959521 = 961039 ^ 2 is an S - number
+//937519681536 = 968256 ^ 2 is an S - number
+//938495937600 = 968760 ^ 2 is an S - number
+//940257969561 = 969669 ^ 2 is an S - number
+//956032217361 = 977769 ^ 2 is an S - number
+//974940986881 = 987391 ^ 2 is an S - number
+//979903989801 = 989901 ^ 2 is an S - number
+//980296029801 = 990099 ^ 2 is an S - number
+//982366428736 = 991144 ^ 2 is an S - number
+//982542860289 = 991233 ^ 2 is an S - number
+//983238829056 = 991584 ^ 2 is an S - number
+//984990746089 = 992467 ^ 2 is an S - number
+//985276597321 = 992611 ^ 2 is an S - number
+//986382676224 = 993168 ^ 2 is an S - number
+//988994448324 = 994482 ^ 2 is an S - number
+//989444005264 = 994708 ^ 2 is an S - number
+//989728512201 = 994851 ^ 2 is an S - number
+//989925502500 = 994950 ^ 2 is an S - number
+//993279329956 = 996634 ^ 2 is an S - number
+//996439175524 = 998218 ^ 2 is an S - number
+//996598896804 = 998298 ^ 2 is an S - number
+//997409679616 = 998704 ^ 2 is an S - number
+//998002998001 = 999001 ^ 2 is an S - number
+//998018982081 = 999009 ^ 2 is an S - number
+//998020980100 = 999010 ^ 2 is an S - number
+//998072929296 = 999036 ^ 2 is an S - number
+//998110893025 = 999055 ^ 2 is an S - number
+//998164842724 = 999082 ^ 2 is an S - number
+//998182826281 = 999091 ^ 2 is an S - number
+//998416627264 = 999208 ^ 2 is an S - number
+//998488571536 = 999244 ^ 2 is an S - number
+//998594494209 = 999297 ^ 2 is an S - number
+//998650455625 = 999325 ^ 2 is an S - number
+//998686431649 = 999343 ^ 2 is an S - number
+//999172171396 = 999586 ^ 2 is an S - number
+//999242143641 = 999621 ^ 2 is an S - number
+//999260136900 = 999630 ^ 2 is an S - number
+//999262136161 = 999631 ^ 2 is an S - number
+//999406088209 = 999703 ^ 2 is an S - number
+//999530055225 = 999765 ^ 2 is an S - number
+//999800010000 = 999900 ^ 2 is an S - number
+//999802009801 = 999901 ^ 2 is an S - number
+//999818008281 = 999909 ^ 2 is an S - number
+//999836006724 = 999918 ^ 2 is an S - number
+//999890003025 = 999945 ^ 2 is an S - number
+//999910002025 = 999955 ^ 2 is an S - number
+//999928001296 = 999964 ^ 2 is an S - number
+//999980000100 = 999990 ^ 2 is an S - number
+//999982000081 = 999991 ^ 2 is an S - number
+//999998000001 = 999999 ^ 2 is an S - number
+//1000000000000 = 1000000 ^ 2 is an S - number
+//128088830547982

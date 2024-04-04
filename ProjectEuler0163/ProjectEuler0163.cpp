@@ -103,6 +103,13 @@
 // We'll start with the 30-60-90, since they are the smallest building blocks.  These come in 2 forms, those
 // where the hypotenuse is rational and those where it has a sqrt(3) in it.
 
+// As the problem statement describes, a triangle of size N is composed of N^2 copies of
+// the size 1 triangle.  The size 1 triangle is equivalent to 6 disjoint adjacent copies
+// of the 30-60-90 building block triangle, so the highest cardinality of triangles comes
+// from this smallest version:
+//     T(N) = 6 * N^2 for only 30-60-90 with hypotenuse 2/3*sqrt(3)
+
+
 #include <iostream>
 
 int main()

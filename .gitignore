@@ -1,4 +1,5 @@
-﻿/.vs
+﻿/.git_cred
+/.vs
 /.vscode
 /bazel-bin
 /bazel-euler

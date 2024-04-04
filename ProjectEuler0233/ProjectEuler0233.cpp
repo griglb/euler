@@ -30,6 +30,7 @@ struct pair_hash {
 using CirclePoints = std::unordered_set<PointAB, pair_hash>;
 using CirclesByN = std::map< int64_t, CirclePoints>;
 
+// Answer is not 723294800
 
 // With the circle going through the specified points, we know a few facts:
 //      - it's center is at (N/2, N/2)
@@ -310,8 +311,10 @@ CirclesByN find_circles_with_points(const int64_t max_N, const int64_t num_point
             //    not_enough_points.insert(working.cbegin()->first);
             if (num_pts > num_points)
                 too_many_points.insert(working.cbegin()->first);
-            else
+            else if (num_pts == num_points) {
+                std::cout << "moving " << working.cbegin()->first << std::endl;
                 just_right[working.cbegin()->first] = std::move(working.cbegin()->second);
+            }
             working.erase(working.cbegin());
         }
         for (int64_t n = 1; n < m; ++n) {
@@ -347,8 +350,10 @@ CirclesByN find_circles_with_points(const int64_t max_N, const int64_t num_point
     squares.clear();
 
     for (const auto &[N, points] : working) {
-        if (points.size() == num_points)
+        if (points.size() == num_points) {
             just_right[N] = std::move(points);
+            std::cout << "moved " << N << std::endl;
+        }
     }
 
     //for (const auto& N : not_enough_points) {
@@ -503,25 +508,27 @@ int main()
     //    std::cout << "Found " << circles.size() << " circles";
     //}
 
-//    {
-////        auto circles = find_circles_with_points(100'000'000'000, 52);
-//        auto circles = find_circles_with_points(100'000'000, 52);
-////        auto circles = find_circles_with_points(1'000'000, 52);
-//        for (const auto& [N, points] : circles) {
-//            std::cout << N << ": ";
-//            for (const auto& [a, b] : points) {
-//                std::cout << "(" << a << ", " << b << "), ";
-//            }
-//            std::cout << std::endl;
-//        }
-//        std::cout << "Found " << circles.size() << " circles" << std::endl;
-//        int64_t sum{ 0 };
-//        for (auto iter = circles.cbegin(); iter != circles.cend(); ++iter) {
-//            sum += iter->first;
-//        }
-//        std::cout << "Sum = " << sum << std::endl;
-//    }
-
+    {
+//        auto circles = find_circles_with_points(100'000'000'000, 52);
+//        auto circles = find_circles_with_points(1'000, 4);
+        auto circles = find_circles_with_points(10'000'000, 52);
+//        auto circles = find_circles_with_points(1'000'000, 52);
+        std::cout << "done" << std::endl;
+        for (const auto& [N, points] : circles) {
+            std::cout << N << ": ";
+            for (const auto& [a, b] : points) {
+                std::cout << "(" << a << ", " << b << "), ";
+            }
+            std::cout << std::endl;
+        }
+        std::cout << "Found " << circles.size() << " circles" << std::endl;
+        int64_t sum{ 0 };
+        for (auto iter = circles.cbegin(); iter != circles.cend(); ++iter) {
+            sum += iter->first;
+        }
+        std::cout << "Sum = " << sum << std::endl;
+    }
+return 0;
     {
 //        auto circles = find_circles_with_points2(100'000'000'000, 52);
         auto circles = find_circles_with_points2(1'000'000, 52);

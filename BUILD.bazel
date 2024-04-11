@@ -1909,6 +1909,7 @@ cc_binary(
         "ProjectEuler0493/ProjectEuler0493.cpp"
     ],
     deps = [
+        ":euler_helpers_lib",
     ],
 )
 

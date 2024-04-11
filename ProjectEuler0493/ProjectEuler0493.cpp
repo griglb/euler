@@ -5,9 +5,16 @@
 // Give your answer with nine digits after the decimal point(a.bcdefghij).
 
 
+#include <array>
+#include <iomanip>
 #include <iostream>
+#include <map>
+#include <numeric>
 #include <set>
+#include <utility>
 #include <vector>
+
+#include "big_int.h"
 
 
 // Start small, with 7 balls, one of each color.  Then choosing 2 balls randomly
@@ -154,8 +161,9 @@
 // also do 4 colors, with 1 ball of each.  But 5 or more colors are not possible
 // with only 4 balls.
 //
-// For 2 colors, we have the same 4! / (2!)^2 = 6 positional permutations.  The
-// color assingment is different this time.  We can have any of 7 colors for X
+// For 2 colors, the only possible counts are 2-2, so we have the same
+// 4! / (2!)^2 = 6 positional permutations.
+// The color assingment is different this time.  We can have any of 7 colors for X
 // and 6 colors for Y, with the same division by 2 to account for X/Y swapping.
 // So there are 7 * 6 / 2 = 21 color assignment permutations.
 // We now have 10 balls, 2 each of 5 colors with 10! / (2!)^5 permutations.
@@ -163,7 +171,8 @@
 // colors in the first 4 positions is 
 //    6 * 21 * 10! / 32 = 14'288'400
 //
-// For 3 colors, there are the same 4! / (2! * 1! * 1!) = 12 positional permutations.
+// For 3 colors, the only possible counts are 2-1-1, so there are the same
+// 4! / (2! * 1! * 1!) = 12 positional permutations.
 // This time the color assignment allows 7 colors for X, 6 for Y, and 5 for Z.
 // But again since Y & Z have the same cardinality we divide by 2, yielding
 // 7 * 6 * 5 / 2 = 105 permutations.
@@ -246,24 +255,235 @@
 //  7-6-6-1
 //  7-6-5-2
 //  7-6-4-3
-//  7-5-4-3
+//  7-5-5-3
+//  7-5-4-4
 //  6-6-6-2
 //  6-6-5-3
 //  6-6-4-4
 //  6-5-5-4
+//  5-5-5-5
 
 
-using PositionalCounts = std::multiset<int16_t>;
-using AllPositionalCounts = std::vector<PositionalCounts>;
+using PositionalCounts = std::multiset<int16_t, std::greater<int16_t>>;
+using AllPositionalCounts = std::set<PositionalCounts>;
 
-AllPositionalCounts get_counts(int16_t sum, int16_t num_balls, int16_t num_colors) {
+// We should never need more than 20!
+//const std::vector<int64_t> kFactorials{ 1,
+//                                        1,
+//                                        2,
+//                                        2*3,
+//                                        2*3*4,
+//                                        2*3*4*5,
+//                                        2*3*4*5*6,
+//                                        2*3*4*5*6*7,
+//                                        2*3*4*5*6*7*8,
+//                                        2*3*4*5*6*7*8*9,
+//                                        2*3*4*5*6*7*8*9*10,
+//                                        2*3*4*5*6*7*8*9*10*11,
+//                                        2*3*4*5*6*7*8*9*10*11*12,
+//                                        2*3*4*5*6*7*8*9*10*11*12*13,
+//                                        2*3*4*5*6*7*8*9*10*11*12*13*14
+//};
 
 
+std::vector<BigInt> gFactorials;
 
+void calculate_factorials(int16_t max_n) {
+    gFactorials.reserve(max_n + 1);
+    gFactorials.push_back(BigInt{ 1 });  // 0! = 1
+    gFactorials.push_back(BigInt{ 1 });  // 1! = 1
+
+    for (int16_t n = 2; n <= max_n; ++n) {
+        BigInt tmp = gFactorials.back();
+        tmp *= n;
+        gFactorials.emplace_back(std::move(tmp));
+    }
+}
+
+
+AllPositionalCounts get_counts(const std::vector<int16_t> &balls_per_color, int16_t num_balls, int16_t num_colors) {
+    AllPositionalCounts ret;
+
+    if (1 == num_colors) {
+        if (num_balls <= 0)
+            return {};
+        if (num_balls > balls_per_color.front())
+            return {};
+        return { { num_balls} };
+    }
+
+    std::vector<int16_t> remaining_balls{ balls_per_color.begin() + 1, balls_per_color.end() };
+
+    for (int16_t curr_num = balls_per_color.front(); curr_num > 0; --curr_num) {
+        auto sub_counts = get_counts(remaining_balls, num_balls - curr_num, num_colors - 1);
+
+        if (sub_counts.empty())
+            continue;
+
+        for (const PositionalCounts& subs : sub_counts) {
+            PositionalCounts new_counts = subs;
+            new_counts.insert(curr_num);
+            ret.insert(std::move(new_counts));
+        }
+    }
+
+    return ret;
+}
+
+
+BigInt num_positional_perms(const PositionalCounts& counts) {
+    // Call counts = { c1, c2, c3, ..., cn } summing to T.
+    // The return value is T! / (c1! * c2! * c3! * ... * cn!).
+    int16_t num_balls = std::accumulate(counts.cbegin(), counts.cend(), int16_t{ 0 });
+    BigInt ret = gFactorials[num_balls];
+    for (const auto& c : counts)
+        ret /= gFactorials[c];
+    return ret;
+}
+
+
+BigInt num_color_assignments(const PositionalCounts& color_counts, int16_t num_colors) {
+    // The return value starts as P(n, r) where n is the number of total colors and
+    // r is the number unused colors.
+    // This is the same as
+    //      n * (n - 1) * (n - 2) * ... * (n - r + 1)
+    // or
+    //      n! / (n - r)!
+    BigInt ret = gFactorials[num_colors] / gFactorials[num_colors - color_counts.size()];
+
+    // Then we need to look for duplicate numbers in counts, and divide by those
+    // cardinality's factorials.
+    std::array<size_t, 11> cardinalities{ 0 };
+    for (const auto& c : color_counts)
+        ++cardinalities[c];
+
+    for (const auto& c : cardinalities)
+        ret /= gFactorials[c];
+
+    return ret;
+}
+
+
+BigInt num_extra_ball_perms(const std::vector<int16_t>& counts) {
+    // Call counts = { c1, c2, c3, ..., cn } summing to T.
+    // The return value is T! / (c1! * c2! * c3! * ... * cn!).
+    int16_t num_balls = std::accumulate(counts.cbegin(), counts.cend(), int16_t{ 0 });
+    BigInt ret = gFactorials[num_balls];
+    for (const auto& c : counts)
+        ret /= gFactorials[c];
+    return ret;
+}
+
+
+BigInt num_permutations(const std::vector<int16_t>& color_counts, const PositionalCounts& selected_counts) {
+    std::vector<int16_t> extra_counts = color_counts;
+    auto iter = selected_counts.begin();
+    for (size_t i = 0; i < selected_counts.size(); ++i) {
+        extra_counts[i] -= *iter++;
+    }
+    return num_positional_perms(selected_counts) *
+           num_color_assignments(selected_counts, color_counts.size()) *
+           num_extra_ball_perms(extra_counts);
+}
+
+
+double mean_num_colors(int16_t num_colors, int16_t num_per_color) {
+    const int16_t min_colors_drawn = 2;
+    const int16_t max_colors_drawn = std::min<int16_t>(num_colors, 2 * num_per_color);
+
+    std::vector<int16_t> color_counts;
+    for (int16_t i = 0; i < num_colors; ++i)
+        color_counts.push_back(num_per_color);
+
+    std::map<int64_t, BigInt> counts_per_num_colors;
+
+    for (int16_t colors_drawn = min_colors_drawn; colors_drawn <= max_colors_drawn; ++colors_drawn) {
+        counts_per_num_colors[colors_drawn] = BigInt{ 0 };
+
+        auto all_selected_counts = get_counts(color_counts, 2 * num_per_color, colors_drawn);
+        for (const auto& selected_counts : all_selected_counts) {
+            counts_per_num_colors[colors_drawn] += num_permutations(color_counts, selected_counts);
+        }
+    }
+
+    // Calculate the weighted average, using the number of permutations for each color count.
+    BigInt num{ int64_t{ 0 } };
+    BigInt den{ int64_t{ 0 } };
+    for (const auto& [num_colors, num_perms] : counts_per_num_colors) {
+        num += num_perms * num_colors;
+        den += num_perms;
+    }
+
+    // We want 9 significant digits in the floating point answer, so multiply the
+    // numerator by 1E11, perform integer division, then convert back to double
+    // by dividing by 1E11.
+    num *= 100'000'000'000;
+    num /= den;
+
+    return num.to_int() / 100'000'000'000.0;
 }
 
 
 int main()
 {
     std::cout << "Hello World!\n";
+
+    {
+        calculate_factorials(70);
+        for (int16_t n = 0; n < gFactorials.size(); ++n)
+            std::cout << n << "\t" << gFactorials[n] << std::endl;
+    }
+
+    {
+        auto all_counts = get_counts({ 10, 10, 10, 10, 10, 10, 10 }, 20, 4);
+        for (const auto& counts : all_counts) {
+            for (const auto& c : counts)
+                std::cout << c << " - ";
+            std::cout << std::endl;
+        }
+        std::cout << "There are " << all_counts.size() << " sets" << std::endl;
+    }
+
+    {
+        std::cout << "num_positional_perms" << std::endl;
+        std::cout << num_positional_perms({ 1,1,1,1 }) << std::endl;
+        std::cout << num_positional_perms({ 1,2,1,1 }) << std::endl;
+        std::cout << num_positional_perms({ 1,1,2,2 }) << std::endl;
+        std::cout << num_positional_perms({ 2,2,2,1 }) << std::endl;
+        std::cout << num_positional_perms({ 2,2,2,2 }) << std::endl;
+    }
+
+    {
+        std::cout << "num_color_assignments" << std::endl;
+        std::cout << num_color_assignments({ 2,2 }, 7) << std::endl;
+        std::cout << num_color_assignments({ 2,1,1 }, 7) << std::endl;
+        std::cout << num_color_assignments({ 1,1,1,1 }, 7) << std::endl;
+    }
+
+    {
+        std::cout << "num_extra_ball_perms" << std::endl;
+        std::cout << num_extra_ball_perms({ 2,2,2,2,2 }) << std::endl;
+        std::cout << num_extra_ball_perms({ 2,2,2,2,1,1 }) << std::endl;
+        std::cout << num_extra_ball_perms({ 2,2,2,1,1,1,1 }) << std::endl;
+    }
+
+    {
+        std::cout << "num_permutations" << std::endl;
+        std::cout << num_permutations({ 2,2,2,2,2,2,2 }, { 2,2 }) << std::endl;
+        std::cout << num_permutations({ 2,2,2,2,2,2,2 }, { 2,1,1 }) << std::endl;
+        std::cout << num_permutations({ 2,2,2,2,2,2,2 }, { 1,1,1,1 }) << std::endl;
+    }
+
+    {
+        std::cout << "mean_num_colors" << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 2) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 3) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 4) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 5) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 6) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 7) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 8) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 9) << std::endl;
+        std::cout << std::setprecision(10) << mean_num_colors(7, 10) << std::endl;
+    }
 }

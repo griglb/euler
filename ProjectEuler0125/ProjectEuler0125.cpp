@@ -15,6 +15,7 @@
 #include <numeric>
 #include <vector>
 
+#include "big_int.h"
 
 // Is it faster to find all the palindromes and figure out which ones are sums of squares,
 // or to iterate over all possible sums of squares and identify which are palindromes?
@@ -80,7 +81,7 @@
 
 
 
-bool is_palindrome(uint64_t number) {
+bool is_palindrome2(uint64_t number) {
     std::vector<uint16_t> digits;
     while (number > 0) {
         digits.push_back(number % 10);
@@ -92,6 +93,13 @@ bool is_palindrome(uint64_t number) {
     return digits == rev_digits;
 }
 
+bool is_palindrome(uint64_t number) {
+    BigInt tmp{ number };
+    const auto digits = tmp.get_digits();
+    BigInt::Digits rev_digits{ digits };
+    std::reverse(rev_digits.begin(), rev_digits.end());
+    return digits == rev_digits;
+}
 
 std::vector<uint64_t> find_palindromes(uint64_t max_value) {
     std::vector<uint64_t> ret;
@@ -129,10 +137,12 @@ std::cout << max_root << std::endl;
     for (uint64_t first = 0; first <= max_root; ++first) {
         for (uint64_t last = first+2; last <= max_root; ++last) {
             uint64_t partial_sum = sums[last] - sums[first];
-            if (partial_sum > max_value)
+            if (partial_sum >= max_value)
                 break;
-            if (is_palindrome(partial_sum))
+            if (is_palindrome(partial_sum)) {
                 ret.push_back(partial_sum);
+                std::cout << first << "\t" << last << "\t" << partial_sum << std::endl;
+            }
         }
     }
 

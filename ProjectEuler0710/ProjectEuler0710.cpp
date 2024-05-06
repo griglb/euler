@@ -21,7 +21,15 @@
 // the least value of n > 42 such that is divisible by one million.
 
 
+#include <algorithm>
+#include <cstdint>
 #include <iostream>
+#include <numeric>
+#include <set>
+#include <vector>
+
+//#include "gcd.h"
+//#include "prime_helper.h"
 
 
 // The first question is whether n is odd or even.  If n is odd, then all the palindromic sets must have
@@ -228,70 +236,6 @@
 //  9    8     21     20      5      0
 // 10    9     28     35     15      1
 
-// Rearrange into 2D planes for each n.
-//
-// n = 2
-//      2   3
-// ^1   1   0
-// ^2   0   0
-//
-// n = 3
-//      2   3
-// ^1   2   0
-// ^2   0   0
-//
-// n = 4
-//      2   3
-// ^1   3   0
-// ^2   1   0
-// ^3   0   0
-//
-// n = 5
-//      2   3   4
-// ^1   4   2   0
-// ^2   3   0   0
-// ^3   0   0   0
-//
-// n = 6
-//      2   3   4   5
-// ^1   5   6   2   0
-// ^2   6   0   0   0
-// ^3   1   0   0   0
-// ^4   0   0   0   0
-//
-// n = 7
-//      2   3   4   5   6
-// ^1   6  15   6   2   0
-// ^2  10   0   0   0   0
-// ^3   4   0   0   0   0
-// ^4   0   0   0   0   0
-//
-// n = 8
-//      2   3   4   5   6   7
-// ^1   7  32  15   6   2   0
-// ^2  15   3   0   0   0   0
-// ^3  10   0   0   0   0   0
-// ^4   1   0   0   0   0   0
-// ^5   0   0   0   0   0   0
-//
-// n = 9
-//      2   3   4   5   6   7   8
-// ^1   8  64  32  15   6   2   0
-// ^2  21  12   0   0   0   0   0   6
-// ^3  20   0   0   0   0   0   0
-// ^4   5   0   0   0   0   0   0
-// ^5   0   0   0   0   0   0   0
-//
-// n = 10
-//      2   3   4   5   6   7   8   9
-// ^1   9 122  64  32  15   6   2   0
-// ^2  28  36   0   0   0   0   0   0   24   6
-// ^3  35   3   0   0   0   0   0   0
-// ^4  15   0   0   0   0   0   0   0
-// ^5   1   0   0   0   0   0   0   0
-// ^6   0   0   0   0   0   0   0   0
-//
-
 //                                  1
 //                                1   1
 //                              1   2   1
@@ -304,7 +248,862 @@
 //                1   9  36  84 126 126  84  36   9   1
 //
 
+//      S(7) =  43 -   {1, 1, 1, 1, 1, 2}           = 6!/5!     =   6
+//                     {1, 1, 1, 2, 2}              = 5!/3!/2!  =   10
+//                     {1, 2, 2, 2}                 = 4!/3!     =   4
+//      S(8) =  91 -   {1, 1, 1, 1, 1, 1, 2}        = 7!/6!     =   7
+//                     {1, 1, 1, 1, 2, 2}           = 6!/4!/2!  =   15
+//                     {1, 1, 2, 2, 2}              = 5!/2!/3!  =   10
+//                     {2, 2, 2, 2}                 = 4!/4!     =   1
+//      S(9) = 191 -   {1, 1, 1, 1, 1, 1, 1, 2}     = 8!/7!     =   8
+//                     {1, 1, 1, 1, 1, 2, 2}        = 7!/5!/2!  =   21
+//                     {1, 1, 1, 2, 2, 2}           = 6!/3!/3!  =   20
+//                     {1, 2, 2, 2, 2}              = 5!/4!     =   5
+//      S(10) = 398 -  {1, 1, 1, 1, 1, 1, 1, 1, 2}  = 9!/8!     =   9
+//                     {1, 1, 1, 1, 1, 1, 2, 2}     = 8!/6!/2!  =   28
+//                     {1, 1, 1, 1, 2, 2, 2}        = 7!/4!/3!  =   35
+//                     {1, 1, 2, 2, 2, 2}           = 6!/2!/4!  =   15
+//                     {2, 2, 2, 2, 2}              = 5!/5!     =   1
+//
+// In S(9),  8!/7!    =  8 =  7 +  1 = 7!/6!    + 1
+//           7!/5!/2! = 21 = 15 +  6 = 6!/4!/2! + 6!/5!
+//           6!/3!/3! = 20 = 10 + 10 = 5!/2!/3! + 5!/3!/2!
+//           5!/4!    =  5 =  1 +  4 = 4!/4!    + 4!/3!
+//
+// In S(10), 9!/8!    =  9 =  8 +  1 = 8!/7!    + 1
+//           8!/6!/2! = 28 = 21 +  7 = 7!/5!/2! + 7!/6!
+//           7!/4!/3! = 35 = 20 + 15 = 6!/3!/3! + 6!/4!/2!
+//           6!/2!/4! = 15 =  5 + 10 = 5!/4!    + 5!/3!/2!
+//           5!/5!    =  1 =  0 +  1 = 0        + 4!/4!
+//
+// It is interesting to note how all of the values are the same as combinations, C(n, k).
+// So we can rewrite the relationships above as:
+// In S(9),  C(8, 7) =  8 =  7 +  1 = C(7, 6) + 1
+//           C(7, 5) = 21 = 15 +  6 = C(6, 4) + C(6, 5)
+//           C(6, 3) = 20 = 10 + 10 = C(5, 2) + C(5, 3)
+//           C(5, 1) =  5 =  1 +  4 = C(4, 0) + C(4, 1)
+//
+// In S(10), C(9, 8) =  9 =  8 +  1 = C(8, 7) + 1
+//           C(8, 6) = 28 = 21 +  7 = C(7, 5) + C(7, 6)
+//           C(7, 4) = 35 = 20 + 15 = C(6, 3) + C(6, 4)
+//           C(6, 2) = 15 =  5 + 10 = C(5, 1) + C(5, 2)
+//           C(5, 0) =  1 =  0 +  1 = 0       + C(4, 0)
+//
+// Note: in some cases, I replaced k with (n-k) to keep the patterns going.
+// We can see how for a given S(n), it can be expressed as the sum:
+//      S(n) = C(n-1, n-2) + C(n-2, n-4) + C(n-3, n-6) + ... + C(ceil(n/2), {0,1})  // 0 or 1 depends on n being even or odd
+//
+// We can then use the identity:
+//      C(n, k) = C(n-1, k) + C(n-1, k-1)
+// to prove that:
+//      S(n) = S(n-1) + S(n-2) + 1
+// when we are only looking at the sets with 1s and 2s.
+
+// Look at p^1 column: 0, 0, 0, 0, 0, 2, 6, 15, 32, 64, 122, ...
+//        n             set             # combos
+//      p + 2          {2,p}            2!/0!/1!                                        2
+//      p + 3         {1,2,p}           3!/1!/1!                                        6
+//      p + 4        {1,1,2,p}          4!/2!/1! + 3!/0!/2!                             12 + 3 = 15
+//      p + 5       {1,1,1,2,p}         5!/3!/1! + 4!/1!/2!                             20 + 12 = 32
+//      p + 6      {1,1,1,1,2,p}        6!/4!/1! + 5!/2!/2! + 4!/0!/3!                  30 + 30 + 4 = 64
+//      p + 7     {1,1,1,1,1,2,p}       7!/5!/1! + 6!/3!/2! + 5!/1!/3!                  42 + 60 + 20 = 122
+//      p + 8    {1,1,1,1,1,1,2,p}      8!/6!/1! + 7!/4!/2! + 6!/2!/3! + 5!/0!/4!       56 + 105 + 60 + 5 = 226
+//      p + 9   {1,1,1,1,1,1,1,2,p}     9!/7!/1! + 8!/5!/2! + 7!/3!/3! + 6!/1!/4!       72 + 168 + 140 + 30 = 410
+//
+// This can be rewritten using combinatorials:
+//        n             set             # combos
+//      p + 2          {2,p}            2*C(1,1)                                        2
+//      p + 3         {1,2,p}           3*C(2,1)                                        6
+//      p + 4        {1,1,2,p}          4*C(3,1) + 3*C(2,2)                             12 + 3 = 15
+//      p + 5       {1,1,1,2,p}         5*C(4,1) + 4*C(3,2)                             20 + 12 = 32
+//      p + 6      {1,1,1,1,2,p}        6*C(5,1) + 5*C(4,2) + 4*C(3,3)                  30 + 30 + 4 = 64
+//      p + 7     {1,1,1,1,1,2,p}       7*C(6,1) + 6*C(5,2) + 5*C(4,3)                  42 + 60 + 20 = 122
+//      p + 8    {1,1,1,1,1,1,2,p}      8*C(7,1) + 7*C(6,2) + 6*C(5,3) + 5*C(4,4)       56 + 105 + 60 + 5 = 226
+//      p + 9   {1,1,1,1,1,1,1,2,p}     9*C(8,1) + 8*C(7,2) + 7*C(6,3) + 6*C(5,4)       72 + 168 + 140 + 30 = 410
+// or
+//        n             set             # combos
+//      p + 2          {2,p}            C(2,1)*C(1,1)                                                   2
+//      p + 3         {1,2,p}           C(3,1)*C(2,1)                                                   6
+//      p + 4        {1,1,2,p}          C(4,1)*C(3,1) + C(3,2)*C(1,1)                                   12 + 3 = 15
+//      p + 5       {1,1,1,2,p}         C(5,1)*C(4,1) + C(4,2)*C(2,1)                                   20 + 12 = 32
+//      p + 6      {1,1,1,1,2,p}        C(6,1)*C(5,1) + C(5,2)*C(3,1) + C(4,3)*C(1,1)                   30 + 30 + 4 = 64
+//      p + 7     {1,1,1,1,1,2,p}       C(7,1)*C(6,1) + C(6,2)*C(4,1) + C(5,3)*C(2,1)                   42 + 60 + 20 = 122
+//      p + 8    {1,1,1,1,1,1,2,p}      C(8,1)*C(7,1) + C(7,2)*C(5,1) + C(6,3)*C(3,1) + C(5,4)*C(1,1)   56 + 105 + 60 + 5 = 226
+//      p + 9   {1,1,1,1,1,1,1,2,p}     C(9,1)*C(8,1) + C(8,2)*C(6,1) + C(7,3)*C(4,1) + C(6,4)*C(2,1)   72 + 168 + 140 + 30 = 410
+// or
+//        n             set             # combos
+//      p + 2          {2,p}            C(1,1)*C(2,1)                                                   2
+//      p + 3         {1,2,p}           C(2,1)*C(3,1)                                                   6
+//      p + 4        {1,1,2,p}          C(3,1)*C(4,1) + C(2,2)*C(3,1)                                   12 + 3 = 15
+//      p + 5       {1,1,1,2,p}         C(4,1)*C(5,1) + C(3,2)*C(4,1)                                   20 + 12 = 32
+//      p + 6      {1,1,1,1,2,p}        C(5,1)*C(6,1) + C(4,2)*C(5,1) + C(3,3)*C(4,1)                   30 + 30 + 4 = 64
+//      p + 7     {1,1,1,1,1,2,p}       C(6,1)*C(7,1) + C(5,2)*C(6,1) + C(4,3)*C(5,1)                   42 + 60 + 20 = 122
+//      p + 8    {1,1,1,1,1,1,2,p}      C(7,1)*C(8,1) + C(6,2)*C(7,1) + C(5,3)*C(6,1) + C(4,4)*C(5,1)   56 + 105 + 60 + 5 = 226
+//      p + 9   {1,1,1,1,1,1,1,2,p}     C(8,1)*C(9,1) + C(7,2)*C(8,1) + C(6,3)*C(7,1) + C(5,4)*C(6,1)   72 + 168 + 140 + 30 = 410
+
+// Look at p^2 column: 0, 0, 0, 0, 0, 0, 0, 0, 3, 12, 36, ...
+//        n              set             # combos
+//     2*p + 2         {2,p,p}           3!/0!/1!/2!                                            3
+//     2*p + 3        {1,2,p,p}          4!/1!/1!/2!                                            12
+//     2*p + 4       {1,1,2,p,p}         5!/2!/1!/2! + 4!/0!/2!/2!                              30 + 6 = 36
+//     2*p + 5      {1,1,1,2,p,p}        6!/3!/1!/2! + 5!/1!/2!/2!                              60 + 30 = 90
+//     2*p + 6     {1,1,1,1,2,p,p}       7!/4!/1!/2! + 6!/2!/2!/2! + 5!/0!/3!/2!                105 + 90 + 10 = 205
+//     2*p + 7    {1,1,1,1,1,2,p,p}      8!/5!/1!/2! + 7!/3!/2!/2! + 6!/1!/3!/2!                168 + 210 + 60 = 438
+//     2*p + 8   {1,1,1,1,1,1,2,p,p}     9!/6!/1!/2! + 8!/4!/2!/2! + 7!/2!/3!/2! + 6!/0!/4!/2!  252 + 420 + 210 + 15 = 897
+//     2*p + 9  {1,1,1,1,1,1,1,2,p,p}   10!/7!/1!/2! + 9!/5!/2!/2! + 8!/3!/3!/2! + 7!/1!/4!/2!  360 + 756 + 560 + 105 = 1781
+//
+// Rewritten using combinatorials:
+//        n              set             # combos
+//     2*p + 2         {2,p,p}           C(3,1)*C(2,2)                                                      3
+//     2*p + 3        {1,2,p,p}          C(4,1)*C(3,2)                                                      12
+//     2*p + 4       {1,1,2,p,p}         C(5,1)*C(4,2) + C(4,2)*C(2,2)                                      30 + 6 = 36
+//     2*p + 5      {1,1,1,2,p,p}        C(6,1)*C(5,2) + C(5,2)*C(3,2)                                      60 + 30 = 90
+//     2*p + 6     {1,1,1,1,2,p,p}       C(7,1)*C(6,2) + C(6,2)*C(4,2) + C(5,3)*C(2,2)                      105 + 90 + 10 = 205
+//     2*p + 7    {1,1,1,1,1,2,p,p}      C(8,1)*C(7,2) + C(7,2)*C(5,2) + C(6,3)*C(3,2)                      168 + 210 + 60 = 438
+//     2*p + 8   {1,1,1,1,1,1,2,p,p}     C(9,1)*C(8,2) + C(8,2)*C(6,2) + C(7,3)*C(4,2) + C(6,4)*C(2,2)      252 + 420 + 210 + 15 = 897
+//     2*p + 9  {1,1,1,1,1,1,1,2,p,p}   C(10,1)*C(9,2) + C(9,2)*C(7,2) + C(8,3)*C(5,2) + C(7,4)*C(3,2)      360 + 756 + 560 + 105 = 1781
+// or
+//        n              set             # combos
+//     2*p + 2         {2,p,p}           C(1,1)*C(3,2)                                                      3
+//     2*p + 3        {1,2,p,p}          C(2,1)*C(4,2)                                                      12
+//     2*p + 4       {1,1,2,p,p}         C(3,1)*C(5,2)  + C(2,2)*C(4,2)                                     30 + 6 = 36
+//     2*p + 5      {1,1,1,2,p,p}        C(4,1)*C(6,2)  + C(3,2)*C(5,2)                                     60 + 30 = 90
+//     2*p + 6     {1,1,1,1,2,p,p}       C(5,1)*C(7,2)  + C(4,2)*C(6,2) + C(3,3)*C(5,2)                     105 + 90 + 10 = 205
+//     2*p + 7    {1,1,1,1,1,2,p,p}      C(6,1)*C(8,2)  + C(5,2)*C(7,2) + C(4,3)*C(6,2)                     168 + 210 + 60 = 438
+//     2*p + 8   {1,1,1,1,1,1,2,p,p}     C(7,1)*C(9,2)  + C(6,2)*C(8,2) + C(5,3)*C(7,2) + C(4,4)*C(6,2)     252 + 420 + 210 + 15 = 897
+//     2*p + 9  {1,1,1,1,1,1,1,2,p,p}    C(8,1)*C(10,2) + C(7,2)*C(9,2) + C(6,3)*C(8,2) + C(5,4)*C(7,2)     360 + 756 + 560 + 105 = 1781
+
+// Next, let's consider p^3:
+//        n               set              # combos
+//     3*p + 2         {2,p,p,p}           4!/0!/1!/3!                                              4
+//     3*p + 3        {1,2,p,p,p}          5!/1!/1!/3!                                              20
+//     3*p + 4       {1,1,2,p,p,p}         6!/2!/1!/3! +  5!/0!/2!/3!                               60 + 10 = 70
+//     3*p + 5      {1,1,1,2,p,p,p}        7!/3!/1!/3! +  6!/1!/2!/3!                               140 + 60 = 200
+//     3*p + 6     {1,1,1,1,2,p,p,p}       8!/4!/1!/3! +  7!/2!/2!/3! + 6!/0!/3!/3!                 280 + 210 + 20 = 510
+//     3*p + 7    {1,1,1,1,1,2,p,p,p}      9!/5!/1!/3! +  8!/3!/2!/3! + 7!/1!/3!/3!                 504 + 560 + 140 = 1204
+//     3*p + 8   {1,1,1,1,1,1,2,p,p,p}    10!/6!/1!/3! +  9!/4!/2!/3! + 8!/2!/3!/3! + 7!/0!/4!/3!   840 + 1260 + 560 + 35 = 2695
+//     3*p + 9  {1,1,1,1,1,1,1,2,p,p,p}   11!/7!/1!/3! + 10!/5!/2!/3! + 9!/3!/3!/3! + 8!/1!/4!/3!   1320 + 2520 + 1680 + 280 = 5800
+//
+// Rewritten using combinatorials:
+//        n               set              # combos
+//     3*p + 2         {2,p,p,p}           C(4,1)*C(3,3)                                                    4
+//     3*p + 3        {1,2,p,p,p}          C(5,1)*C(4,3)                                                    20
+//     3*p + 4       {1,1,2,p,p,p}         C(6,1)*C(5,3)  +  C(5,2)*C(3,3)                                  60 + 10 = 70
+//     3*p + 5      {1,1,1,2,p,p,p}        C(7,1)*C(6,3)  +  C(6,2)*C(4,3)                                  140 + 60 = 200
+//     3*p + 6     {1,1,1,1,2,p,p,p}       C(8,1)*C(7,3)  +  C(7,2)*C(5,3) + C(6,3)*C(3,3)                  280 + 210 + 20 = 510
+//     3*p + 7    {1,1,1,1,1,2,p,p,p}      C(9,1)*C(8,3)  +  C(8,2)*C(6,3) + C(7,3)*C(4,3)                  504 + 560 + 140 = 1204
+//     3*p + 8   {1,1,1,1,1,1,2,p,p,p}    C(10,1)*C(9,3)  +  C(9,2)*C(7,3) + C(8,3)*C(5,3) + C(7,4)*C(3,3)  840 + 1260 + 560 + 35 = 2695
+//     3*p + 9  {1,1,1,1,1,1,1,2,p,p,p}   C(11,1)*C(10,3) + C(10,2)*C(8,3) + C(9,3)*C(6,3) + C(8,4)*C(4,3)  1320 + 2520 + 1680 + 280 = 5800
+// or
+//        n               set              # combos
+//     3*p + 2         {2,p,p,p}           C(1,1)*C(4,3)                                                    4
+//     3*p + 3        {1,2,p,p,p}          C(2,1)*C(5,3)                                                    20
+//     3*p + 4       {1,1,2,p,p,p}         C(3,1)*C(6,3)  + C(2,2)*C(5,3)                                   60 + 10 = 70
+//     3*p + 5      {1,1,1,2,p,p,p}        C(4,1)*C(7,3)  + C(3,2)*C(6,3)                                   140 + 60 = 200
+//     3*p + 6     {1,1,1,1,2,p,p,p}       C(5,1)*C(8,3)  + C(4,2)*C(7,3)  + C(3,3)*C(6,3)                  280 + 210 + 20 = 510
+//     3*p + 7    {1,1,1,1,1,2,p,p,p}      C(6,1)*C(9,3)  + C(5,2)*C(8,3)  + C(4,3)*C(7,3)                  504 + 560 + 140 = 1204
+//     3*p + 8   {1,1,1,1,1,1,2,p,p,p}     C(7,1)*C(10,3) + C(6,2)*C(9,3)  + C(5,3)*C(8,3) + C(4,4)*C(7,3)  840 + 1260 + 560 + 35 = 2695
+//     3*p + 9  {1,1,1,1,1,1,1,2,p,p,p}    C(8,1)*C(11,3) + C(7,2)*C(10,3) + C(6,3)*C(9,3) + C(5,4)*C(8,3)  1320 + 2520 + 1680 + 280 = 5800
+
+// This can be generalized.  Let us say:
+//      n = k*p + q     for some p>2, q>=2
+// Then the left coefficients come from the (k+q)'th row of Pascal's Triangle: C(k+q-1,1), C(k+q-2,2), C(k+q-3,3), ...
+// The right coefficients are of the form C(k+q-2,k), C(k+q-4,k), C(k+q-6,k), ...
+// The number of terms t is such that:
+//      k+q-2*t >= k
+//      t <= q/2
+//      t = floor(q/2)
+//
+// This can be looked at this way:
+// Label the cardinalities as:
+//      x 1's, y 2's, z p's
+// Then we can look at the number of ways the 2s can be dispersed through the sequences, if we
+// consider the 1's and p's as indistinguishable.  There are a total of x+y+z numbers, which
+// have (x+y+z)! possible permutation orders.  The 2's are indistinguishable, so divide by y!
+// to account for these permutations.  If we ignore the differences between the 1's and p's,
+// then there are (x+z)! permutations that can be considered the same.  This results in
+//      (x+y+z)! / (x+z)! / y! = C(x+y+z, y)
+//
+// Next we look at those 1's and p's.  We have the (x+z)! permutations for these numbers,
+// but again due to repeats we need to divide by x! and z! to account for those duplicates.
+// So there are (x+z)! / x! / z! = C(x+z, z) combinations for the 1's and p's.
+//
+// The product of these two orthogonal factors matches the expressions calculated above:
+//      C(x+y+z, y) * C(x+z, z) = (x+y+z)! / (x+z)! / y! * (x+z)! / x! / z! = (x+y+z)! / x! / y! / z!
+//
+//
+// Alternatively, we can look at it this way:
+// Look how the p's can be dispersed throughout the whole sequence.  There are still x+y+z
+// numbers, which have (x+y+z)! permutations.  Factoring in the duplicate p's means
+// dividing by z!.  If we ignore the differences between the 1's and 2's, then there are
+// (x+y)! permutations of these.  This results in
+//      (x+y+z)! / z! / (x+y)! = C(x+y+z, z)
+//
+// Next we look at how many combinations there are for the 1's and 2's.  We have x+y terms,
+// with (x+y)! permutations.  But again account for the duplicates, so divide by x! and y!.
+//      (x+y)! / x! / y! = C(x+y, y)
+//
+// The product of these two orthogonal factors matches the expressions calculated above:
+//      C(x+y, y) * C(x+y+z, z) = (x+y)! / x! / y! * (x+y+z)! / z! / (x+y)! = (x+y+z)! / x! / y! / z!
+
+
+// Next, we need to look at sets with 2 different terms >2, called p & q.
+// An example of this above is {3,4}: 0, 0, 0, 0, 0, 0, 0, 0, 0, 6, 24, ...
+//        n               set               # combos
+//    p + q + 2         {2,p,q}             3!/0!/1!/1!/1!                                                      6
+//    p + q + 3        {1,2,p,q}            4!/1!/1!/1!/1!                                                      24
+//    p + q + 4       {1,1,2,p,q}           5!/2!/1!/1!/1! + 4!/0!/2!/1!/1!                                     60 + 12 = 72
+//    p + q + 5      {1,1,1,2,p,q}          6!/3!/1!/1!/1! + 5!/1!/2!/1!/1!                                     120 + 60 = 180
+//    p + q + 6     {1,1,1,1,2,p,q}         7!/4!/1!/1!/1! + 6!/2!/2!/1!/1! + 5!/0!/3!/1!/1!                    210 + 180 + 20 = 410
+//    p + q + 7    {1,1,1,1,1,2,p,q}        8!/5!/1!/1!/1! + 7!/3!/2!/1!/1! + 6!/1!/3!/1!/1!                    336 + 420 + 120 = 876
+//    p + q + 8   {1,1,1,1,1,1,2,p,q}       9!/6!/1!/1!/1! + 8!/4!/2!/1!/1! + 7!/2!/3!/1!/1! + 6!/0!/4!/1!/1!   504 + 840 + 420 + 30 = 1794
+//    p + q + 9  {1,1,1,1,1,1,1,2,p,q}     10!/7!/1!/1!/1! + 9!/5!/2!/1!/1! + 8!/3!/3!/1!/1! + 7!/1!/4!/1!/1!   720 + 1512 + 1120 + 210 = 3562
+//
+// Another way to rewrite this is:
+//        n               set               # combos
+//    p + q + 2         {2,p,q}             C(1,1)*C(3,1)*C(2,1)                                                                            6
+//    p + q + 3        {1,2,p,q}            C(2,1)*C(4,1)*C(3,1)                                                                            24
+//    p + q + 4       {1,1,2,p,q}           C(3,1)*C(5,1)*C(4,1)  + C(2,2)*C(4,1)*C(3,1)                                                    60 + 12 = 72
+//    p + q + 5      {1,1,1,2,p,q}          C(4,1)*C(6,1)*C(5,1)  + C(3,2)*C(5,1)*C(4,1)                                                    120 + 60 = 180
+//    p + q + 6     {1,1,1,1,2,p,q}         C(5,1)*C(7,1)*C(6,1)  + C(4,2)*C(6,1)*C(5,1) + C(3,3)*C(5,1)*C(4,1)                             210 + 180 + 20 = 410
+//    p + q + 7    {1,1,1,1,1,2,p,q}        C(6,1)*C(8,1)*C(7,1)  + C(5,2)*C(7,1)*C(6,1) + C(4,3)*C(6,1)*C(5,1)                             336 + 420 + 120 = 876
+//    p + q + 8   {1,1,1,1,1,1,2,p,q}       C(7,1)*C(9,1)*C(8,1)  + C(6,2)*C(8,1)*C(7,1) + C(5,3)*C(7,1)*C(6,1) + C(4,4)*C(6,1)*C(5,1)      504 + 840 + 420 + 30 = 1794
+//    p + q + 9  {1,1,1,1,1,1,1,2,p,q}      C(8,1)*C(10,1)*C(9,1) + C(7,2)*C(9,1)*C(8,1) + C(6,3)*C(8,1)*C(7,1) + C(5,4)*C(7,1)*C(6,1)      720 + 1512 + 1120 + 210 = 3562
+
+// Next, we look at 2 terms >2, with one doubled
+//        n                 set             # combos
+//   2*p + q + 2         {2,p,p,q}          4!/0!/1!/2!/1!                                                          12
+//   2*p + q + 3        {1,2,p,p,q}         5!/1!/1!/2!/1!                                                          60
+//   2*p + q + 4       {1,1,2,p,p,q}        6!/2!/1!/2!/1! +  5!/0!/2!/2!/1!                                        180 + 30 = 210
+//   2*p + q + 5      {1,1,1,2,p,p,q}       7!/3!/1!/2!/1! +  6!/1!/2!/2!/1!                                        420 + 180 = 600
+//   2*p + q + 6     {1,1,1,1,2,p,p,q}      8!/4!/1!/2!/1! +  7!/2!/2!/2!/1! + 6!/0!/3!/2!/1!                       840 + 630 + 60 = 1530
+//   2*p + q + 7    {1,1,1,1,1,2,p,p,q}     9!/5!/1!/2!/1! +  8!/3!/2!/2!/1! + 7!/1!/3!/2!/1!                       1512 + 1680 + 420 = 3612
+//   2*p + q + 8   {1,1,1,1,1,1,2,p,p,q}   10!/6!/1!/2!/1! +  9!/4!/2!/2!/1! + 8!/2!/3!/2!/1! + 7!/0!/4!/2!/1!      2520 + 3780 + 1680 + 105 = 8085
+//   2*p + q + 9  {1,1,1,1,1,1,1,2,p,p,q}  11!/7!/1!/2!/1! + 10!/5!/2!/2!/1! + 9!/3!/3!/2!/1! + 8!/1!/4!/2!/1!      3960 + 7560 + 5040 + 840 = 17400
+//
+// Another way to rewrite this is:
+//        n                 set             # combos
+//   2*p + q + 2         {2,p,p,q}          C(1,1)*C(4,1)*C(3,2)                                                                            12
+//   2*p + q + 3        {1,2,p,p,q}         C(2,1)*C(5,1)*C(4,2)                                                                            60
+//   2*p + q + 4       {1,1,2,p,p,q}        C(3,1)*C(6,1)*C(5,2)   + C(2,2)*C(5,1)*C(4,2)                                                   180 + 30 = 210
+//   2*p + q + 5      {1,1,1,2,p,p,q}       C(4,1)*C(7,1)*C(6,2)   + C(3,2)*C(6,1)*C(5,2)                                                   420 + 180 = 600
+//   2*p + q + 6     {1,1,1,1,2,p,p,q}      C(5,1)*C(8,1)*C(7,2)   + C(4,2)*C(7,1)*C(6,2)  + C(3,3)*C(6,1)*C(5,2)                           840 + 630 + 60 = 1530
+//   2*p + q + 7    {1,1,1,1,1,2,p,p,q}     C(6,1)*C(9,1)*C(8,2)   + C(5,2)*C(8,1)*C(7,2)  + C(4,3)*C(7,1)*C(6,2)                           1512 + 1680 + 420 = 3612
+//   2*p + q + 8   {1,1,1,1,1,1,2,p,p,q}    C(7,1)*C(10,1)*C(9,2)  + C(6,2)*C(9,1)*C(8,2)  + C(5,3)*C(8,1)*C(7,2) + C(4,4)*C(7,1)*C(6,2)    2520 + 3780 + 1680 + 105 = 8085
+//   2*p + q + 9  {1,1,1,1,1,1,1,2,p,p,q}   C(8,1)*C(11,1)*C(10,2) + C(7,2)*C(10,1)*C(9,2) + C(6,3)*C(9,1)*C(8,2) + C(5,4)*C(8,1)*C(7,2)    3960 + 7560 + 5040 + 840 = 17400
+
+// Next, we look at 2 terms >2, with both doubled
+//        n                   set               # combos
+//  2*p + 2*q + 2         {2,p,p,q,q}           5!/0!/1!/2!/2!                                                          30
+//  2*p + 2*q + 3        {1,2,p,p,q,q}          6!/1!/1!/2!/2!                                                          180
+//  2*p + 2*q + 4       {1,1,2,p,p,q,q}         7!/2!/1!/2!/2! +  6!/0!/2!/2!/2!                                        630 + 90 = 720
+//  2*p + 2*q + 5      {1,1,1,2,p,p,q,q}        8!/3!/1!/2!/2! +  7!/1!/2!/2!/2!                                        1680 + 630 = 2310
+//  2*p + 2*q + 6     {1,1,1,1,2,p,p,q,q}       9!/4!/1!/2!/2! +  8!/2!/2!/2!/2! +  7!/0!/3!/2!/2!                      3780 + 2520 + 210 = 6510
+//  2*p + 2*q + 7    {1,1,1,1,1,2,p,p,q,q}     10!/5!/1!/2!/2! +  9!/3!/2!/2!/2! +  8!/1!/3!/2!/2!                      7560 + 7560 + 1680 = 16800
+//  2*p + 2*q + 8   {1,1,1,1,1,1,2,p,p,q,q}    11!/6!/1!/2!/2! + 10!/4!/2!/2!/2! +  9!/2!/3!/2!/2! + 8!/0!/4!/2!/2!     13860 + 18900 + 7560 + 420 = 40740
+//  2*p + 2*q + 9  {1,1,1,1,1,1,1,2,p,p,q,q}   12!/7!/1!/2!/2! + 11!/5!/2!/2!/2! + 10!/3!/3!/2!/2! + 9!/1!/4!/2!/2!     23760 + 41580 + 25200 + 3780 = 94320
+//
+// Another way to rewrite this is:
+//        n                   set               # combos
+//  2*p + 2*q + 2         {2,p,p,q,q}           C(1,1)*C(5,2)*C(3,2)                                                                            30
+//  2*p + 2*q + 3        {1,2,p,p,q,q}          C(2,1)*C(6,2)*C(4,2)                                                                            180
+//  2*p + 2*q + 4       {1,1,2,p,p,q,q}         C(3,1)*C(7,2)*C(5,2)   + C(2,2)*C(6,2)*C(4,2)                                                   630 + 90 = 720
+//  2*p + 2*q + 5      {1,1,1,2,p,p,q,q}        C(4,1)*C(8,2)*C(6,2)   + C(3,2)*C(7,2)*C(5,2)                                                   1680 + 630 = 2310
+//  2*p + 2*q + 6     {1,1,1,1,2,p,p,q,q}       C(5,1)*C(9,2)*C(7,2)   + C(4,2)*C(8,2)*C(6,2)  + C(3,3)*C(7,2)*C(5,2)                           3780 + 2520 + 210 = 6510
+//  2*p + 2*q + 7    {1,1,1,1,1,2,p,p,q,q}      C(6,1)*C(10,2)*C(8,2)  + C(5,2)*C(9,2)*C(7,2)  + C(4,3)*C(8,2)*C(6,2)                           7560 + 7560 + 1680 = 16800
+//  2*p + 2*q + 8   {1,1,1,1,1,1,2,p,p,q,q}     C(7,1)*C(11,2)*C(9,2)  + C(6,2)*C(10,2)*C(8,2) + C(5,3)*C(9,2)*C(7,2)  + C(4,4)*C(8,2)*C(6,2)   13860 + 18900 + 7560 + 420 = 40740
+//  2*p + 2*q + 9  {1,1,1,1,1,1,1,2,p,p,q,q}    C(8,1)*C(12,2)*C(10,2) + C(7,2)*C(11,2)*C(9,2) + C(6,3)*C(10,2)*C(8,2) + C(5,4)*C(9,2)*C(7,2)   23760 + 41580 + 25200 + 3780 = 94320
+
+// Next, we look at 3 terms >2, all occurring once
+//        n                   set               # combos
+//  p + q + r + 2          {2,p,q,r}            4!/0!/1!/1!/1!/1!                                                                   24
+//  p + q + r + 3         {1,2,p,q,r}           5!/1!/1!/1!/1!/1!                                                                   120
+//  p + q + r + 4        {1,1,2,p,q,r}          6!/2!/1!/1!/1!/1! +  5!/0!/2!/1!/1!/1!                                              360 + 60 = 420
+//  p + q + r + 5       {1,1,1,2,p,q,r}         7!/3!/1!/1!/1!/1! +  6!/1!/2!/1!/1!/1!                                              840 + 360 = 1200
+//  p + q + r + 6      {1,1,1,1,2,p,q,r}        8!/4!/1!/1!/1!/1! +  7!/2!/2!/1!/1!/1! + 6!/0!/3!/1!/1!/1!                          1680 + 1260 + 120 = 3060
+//  p + q + r + 7     {1,1,1,1,1,2,p,q,r}       9!/5!/1!/1!/1!/1! +  8!/3!/2!/1!/1!/1! + 7!/1!/3!/1!/1!/1!                          3024 + 3360 + 840 = 7224
+//  p + q + r + 8    {1,1,1,1,1,1,2,p,q,r}     10!/6!/1!/1!/1!/1! +  9!/4!/2!/1!/1!/1! + 8!/2!/3!/1!/1!/1! + 7!/0!/4!/1!/1!/1!      5040 + 7560 + 3360 + 210 = 16170
+//  p + q + r + 9   {1,1,1,1,1,1,1,2,p,q,r}    11!/7!/1!/1!/1!/1! + 10!/5!/2!/1!/1!/1! + 9!/3!/3!/1!/1!/1! + 8!/1!/4!/1!/1!/1!      7920 + 15120 + 10080 + 1680 = 34800
+//
+// Another way to rewrite this is:
+//        n                   set               # combos
+//  p + q + r + 2          {2,p,q,r}            C(1,1)*C(4,1)*C(3,1)*C(2,1)                                                                                                 24
+//  p + q + r + 3         {1,2,p,q,r}           C(2,1)*C(5,1)*C(4,1)*C(3,1)                                                                                                 120
+//  p + q + r + 4        {1,1,2,p,q,r}          C(3,1)*C(6,1)*C(5,1)*C(4,1)   + C(2,2)*C(5,1)*C(4,1)*C(3,1)                                                                 360 + 60 = 420
+//  p + q + r + 5       {1,1,1,2,p,q,r}         C(4,1)*C(7,1)*C(6,1)*C(5,1)   + C(3,2)*C(6,1)*C(5,1)*C(4,1)                                                                 840 + 360 = 1200
+//  p + q + r + 6      {1,1,1,1,2,p,q,r}        C(5,1)*C(8,1)*C(7,1)*C(6,1)   + C(4,2)*C(7,1)*C(6,1)*C(5,1)  + C(3,3)*C(6,1)*C(5,1)*C(4,1)                                  1680 + 1260 + 120 = 3060
+//  p + q + r + 7     {1,1,1,1,1,2,p,q,r}       C(6,1)*C(9,1)*C(8,1)*C(7,1)   + C(5,2)*C(8,1)*C(7,1)*C(6,1)  + C(4,3)*C(7,1)*C(6,1)*C(5,1)                                  3024 + 3360 + 840 = 7224
+//  p + q + r + 8    {1,1,1,1,1,1,2,p,q,r}      C(7,1)*C(10,1)*C(9,1)*C(8,1)  + C(6,2)*C(9,1)*C(8,1)*C(7,1)  + C(5,3)*C(8,1)*C(7,1)*C(6,1) + C(4,4)*C(7,1)*C(6,1)*C(5,1)    5040 + 7560 + 3360 + 210 = 16170
+//  p + q + r + 9   {1,1,1,1,1,1,1,2,p,q,r}     C(8,1)*C(11,1)*C(10,1)*C(9,1) + C(7,2)*C(10,1)*C(9,1)*C(8,1) + C(6,3)*C(9,1)*C(8,1)*C(7,1) + C(5,4)*C(8,1)*C(7,1)*C(6,1)    7920 + 15120 + 10080 + 1680 = 34800
+
+// This can also be generalized.
+// We'll start with 2 terms >2, then expand to more than 2 terms.
+// This can be looked at this way: label the cardinalities as:
+//      x 1's, y 2's, z p's, w q's
+// We first look at the p's and q's, where we want to focus on the less common term.
+// We can swap the values of p and q so that p is the term that occurs less, and
+// q as the term that occurs the same or more.  Therefore
+//      z <= w
+// We start by looking at the the p's are dispersed throughout the whole sequence.
+// This time there are x+y+z+w numbers, which have (x+y+z+w)! permutations.  Factoring
+// in the duplicate p's meand dividing by z!.  If we ignore the differences between the
+// 1's, 2's, and q's, then there are (x+y+w)! permutations of these.  This results in
+//      (x+y+z+w)! / z! / (x+y+w)! = C(x+y+z+w, z)
+//
+// Next we look at how to disperse the q's through the remaining spots.  There are
+// x+y+w positions, which have (x+y+w)! permutations.  Again factor in the duplicate q's
+// by dividing by w!, and the indistinguishable 1's and 2's which have (x+y)! permuations.
+// This leads results in
+//      (x+y+w)! / w! / (x+y!) = C(x+y+w, w)
+//
+// Last, we have the 1's and 2's.  We have x+y of them, so (x+y)! permutations.  Accouting
+// for duplicate 1's and 2's meand dividing by x! and y!.  This results in
+//      (x+y)! / x! / y! = C(x+y, y)
+//
+// The product of these three orthogonal factors mathces the expressions calculated above
+//      C(x+y, y) * C(x+y+z+w, z) * C(x+y+w, w) = (x+y)! / x! / y! * (x+y+z+w)! / z! / (x+y+w)! * (x+y+w)! / w! / (x+y)!
+//                                              = (x+y+z+w)! / x! / y! / z! / w!
+
+
+using AddendCounts = std::vector<int64_t>;
+using AllAddendsForSum = std::set<AddendCounts>;
+using AddendsBySum = std::vector<AllAddendsForSum>;
+
+
+class Solver_brute {
+public:
+    static constexpr int64_t kModulus = 1'000'000'000;
+
+    Solver_brute() {
+        addends_.push_back({}); // empty set for n = 0
+        addends_.push_back({}); // empty set for n = 1
+    }
+
+
+    int64_t solve_it() {
+        int64_t n{ 2 };
+        while (true) {
+            int64_t t_val = t(n);
+            std::cout << "t(" << n << ") = " << t_val << std::endl;
+            if (1'000'000 == t_val)
+                return t_val;
+            ++n;
+        }
+    }
+
+
+    AllAddendsForSum get_twopal_addend_sets(int64_t n) {
+        if ((addends_.size() > n) && !addends_[n].empty())
+            return addends_[n];
+
+        AllAddendsForSum ret;
+
+        const int64_t max_term = n - 2;
+
+        // First do sets of only 1s and 2s
+        {
+            const int64_t max_2_card = n / 2;
+            AddendCounts counts{ 0, n - 2, 1 };
+            ret.insert(counts);
+            while (counts[1] >= 2) {
+                counts[1] -= 2;
+                ++counts[2];
+                ret.insert(counts);
+            }
+        }
+
+        // Add sets with two addends > 1
+        for (int64_t term = 3; term <= max_term; ++term) {
+            const int64_t max_term_card = (n - 2) / term;
+
+            // Start with 1x 2, 1x term, and as many 1s as needed to sum to n
+            for (int64_t term_card = 1; term_card <= max_term_card; ++term_card) {
+                AddendCounts counts;
+                counts.resize(term + 1);
+                counts[1] = n - 2 - term * term_card;
+                counts[2] = 1;
+                counts[term] = term_card;
+                ret.insert(counts);
+
+                // Replace pairs of 1s with a 2
+                while (counts[1] >= 2) {
+                    counts[1] -= 2;
+                    ++counts[2];
+                    ret.insert(counts);
+                }
+            }
+        }
+
+        // Add any sets with 3 or more addends > 1
+        for (int64_t term = 4; term <= max_term; ++term) {
+            const auto &subsets = addends_[n - term];
+
+            for (auto iter = subsets.begin(); iter != subsets.end(); ++iter) {
+                AddendCounts counts = *iter;
+                if (counts.size() <= term)
+                    counts.resize(term + 1);
+                ++counts[term];
+                ret.insert(counts);
+            }
+        }
+
+        addends_.resize(n + 1);
+        addends_[n] = ret;
+
+        return ret;
+    }
+
+
+    int64_t S(int64_t n) {
+        int64_t ret{ 0 };
+
+        const auto all_sets = get_twopal_addend_sets(n);
+
+        for (const auto& counts : all_sets) {
+            const int64_t num_addends = std::accumulate(counts.cbegin(), counts.cend(), int64_t{ 0 });
+            const auto max_card_iter = std::max_element(counts.cbegin(), counts.cend());
+
+            std::multiset<int64_t> terms;
+            for (int64_t term = *max_card_iter + 1; term <= num_addends; ++term) {
+                const auto factors = helper_.get_factorization(term);
+                for (const auto& [prime, exp] : factors) {
+                    for (uint64_t i = 0; i < exp; ++i)
+                        terms.insert(prime);
+                }
+            }
+
+            for (auto iter = counts.cbegin(); iter != counts.cend(); ++iter) {
+                // Skip 0 and 1 counts, they don't change product.
+                if (2 > *iter)
+                    continue;
+                // Skip the max cardinality, we don't want to double divide.
+                if (max_card_iter == iter)
+                    continue;
+
+                // We want to divide by (*iter)!
+                for (int64_t i = 2; i <= *iter; ++i) {
+                    const auto factors = helper_.get_factorization(i);
+                    for (const auto& [prime, exp] : factors) {
+                        for (uint64_t i = 0; i < exp; ++i)
+                            terms.erase(terms.find(prime));
+                    }
+                }
+            }
+
+            int64_t value{ 1 };
+            for (const auto& t : terms) {
+                value *= t;
+                value %= kModulus;
+            }
+            ret += value;
+            ret %= kModulus;
+        }
+
+//        std::cout << "S(" << n << ") = " << ret << std::endl;
+        return ret;
+    }
+
+    int64_t P(int64_t n) {
+        int64_t ret{ 1 };
+        for (int64_t i = 1; i < n; ++i) {
+            ret *= 2;
+            ret %= kModulus;
+        }
+
+//        std::cout << "P(" << n << ") = " << ret << std::endl;
+        return ret;
+    }
+
+
+    int64_t t(int64_t n) {
+        int64_t ret{ 0 };
+
+        if (n % 2) {
+            // t(n) = S((n-1)/2) + S((n-3)/2 + S((n-5)/2) + ... + S(2)             for odd n
+            const int64_t max_k = (n - 1) / 2;
+            for (int64_t k = 2; k <= max_k; ++k) {
+                ret += S(k);
+                ret %= kModulus;
+            }
+        }
+        else {
+            // t(n) = S(n/2) + P((n-2)/2) + S((n-4)/2) + S((n-6)/2) + ... + S(2)   for even n
+            const int64_t max_k = n / 2;
+            for (int64_t k = 2; k < max_k - 1; ++k) {
+                ret += S(k);
+                ret %= kModulus;
+            }
+            ret += P(max_k - 1);
+            ret %= kModulus;
+            ret += S(max_k);
+            ret %= kModulus;
+        }
+        return ret;
+    }
+
+private:
+    AddendsBySum addends_;
+    PrimeHelper helper_;
+
+};
+
+
+class Solver {
+public:
+    static constexpr int64_t kModulus = 1'000'000'000;
+    using CountsBySum = std::vector<int64_t>;
+    using SumCountsByLargestTerm = std::vector<CountsBySum>;
+//    using SumCountsBy
+    using BinomialRow = std::vector<int32_t>;
+    using PascalsTriangle = std::vector<BinomialRow>;  // tri[n][k] == C(n, k) = n!/k!/(n-k)!
+
+    Solver() {
+        only1and2_.push_back(0);  //  can't sum to 0
+        only1and2_.push_back(0);  //  can't sum to 1
+        only1and2_.push_back(1);  //  a single 2 can sum to 2
+
+        singleAddendOver2_.push_back(2);  // there are 2 combinations with no 1s; {2,p}, {p,2}
+
+        binomial_coeff_.push_back({ {1} });       // 1 combination sums to 0: {0}
+        binomial_coeff_.push_back({ {1, 1} });    // 2 combinations sum to 1: {0,1}, {1,0}
+    }
+
+
+    int64_t solve_it() {
+        int64_t n{ 2 };
+        while (true) {
+            int64_t t_val = t(n);
+            std::cout << "t(" << n << ") = " << t_val << std::endl;
+            if (1'000'000 == t_val)
+                return t_val;
+            ++n;
+        }
+    }
+
+
+    int64_t S(int64_t n) {
+        while (n >= only1and2_.size()) {
+            auto iter = only1and2_.crbegin();
+            int64_t ult = *iter++;
+            int64_t penult = *iter;
+            only1and2_.push_back(ult + penult + 1);
+        }
+
+        const int64_t max_num_ones = n - 5;  // most combos with one 2, one 3, and the rest 1s
+        if (max_num_ones >= 0) {
+            int64_t max_binom_scale = n - 3;  // 3 is smallest term >2 that can be involved
+            while (binomial_coeff_.size() <= max_binom_scale)
+                add_binomial_row();
+
+            while (singleAddendOver2_.size() <= max_num_ones) {
+                int64_t k{ 1 };
+                int64_t new_term{ 0 };
+
+                for (int64_t scale = singleAddendOver2_.size() + 2; scale > k; --scale, ++k) {
+                    new_term += scale * binomial_coeff_[scale - 1][k];
+                    new_term %= kModulus;
+                }
+
+                singleAddendOver2_.push_back(new_term);
+            }
+        }
+
+        int64_t ret = only1and2_[n];
+        for (int64_t ind = 0; ind <= max_num_ones; ++ind) {
+            ret += singleAddendOver2_[ind];
+            ret %= kModulus;
+        }
+//        std::cout << "S(" << n << ") = " << ret << std::endl;
+        return ret;
+    }
+
+
+    int64_t P(int64_t n) {
+        int64_t ret{ 1 };
+        for (int64_t i = 1; i < n; ++i) {
+            ret *= 2;
+            ret %= kModulus;
+        }
+
+        //        std::cout << "P(" << n << ") = " << ret << std::endl;
+        return ret;
+    }
+
+
+    int64_t t(int64_t n) {
+        int64_t ret{ 0 };
+
+        if (n % 2) {
+            // t(n) = S((n-1)/2) + S((n-3)/2 + S((n-5)/2) + ... + S(2)             for odd n
+            const int64_t max_k = (n - 1) / 2;
+            for (int64_t k = 2; k <= max_k; ++k) {
+                ret += S(k);
+                ret %= kModulus;
+            }
+        }
+        else {
+            // t(n) = S(n/2) + P((n-2)/2) + S((n-4)/2) + S((n-6)/2) + ... + S(2)   for even n
+            const int64_t max_k = n / 2;
+            for (int64_t k = 2; k < max_k - 1; ++k) {
+                ret += S(k);
+                ret %= kModulus;
+            }
+            ret += P(max_k - 1);
+            ret %= kModulus;
+            ret += S(max_k);
+            ret %= kModulus;
+        }
+        return ret;
+    }
+
+    void add_binomial_row() {
+        binomial_coeff_.push_back({});
+        const auto& last_row = *(binomial_coeff_.crbegin() + 1);
+        auto& new_row = binomial_coeff_.back();
+        new_row.resize(binomial_coeff_.size());
+        new_row[0] = 1;
+        for (size_t i = 1; i < last_row.size(); ++i) {
+            new_row[i] = (last_row[i - 1] + last_row[i]) % kModulus;
+        }
+        new_row.back() = 1;
+    }
+
+    void print_pascals_triangle() {
+        for (const auto& row : binomial_coeff_) {
+            for (const auto& val : row)
+                std::cout << val << "  ";
+            std::cout << std::endl;
+        }
+    }
+
+private:
+    CountsBySum only1and2_;             // indexed by sum of all terms
+    CountsBySum singleAddendOver2_;     // indexed by # of 1s
+    PascalsTriangle binomial_coeff_;
+};
+
+
 int main()
 {
     std::cout << "Hello World!\n";
+
+    //{
+    //    Solver_brute solver;
+    //    for (int64_t n = 2; n < 10; ++n)
+    //        solver.get_twopal_addend_sets(n);
+
+    //    auto all_sets = solver.get_twopal_addend_sets(10);
+    //    for (auto iter = all_sets.crbegin(); iter != all_sets.crend(); ++iter) {
+    //        for (size_t n = 1; n < iter->size(); ++n) {
+    //            auto count = (*iter)[n];
+    //            while (count-- > 0) {
+    //                std::cout << n << ", ";
+    //            }
+    //        }
+    //        std::cout << std::endl;
+    //    }
+    //}
+
+    {
+        Solver solver;
+        std::cout << "using Solver" << std::endl;
+        std::cout << "S(2) = " << solver.S(2) << std::endl;
+        std::cout << "S(3) = " << solver.S(3) << std::endl;
+        std::cout << "S(4) = " << solver.S(4) << std::endl;
+        std::cout << "S(5) = " << solver.S(5) << std::endl;
+        std::cout << "S(6) = " << solver.S(6) << std::endl;
+        std::cout << "S(7) = " << solver.S(7) << std::endl;
+        std::cout << "S(8) = " << solver.S(8) << std::endl;
+        std::cout << "P(9) = " << solver.P(9) << std::endl;
+        std::cout << "S(10) = " << solver.S(10) << std::endl;
+    
+        std::cout << "t(20) = " << solver.t(20) << std::endl;
+        std::cout << "t(42) = " << solver.t(42) << std::endl;
+    }
+
+    //{
+    //    Solver solver;
+    //    for (size_t i = 0; i < 100; ++i)
+    //        solver.add_binomial_row();
+    //    solver.print_pascals_triangle();
+    //}
+
+    //{
+    //    Solver solver;
+    //    std::cout << "The answer is n = " << solver.solve_it() << std::endl;
+    //}
 }
+
+
+
+//t(2) = 2
+//t(3) = 0
+//t(4) = 2
+//t(5) = 1
+//t(6) = 4
+//t(7) = 3
+//t(8) = 9
+//t(9) = 7
+//t(10) = 20
+//t(11) = 16
+//t(12) = 43
+//t(13) = 36
+//t(14) = 91
+//t(15) = 79
+//t(16) = 191
+//t(17) = 170
+//t(18) = 398
+//t(19) = 361
+//t(20) = 824
+//t(21) = 759
+//t(22) = 1697
+//t(23) = 1583
+//t(24) = 3480
+//t(25) = 3280
+//t(26) = 7111
+//t(27) = 6760
+//t(28) = 14487
+//t(29) = 13871
+//t(30) = 29439
+//t(31) = 28358
+//t(32) = 59694
+//t(33) = 57797
+//t(34) = 120820
+//t(35) = 117491
+//t(36) = 244153
+//t(37) = 238311
+//t(38) = 492716
+//t(39) = 482464
+//t(40) = 993171
+//t(41) = 975180
+//t(42) = 1999923
+//t(43) = 1968351
+//t(44) = 4023679
+//t(45) = 3968274
+//t(46) = 8089182
+//t(47) = 7991953
+//t(48) = 16251760
+//t(49) = 16081135
+//t(50) = 32632321
+//t(51) = 32332895
+//t(52) = 65490672
+//t(53) = 64965216
+//t(54) = 131377999
+//t(55) = 130455888
+//t(56) = 263452079
+//t(57) = 261833887
+//t(58) = 528125695
+//t(59) = 525285966
+//t(60) = 58395038
+//t(61) = 53411661
+//t(62) = 120551916
+//t(63) = 111806699
+//t(64) = 247705401
+//t(65) = 232358615
+//t(66) = 506995748
+//t(67) = 480064016
+//t(68) = 34321659
+//t(69) = 987059764
+//t(70) = 104320267
+//t(71) = 21381423
+//t(72) = 271249215
+//t(73) = 125701690
+//t(74) = 652369006
+//t(75) = 396950905
+//t(76) = 497547432
+//t(77) = 49319911
+//t(78) = 333451809
+//t(79) = 546867343
+//t(80) = 260678664
+//t(81) = 880319152
+//t(82) = 563359895
+//t(83) = 140997816
+//t(84) = 955306823
+//t(85) = 704357711
+//t(86) = 119560191
+//t(87) = 659664534
+//t(88) = 870429006
+//t(89) = 779224725
+//t(90) = 623115748
+//t(91) = 649653731
+//t(92) = 588384889
+//t(93) = 272769479
+//t(94) = 610127452
+//t(95) = 861154368
+//t(96) = 627074595
+//t(97) = 471281820
+//t(98) = 976584291
+//t(99) = 98356415
+//t(100) = 424576767
+//t(101) = 74940706
+//t(102) = 476354494
+//t(103) = 499517473
+//t(104) = 458137824
+//t(105) = 975871967
+//t(106) = 771340545
+//t(107) = 434009791
+//t(108) = 374583008
+//t(109) = 205350336
+//t(110) = 63333791
+//t(111) = 579933344
+//t(112) = 778166111
+//t(113) = 643267135
+//t(114) = 377063423
+//t(115) = 421433246
+//t(116) = 58258494
+//t(117) = 798496669
+//t(118) = 555547612
+//t(119) = 856755163
+//t(120) = 505756025
+//t(121) = 412302775
+//t(122) = 665934676
+//t(123) = 918058800
+//t(124) = 685084427
+//t(125) = 583993476
+//t(126) = 816837179
+//t(127) = 269077903
+//t(128) = 828218559
+//t(129) = 85915082
+//t(130) = 952072270
+//t(131) = 914133641
+//t(132) = 747538968
+//t(133) = 866205911
+//t(134) = 80775841
+//t(135) = 613744879
+//t(136) = 785188216
+//t(137) = 694520720
+//t(138) = 75346023
+//t(139) = 479708936
+//t(140) = 122692599
+//t(141) = 555054959
+//t(142) = 308053247
+//t(143) = 677747558
+//t(144) = 274411630
+//t(145) = 985800805
+//t(146) = 774766036
+//t(147) = 260212435
+//t(148) = 405780537
+//t(149) = 34978471
+//t(150) = 956420364
+//t(151) = 440759008
+//t(152) = 572253619
+//t(153) = 397179372
+//t(154) = 174722195
+//t(155) = 969432991
+//t(156) = 895320703
+//t(157) = 144155186
+//t(158) = 511591966
+//t(159) = 39475889
+//t(160) = 949423696
+//t(161) = 551067855
+//t(162) = 576252673
+//t(163) = 500491551
+//t(164) = 302026704
+//t(165) = 76744224
+//t(166) = 151930607
+//t(167) = 378770928
+//t(168) = 927499535
+//t(169) = 530701535
+//t(170) = 703919871
+//t(171) = 458201070
+//t(172) = 29920222

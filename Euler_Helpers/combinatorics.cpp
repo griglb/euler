@@ -297,3 +297,28 @@ PermutationList get_permutations(uint64_t num, uint64_t choose) {
 
     return ret;
 }
+
+PowerSet get_power_set(const Set& values) {
+    if (values.empty())
+        return {};
+
+    if (values.size() == 1)
+        return { values };
+
+    PowerSet ret;
+
+    for (const auto& val : values) {
+        Set subset = values;
+        subset.erase(val);
+
+        PowerSet subpower = get_power_set(subset);
+        for (auto& sub : subpower) {
+            ret.insert(sub);
+            Set new_set = sub;
+            new_set.insert(val);
+            ret.insert(new_set);
+        }
+    }
+
+    return ret;
+}

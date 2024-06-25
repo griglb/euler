@@ -20,3 +20,6 @@ using PermutationList = std::vector<Permutation>;
 PermutationList get_permutations(const Combination& elements);
 PermutationList get_permutations(uint64_t num, uint64_t choose);
 
+using Set = std::set<int64_t>;
+using PowerSet = std::set<Set>;
+PowerSet get_power_set(const Set& values);

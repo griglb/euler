@@ -17,6 +17,15 @@ PrimeHelper::PrimeHelper() {
     primes_.push_back(2);
 }
 
+
+bool PrimeHelper::is_prime(uint64_t value) {
+    if (value >= sieve_.size())
+        get_primes(value);
+
+    return sieve_[value];
+}
+
+
 ULongLongVec PrimeHelper::get_primes(uint64_t max_value) {
     if (sieve_.size() == max_value) {
         // We already have the exact set of primes we need, return that vector.
@@ -71,6 +80,7 @@ ULongLongVec PrimeHelper::get_primes(uint64_t max_value) {
     return primes_;
 }
 
+
 Factorization PrimeHelper::get_factorization(uint64_t number) {
     if (number >= sieve_.size()) {
         get_primes(static_cast<uint64_t>(number/2));
@@ -97,6 +107,7 @@ Factorization PrimeHelper::get_factorization(uint64_t number) {
 
     return factors;
 }
+
 
 Factorization PrimeHelper::get_factorization_fast(uint64_t number) {
     if (0 == number) {
@@ -148,6 +159,7 @@ Factorization PrimeHelper::get_factorization_fast(uint64_t number) {
 
     return factors_.at(number);
 }
+
 
 ULongLongVec PrimeHelper::get_proper_divisors(uint64_t number) {
     Factorization factors = get_factorization_fast(number);

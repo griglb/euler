@@ -17,6 +17,7 @@ public:
     PrimeHelper();
     ~PrimeHelper() = default;
 
+    bool is_prime(uint64_t value);
     ULongLongVec get_primes(uint64_t max_value);
 
     Factorization get_factorization(uint64_t number);

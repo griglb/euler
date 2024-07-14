@@ -2065,3 +2065,12 @@ cc_binary(
     deps = [
     ],
 )
+
+cc_binary(
+    name = "pe894",
+    srcs = [
+        "ProjectEuler0894/ProjectEuler0894.cpp"
+    ],
+    deps = [
+    ],
+)

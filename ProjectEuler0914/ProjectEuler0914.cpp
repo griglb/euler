@@ -123,18 +123,22 @@ int64_t max_m(const int64_t R, const int64_t n) {
 
 int64_t solve_it(const int64_t R) {
     int64_t ret = 0;
+    int64_t best_m, best_n;
 
     const int64_t nMax = max_n(R);
 
-    for (int64_t n = 1; n <= nMax; ++n) {
-        if (0 == n % 100'000)
+    for (int64_t n = std::sqrt(R)/3; n <= nMax; ++n) {
+        if (0 == n % 1'000'000)
             std::cout << n << std::endl;
         const int64_t n2 = n * n;
 
         const int64_t mMax = max_m(R, n);
-        //const int64_t max_inrad = n * (mMax - n);
-        //if (max_inrad <= ret)
-        //    break;
+        const int64_t max_inrad = n * (mMax - n);
+        // The max_inrad function has some jitter in it due to discretization,
+        // but once it drops below a certain percent of the max we know we are
+        // on the downward part of the parabola and can stop searching.
+        if (max_inrad <= ret*0.95)
+            break;
         for (int64_t m = mMax; m > n; m -= 2) {
             const int64_t m2 = m * m;
 
@@ -153,11 +157,18 @@ int64_t solve_it(const int64_t R) {
 
             if (primitive && (inrad > ret)) {
                 ret = inrad;
+                best_m = m;
+                best_n = n;
                 //std::cout << m << "\t" << n << "\t" << a << "\t" << b << "\t" << c << "\t" << inrad << std::endl;
                 break;
             }
         }
     }
+
+    std::cout << "m = " << best_m << ", n = " << best_n
+              << ", a = " << (best_m + best_n) * (best_m - best_n)
+              << ", b = " << 2 * best_m * best_n
+              << ", c = " << best_m * best_m + best_n * best_n << std::endl;
 
     return ret;
 }

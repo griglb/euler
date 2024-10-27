@@ -153,7 +153,7 @@ int64_t solve_it(const int64_t R) {
 
             if (primitive && (inrad > ret)) {
                 ret = inrad;
-                std::cout << m << "\t" << n << "\t" << a << "\t" << b << "\t" << c << "\t" << inrad << std::endl;
+                //std::cout << m << "\t" << n << "\t" << a << "\t" << b << "\t" << c << "\t" << inrad << std::endl;
                 break;
             }
         }

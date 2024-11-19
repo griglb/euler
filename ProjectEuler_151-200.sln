@@ -93,6 +93,10 @@ Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "HoughTransform", "..\HoughT
 EndProject
 Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0914", "ProjectEuler0914\ProjectEuler0914.vcxproj", "{0FFE1ECC-6E82-49AA-960D-F67867C7ADFE}"
 EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0883", "ProjectEuler0883\ProjectEuler0883.vcxproj", "{DA202910-55D8-4A94-A55F-3ACF45B00D58}"
+EndProject
+Project("{8BC9CEB8-8B4A-11D0-8D11-00A0C91BC942}") = "ProjectEuler0917", "ProjectEuler0917\ProjectEuler0917.vcxproj", "{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|x64 = Debug|x64
@@ -461,6 +465,22 @@ Global
 		{0FFE1ECC-6E82-49AA-960D-F67867C7ADFE}.Release|x64.Build.0 = Release|x64
 		{0FFE1ECC-6E82-49AA-960D-F67867C7ADFE}.Release|x86.ActiveCfg = Release|Win32
 		{0FFE1ECC-6E82-49AA-960D-F67867C7ADFE}.Release|x86.Build.0 = Release|Win32
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Debug|x64.ActiveCfg = Debug|x64
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Debug|x64.Build.0 = Debug|x64
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Debug|x86.ActiveCfg = Debug|Win32
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Debug|x86.Build.0 = Debug|Win32
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Release|x64.ActiveCfg = Release|x64
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Release|x64.Build.0 = Release|x64
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Release|x86.ActiveCfg = Release|Win32
+		{DA202910-55D8-4A94-A55F-3ACF45B00D58}.Release|x86.Build.0 = Release|Win32
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Debug|x64.ActiveCfg = Debug|x64
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Debug|x64.Build.0 = Debug|x64
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Debug|x86.ActiveCfg = Debug|Win32
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Debug|x86.Build.0 = Debug|Win32
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Release|x64.ActiveCfg = Release|x64
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Release|x64.Build.0 = Release|x64
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Release|x86.ActiveCfg = Release|Win32
+		{DB5A018B-D974-48AE-AAA1-A0FD15C6074D}.Release|x86.Build.0 = Release|Win32
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

@@ -46,6 +46,8 @@ int64_t solve_it(int32_t N) {
     const int64_t* a = a_v.data();
     const int64_t* b = b_v.data();
 
+    // Use vectors to manage memory, the iterations will point to one of these
+    // as a source to update the other as destination.
     using Diagonal = std::vector<int64_t>;
     Diagonal prev_diag_v, curr_diag_v;
     prev_diag_v.resize(N + 1);
@@ -53,12 +55,23 @@ int64_t solve_it(int32_t N) {
 
     prev_diag_v[1] = a[1] + b[1];
 
+    // Use a pair of ping-pong pointers to avoid copies.
     const int64_t* prev_diag = prev_diag_v.data();
     int64_t* curr_diag = curr_diag_v.data();
 
     // Start by growing the SW-NE diagonals until we get the N elements.
-    for (int32_t count = 2; count <= N; ++count) {
+    bool flip = false;
+    for (int32_t count = 2; count <= N; ++count, flip = !flip) {
         if (count % 10'000 == 0) std::cout << "+" << count << std::endl;
+        if (flip) {
+            prev_diag = curr_diag_v.data();
+            curr_diag = prev_diag_v.data();
+        }
+        else {
+            prev_diag = prev_diag_v.data();
+            curr_diag = curr_diag_v.data();
+        }
+
         // The first column can only come from above, so add the value from previous diagonal to this M_ij.
         curr_diag[1] = prev_diag[1] + a[count] + b[1];
         // The middle columns are the min of above and right added to this M_ij.
@@ -69,14 +82,20 @@ int64_t solve_it(int32_t N) {
         }
         // The last column can only come from right, so add the value from previous diagonal to this M_ij.
         curr_diag[count] = prev_diag[count - 1] + a[1] + b[count];
-
-        // Copy current diagonal into previous variable.
-        std::copy(curr_diag, curr_diag + count + 1, prev_diag_v.begin());
     }
 
     // Then shrink the diagonals until we get to 2 elements.
-    for (int32_t count = N; count > 1; --count) {
+    for (int32_t count = N; count > 1; --count, flip = !flip) {
         if (count % 10'000 == 0) std::cout << "-" << count << std::endl;
+        if (flip) {
+            prev_diag = curr_diag_v.data();
+            curr_diag = prev_diag_v.data();
+        }
+        else {
+            prev_diag = prev_diag_v.data();
+            curr_diag = curr_diag_v.data();
+        }
+
         // All columns are the min of above and right added to this M_ij.
         // The first column is at location N - count, the last column is at N.
         const int64_t* aa = &a[N + 2 - count];
@@ -84,9 +103,6 @@ int64_t solve_it(int32_t N) {
         for (int32_t i = N; i > N - count + 1; --i, ++aa, --bb) {
             curr_diag[i] = std::min(prev_diag[i - 1], prev_diag[i]) + *aa + *bb;
         }
-
-        // Copy current diagonal into previous variable.
-        std::copy(curr_diag + N - count, curr_diag + N + 1, prev_diag_v.begin() + N - count);
     }
 
     return curr_diag[N];

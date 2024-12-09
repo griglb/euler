@@ -250,6 +250,29 @@ int64_t BigInt::to_int() const {
 }
 
 
+double BigInt::to_double() const {
+	if (digits_.empty())
+		return 0;
+
+	if (is_negative_) {
+		double ret = -digits_.front();
+		for (size_t i = 1; i < digits_.size(); ++i) {
+			ret *= 10;
+			ret -= digits_[i];
+		}
+		return ret;
+	}
+	else {
+		double ret = digits_.front();
+		for (size_t i = 1; i < digits_.size(); ++i) {
+			ret *= 10;
+			ret += digits_[i];
+		}
+		return ret;
+	}
+}
+
+
 BigInt BigInt::sqrt() const {
 	// Test for negative self.
 	if (is_negative_)
@@ -1419,6 +1442,11 @@ BigInt operator%(BigInt lhs, const BigInt& rhs) {
 	BigInt ret{ lhs };
 	ret %= rhs;
 	return ret;
+}
+
+
+BigInt abs(BigInt value) {
+	return value.abs();
 }
 
 

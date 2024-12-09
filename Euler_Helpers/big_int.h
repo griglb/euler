@@ -36,6 +36,7 @@ public:
 	// Conversion operations
 	std::string to_string() const;
 	int64_t to_int() const;
+	double to_double() const;
 
 	BigInt sqrt() const;
 	bool is_perfect_square() const;
@@ -161,6 +162,8 @@ public:
 	friend BigInt operator%(BigInt lhs, int64_t rhs);
 	friend BigInt operator%(BigInt lhs, uint64_t rhs);
 	friend BigInt operator%(BigInt lhs, const BigInt& rhs);
+
+	friend BigInt abs(BigInt value);
 
 	friend std::ostream& operator<<(std::ostream& out, const BigInt& value);
 	friend std::istream& operator>>(std::istream& in, BigInt& value);

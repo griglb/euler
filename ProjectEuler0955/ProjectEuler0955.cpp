@@ -11,6 +11,7 @@
 // Find the index n such that a_n is the 70th triangle number in the sequence.
 
 
+#include <cmath>
 #include <iostream>
 #include <unordered_set>
 #include <vector>
@@ -96,14 +97,14 @@ private:
     }
 
     bool is_triangular(BigInt n) {
-        BigInt scaled = n * 8LL + 1LL;
+        static BigInt kScale{8};
+        static BigInt kOffset{1};
+        BigInt scaled = n * kScale + kOffset;
         return scaled.is_perfect_square();
     }
 
     uint64_t solve_64_bits(size_t tri_index) {
         while (tri_index > tri_indices_.size()) {
-            uint64_t a_T = a_n_;
-
             for (uint64_t k = 1; ; ++k) {
                 a_n_ += k;
                 if (is_triangular(a_n_)) {
@@ -119,8 +120,6 @@ private:
 
     uint64_t solve_big_int(size_t tri_index) {
         while (tri_index > big_tri_indices_.size()) {
-            BigInt a_T = big_a_n_;
-
             for (BigInt k = BigInt{ 1 }; ; ++k) {
                 big_a_n_ += k;
                 if (is_triangular(a_n_)) {
@@ -173,12 +172,15 @@ private:
     }
 
     bool is_triangular(const BigInt& n) {
+        static BigInt kScale{8};
+        static BigInt kOffset{1};
+
         // All triangular numbers end with one of { 0, 1, 3, 5, 6, 8 },
         // so if it ends with one of { 2, 4, 7, 9 } then we know it can't be.
         const int8_t last_digit = n.get_digits().back();
         if ((2 == last_digit) || (4 == last_digit) || (7 == last_digit) || (9 == last_digit))
             return false;
-        BigInt scaled = n * 8LL + 1LL;
+        BigInt scaled = n * kScale + kOffset;
         return scaled.is_perfect_square();
     }
 
@@ -189,7 +191,9 @@ private:
     }
 
     uint64_t get_index_of_triangle(const BigInt& t_n) {
-        BigInt scaled = t_n * 8LL + 1LL;
+        static BigInt kScale{8};
+        static BigInt kOffset{1};
+        BigInt scaled = t_n * kScale + kOffset;
         BigInt root = scaled.sqrt();
         return (root.to_int() - 1) / 2;
     }
@@ -221,6 +225,9 @@ private:
     }
 
     std::pair<uint64_t, BigInt> solve_big_int(size_t a_tri_count) {
+        static BigInt kIncrement{1};
+        static BigInt kScaleFactor{2};
+
         auto [small_a_index, small_last_tri] = solve_64_bits(kBiggest64BitIndex);
 
         uint64_t a_index = small_a_index;       // a_0 is first triangle number
@@ -228,9 +235,9 @@ private:
         BigInt last_tri{ small_last_tri };       // a_0 = 3
         BigInt tri_index{ get_index_of_triangle(last_tri) };      // a_0 = T(2) = 3
         while (a_tri_count > a_count) {
-            for (BigInt next_n = tri_index + 1LL; ; ++next_n) {
+            for (BigInt next_n = tri_index + kIncrement; ; ++next_n) {
                 // Calculate next triangle number.
-                BigInt t_n = next_n * (next_n + 1LL) / 2LL;
+                BigInt t_n = next_n * (next_n + kIncrement) / kScaleFactor;
                 // Check if the difference between latest and last known triangle is triangle.
                 const BigInt diff = t_n - last_tri;
                 if (is_triangular(diff)) {

@@ -320,6 +320,7 @@ BigInt BigInt::sqrt() const {
 
 
 BigInt BigInt::sqrt_Halley() const {
+	static BigInt kThree{3};
 	// Test for negative self.
 	if (is_negative_)
 		throw "Can't take square root of a negative number.";
@@ -361,11 +362,11 @@ BigInt BigInt::sqrt_Halley() const {
 		//    x_n+1 /= den
 		BigInt den{ x_n };
 		den *= x_n;
-		den *= 3;
+		den *= kThree;
 		den += *this;
 		BigInt x_np1{ x_n };
 		x_np1 *= x_n;
-		x_np1 += *this * 3LL;
+		x_np1 += *this * kThree;
 		x_np1 *= x_n;
 		x_np1 /= den;
 

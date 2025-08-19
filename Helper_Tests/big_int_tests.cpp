@@ -2,6 +2,7 @@
 
 #include <math.h>
 
+#include <chrono>
 #include <sstream>
 #include <vector>
 
@@ -305,6 +306,61 @@ TEST(BigInt, Sqrt) {
 		bi *= i;
 		EXPECT_EQ(bi.sqrt().to_int(), i);
 	}
+}
+
+TEST(BigInt, SqrtHalley) {
+	std::vector<int64_t> test_vals{ 0, 1, 4, 12, 144, 123456789, MaxInt64 };
+
+	for (const auto& value : test_vals) {
+		BigInt bi{ value };
+		EXPECT_EQ(bi.sqrt_Halley().to_int(), floor(sqrt(value)));
+	}
+
+	for (uint64_t i = 1; i < 1001; ++i) {
+		BigInt bi{ i };
+		EXPECT_EQ(bi.sqrt_Halley().to_int(), floor(sqrt(i)));
+
+		bi *= i;
+		EXPECT_EQ(bi.sqrt_Halley().to_int(), i);
+	}
+}
+
+TEST(BigInt, SqrtTiming) {
+	std::vector<BigInt> test_roots{ BigInt{123456789}, BigInt{134679258}, BigInt{172839456},
+									BigInt{987654321}, BigInt{938271654}, BigInt{333666999},
+									BigInt{MaxInt64}, BigInt{112233445566778899},
+									BigInt{998877665544332211}, BigInt{4242424242LL},
+									BigInt{3737373737LL}, BigInt{37373737373737} };
+	std::vector<BigInt> test_vals;
+	for (const auto& root : test_roots) {
+		test_vals.push_back(root * root);
+	}
+	size_t num_vals = test_vals.size();
+
+	std::chrono::time_point start1 = std::chrono::high_resolution_clock::now();
+
+	for (int count = 0; count < 100; ++count) {
+		for (int i = 0; i < num_vals; ++i) {
+			BigInt bi{ test_vals[i] };
+			EXPECT_EQ(bi.sqrt(), test_roots[i]);
+		}
+	}
+
+	std::chrono::time_point end1 = std::chrono::high_resolution_clock::now();
+
+	std::chrono::time_point start2 = std::chrono::high_resolution_clock::now();
+
+	for (int count = 0; count < 100; ++count) {
+		for (int i = 0; i < num_vals; ++i) {
+			BigInt bi{ test_vals[i] };
+			EXPECT_EQ(bi.sqrt_Halley(), test_roots[i]);
+		}
+	}
+
+	std::chrono::time_point end2 = std::chrono::high_resolution_clock::now();
+
+	std::cout << "Newton's method took " << (end1 - start1).count() << std::endl;
+	std::cout << "Halley's method took " << (end2 - start2).count() << std::endl;
 }
 
 TEST(BigInt, IsPerfectSquare) {

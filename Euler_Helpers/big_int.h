@@ -39,6 +39,7 @@ public:
 	double to_double() const;
 
 	BigInt sqrt() const;
+	BigInt sqrt_Halley() const;
 	bool is_perfect_square() const;
 
 	BigInt operator-() const;

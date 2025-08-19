@@ -5,6 +5,7 @@
 #include <algorithm>
 #include <cstdint>
 #include <list>
+#include <numeric>
 
 
 constexpr int64_t MinInt8{ INT8_MIN };
@@ -284,12 +285,7 @@ BigInt BigInt::sqrt() const {
 
 	// If a double can express my value exactly, then use built in sqrt().
 	if (digits_.size() < 15) {
-		double my_value{ 0 };
-		for (const auto& dig : digits_) {
-			my_value *= 10.0;
-			my_value += dig;
-		}
-		return BigInt{ std::sqrt(my_value) };
+		return BigInt{ std::sqrt(to_double()) };
 	}
 
 	// Use Newton's method for the square root.
@@ -323,9 +319,91 @@ BigInt BigInt::sqrt() const {
 }
 
 
+BigInt BigInt::sqrt_Halley() const {
+	// Test for negative self.
+	if (is_negative_)
+		throw "Can't take square root of a negative number.";
+
+	// Test for self equals 0, which causes divide by 0 errors.
+	if (digits_.empty())
+		return *this;
+
+	// If a double can express my value exactly, then use built in sqrt().
+	if (digits_.size() < 15) {
+		return BigInt{ std::sqrt(to_double()) };
+	}
+
+	// Use Halley's method for the square root.
+	//    f(x) = x^2 - R = 0
+	//    x_n+1 = x_n - 2f(x_n)f'(x_n)/{2(f'(x_n))^2 - f(x_n)f"(x_n)}
+	//	  f'(x) = 2x
+	//    f"(x) = 2
+	//    x_n+1 = x_n - 2(x_n^2 - R)(2x_n) / {2(2x_n)^2 - (x_n^2 - R)*2}
+	//    x_n+1 = x_n - (4x_n^3 - 4Rx_n) / {8x_n^2 - 2x_n^2 + 2R}
+	//    x_n+1 = x_n - (4x_n^3 - 4Rx_n) / (6x_n^2 + 2R)
+	//    x_n+1 = {x_n(6x_n^2 + 2R) - (4x_n^3 - 4Rx_n)} / (6x_n^2 + 2R)
+	//    x_n+1 = {6x_n^3 + 2Rx_n - 4x_n^3 + 4Rx_n} / (6x_n^2 + 2R)
+	//    x_n+1 = (2x_n^3 + 6Rx_n) / (6x_n^2 + 2R)
+	//    x_n+1 = x_n(x_n^2 + 3R) / (3x_n^2 + R)
+
+	BigInt x_n{ *this };
+	for (size_t count = 0; count < 1000; ++count) {
+		// We want x_n+1 = (x_n + this / x_n) / 2
+		// Can do this with a sequence of in-place operations:
+		//	  den = x_n
+		//    den *= x_n
+		//    den *= 3
+		//    den += this
+		//    x_n+1 = x_n
+		//    x_n+1 *= x_n
+		//    x_n+1 += 3 * this
+		//    x_n+1 *= x_n
+		//    x_n+1 /= den
+		BigInt den{ x_n };
+		den *= x_n;
+		den *= 3;
+		den += *this;
+		BigInt x_np1{ x_n };
+		x_np1 *= x_n;
+		x_np1 += *this * 3LL;
+		x_np1 *= x_n;
+		x_np1 /= den;
+
+		//        std::cout << i << "\t" << x_np1 << std::endl;
+
+		if (x_np1 == x_n)
+			break;
+
+		x_n = x_np1;
+	}
+
+	return x_n;
+}
+
+
 #if 1
 bool BigInt::is_perfect_square() const {
-//	std::cout << "is_perfect_square(" << *this << ")" << std::endl;
+	if (digits_.size() < 15) {
+		const uint64_t my_value = to_int();
+		const uint64_t root = std::sqrt(my_value);
+		return my_value == root * root;
+	}
+
+	// If the last digit is in {2, 3, 7, 8}, then not a square.
+	int8_t last_digit = digits_.back();
+	if ((2 == last_digit) || (3 == last_digit) || (7 == last_digit) ||
+		(8 == last_digit)) {
+		return false;
+	}
+
+	// If digital root (number mod 9) is in {2, 3, 5, 6, 8}, then not a square.
+	int64_t digital_root = std::accumulate(digits_.cbegin(), digits_.cend(), int64_t{ 0 });
+	digital_root %= 9;
+	if ((2 == digital_root) || (3 == digital_root) || (5 == digital_root) ||
+		(6 == digital_root) || (8 == digital_root)) {
+		return false;
+	}
+
 	BigInt root { sqrt() };
 	BigInt tmp{ root };
 	tmp *= root;

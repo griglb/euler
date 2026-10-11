@@ -14,7 +14,7 @@ PrimeHelper::PrimeHelper() {
     // factors_.push_back({ { 1,1 } });
     // factors_.push_back({ { 2,1 } });
     factors_[2] = { { 2,1 } };
-    primes_.push_back(2);
+    //primes_.push_back(2);
 }
 
 

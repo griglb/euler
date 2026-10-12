@@ -106,6 +106,7 @@ int64_t solve_it() {
     }
 
     std::cout << "The answer is " << sum << std::endl;
+    return sum;
 }
 
 int main()

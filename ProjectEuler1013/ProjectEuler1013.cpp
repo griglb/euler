@@ -4,6 +4,7 @@
 // and the sum of those divisors is divisible by 25.
 
 
+#include <cmath>
 #include <iostream>
 
 #include "prime_helper.h"
@@ -88,7 +89,7 @@ int64_t solve_it() {
         if (p >= 100) {
             break;
         }
-        const int64_t max_q = sqrt(sqrt(1E15 / p / p / p / p));
+        const int64_t max_q = std::sqrt(std::sqrt(1E15 / p / p / p / p));
         std::cout << "p = " << p << ", max_q = " << max_q << std::endl;
         for (int64_t q : primes) {
             if (q <= p) {
